@@ -100,7 +100,7 @@ function App() {
           audioMotion.setOptions({
             gradient: 'my-grad',
 // eslint-disable-next-line no-restricted-globals
-            height: screen.height / 4,
+            height: document.body.clientHeight / 4,
             showBgColor: false,
             overlay: true,
             mode: 6,
