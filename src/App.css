@@ -1,38 +1,73 @@
-.App {
+.HolyGrail-header,
+.HolyGrail-footer {
+  flex: none; /* 2 */
+}
+
+.HolyGrail-body {
+  display: flex;
+  flex: 1 0 auto; /* 2 */
+  flex-direction: column;
+  padding: 2em;
+}
+
+.HolyGrail-content {
+  margin-top: 2em;
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.HolyGrail-nav {
+  order: -1;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
+.HolyGrail-nav,
+.HolyGrail-ads {
+  padding: 1em;
+}
+
+@media (min-width: 768px) {
+  .HolyGrail-body {
+    flex-direction: row;
+  }
+  .HolyGrail-content {
+    flex: 1;
+    padding: 0 4em;
+    margin: 0;
+  }
+  .HolyGrail-nav,
+  .HolyGrail-ads {
+    flex: 0 0 12em;
   }
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+h1 {
+  font-size: 3em;
+  color: #F2B680;
 }
 
-.App-link {
-  color: #61dafb;
+h2 {
+  font-size: 2em;
+  color: #D98C5F;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+h3 {
+  font-size: 1em;
+  color: #35748C;
+}
+
+.btn-start {
+  background: #F2B680;
+  border-radius: 5px;
+  color: #ffffff;
+  border: 0;
+  padding: 1em 2em;
+  font-size: 2em;
+}
+
+.btn-stop {
+  background: #35748C;
+  border-radius: 5px;
+  color: #ffffff;
+  border: 0;
+  padding: 0.5em 1em;
+  font-size: 1em;
 }
