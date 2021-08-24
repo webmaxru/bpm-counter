@@ -22,6 +22,7 @@
 .HolyGrail-nav,
 .HolyGrail-ads {
   padding: 1em;
+  color: #0D4C73;
 }
 
 @media (min-width: 768px) {
@@ -36,7 +37,6 @@
   .HolyGrail-nav,
   .HolyGrail-ads {
     flex: 0 0 12em;
-    color: #0D4C73;
   }
 }
 
