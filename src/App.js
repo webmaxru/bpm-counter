@@ -169,7 +169,7 @@ function App() {
           ) : null}
         </main>
         <nav className="HolyGrail-nav"></nav>
-        <aside className="HolyGrail-ads"></aside>
+        <aside className="HolyGrail-ads" onClick={stopListening}>{threshold}</aside>
       </div>
       <footer>
         <div id="AudioMotionAnalyzer" className="analyzer"></div>
