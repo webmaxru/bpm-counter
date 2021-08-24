@@ -99,9 +99,9 @@ function App() {
 
           audioMotion.setOptions({
             gradient: 'my-grad',
-            height: window.innerHeight / 3,
-            showBgColor: true,
-            overlay: false,
+            height: screen.height / 4,
+            showBgColor: false,
+            overlay: true,
             mode: 6,
             lumiBars: false,
             showLeds: true,
