@@ -69,8 +69,8 @@ function App() {
 
           if (bpm && bpm.length) {
             setThreshold(Math.round(threshold * 100) / 100);
-            setPrimaryBPM(`${bpm[0].tempo}`);
-            setSecondaryBPM(`${bpm[1].tempo}`);
+            setPrimaryBPM(`${bpm[0].count > bpm[1].count ? bpm[0].tempo : bpm[1].tempo}`);
+            setSecondaryBPM(`${bpm[0].count > bpm[1].count ? bpm[1].tempo : bpm[0].tempo}`);
 
             console.log(
               `BPM: #1 ${bpm[0].tempo} - ${bpm[0].count}, #2 ${bpm[1].tempo} - ${bpm[1].count}, ${threshold}`
@@ -165,12 +165,12 @@ function App() {
           {isShowingResults ? (
             <div>
               <h1>{primaryBPM}</h1>
-              <h2>{secondaryBPM}</h2>
+              <h2>BPM</h2>
             </div>
           ) : null}
         </main>
         <nav className="HolyGrail-nav"></nav>
-        <aside className="HolyGrail-ads" onClick={stopListening}>{threshold}</aside>
+        <aside className="HolyGrail-ads"></aside>
       </div>
       <footer>
         <div id="AudioMotionAnalyzer" className="analyzer"></div>
