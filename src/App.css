@@ -22,7 +22,7 @@
 .HolyGrail-nav,
 .HolyGrail-ads {
   padding: 1em;
-  color: #0D4C73;
+  color: #0d4c73;
 }
 
 @media (min-width: 768px) {
@@ -40,23 +40,36 @@
   }
 }
 
-h1 {
-  font-size: 3em;
-  color: #F2B680;
-}
-
 h2 {
-  font-size: 2em;
-  color: #D98C5F;
+  font-size: 8em;
+  color: #f2b680;
+  margin-bottom: 0;
+  line-height: 0.5em;
 }
 
 h3 {
+  font-size: 2em;
+  color: #d98c5f;
+  margin-bottom: 3em;
+}
+
+header {
+  color: #ffffff;
+  text-align: center;
+}
+
+h1 {
   font-size: 1em;
-  color: #35748C;
+}
+
+footer {
+  font-size: 0.5em;
+  color: #35748c;
+  text-align: center;
 }
 
 .btn-start {
-  background: #F2B680;
+  background: #f2b680;
   border-radius: 5px;
   color: #ffffff;
   border: 0;
@@ -65,7 +78,7 @@ h3 {
 }
 
 .btn-stop {
-  background: #35748C;
+  background: #35748c;
   border-radius: 5px;
   color: #ffffff;
   border: 0;

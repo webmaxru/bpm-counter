@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import './App.css';
 import { useState } from 'react';
 import RealTimeBPMAnalyzer from 'realtime-bpm-analyzer';
@@ -21,23 +22,23 @@ function App() {
   };
 
   const [threshold, setThreshold] = useState(0);
-  const [primaryBPM, setPrimaryBPM] = useState(`Listening...`);
+  const [primaryBPM, setPrimaryBPM] = useState(``);
   const [secondaryBPM, setSecondaryBPM] = useState(``);
   const [isListening, setIsListening] = useState(false);
 
   const [isShowingInit, setIsShowingInit] = useState(true);
-  const [isShowingResults, setIsShowingResults] = useState(false);
 
   const stopListening = () => {
-    input.disconnect(scriptProcessorNode);
+    /*     input.disconnect(scriptProcessorNode);
     scriptProcessorNode.disconnect(context.destination);
     context.resume().then(() => {
       setIsListening(false);
-      setIsShowingResults(false);
       setIsShowingInit(true);
     });
 
-    audioMotion.disconnectInput();
+    audioMotion.disconnectInput(); */
+
+    window.location.reload();
   };
 
   const startListening = () => {
@@ -69,8 +70,12 @@ function App() {
 
           if (bpm && bpm.length) {
             setThreshold(Math.round(threshold * 100) / 100);
-            setPrimaryBPM(`${bpm[0].count > bpm[1].count ? bpm[0].tempo : bpm[1].tempo}`);
-            setSecondaryBPM(`${bpm[0].count > bpm[1].count ? bpm[1].tempo : bpm[0].tempo}`);
+            setPrimaryBPM(
+              `${bpm[0].count > bpm[1].count ? bpm[0].tempo : bpm[1].tempo}`
+            );
+            setSecondaryBPM(
+              `${bpm[0].count > bpm[1].count ? bpm[1].tempo : bpm[0].tempo}`
+            );
 
             console.log(
               `BPM: #1 ${bpm[0].tempo} - ${bpm[0].count}, #2 ${bpm[1].tempo} - ${bpm[1].count}, ${threshold}`
@@ -99,8 +104,7 @@ function App() {
 
           audioMotion.setOptions({
             gradient: 'my-grad',
-// eslint-disable-next-line no-restricted-globals
-            height: document.body.clientHeight / 4,
+            height: window.innerHeight / 3,
             showBgColor: false,
             overlay: true,
             mode: 6,
@@ -126,7 +130,6 @@ function App() {
           onStream(stream);
 
           setIsListening(true);
-          setIsShowingResults(true);
           setIsShowingInit(false);
         })
         .catch((e) => {
@@ -148,7 +151,7 @@ function App() {
 
   return (
     <>
-      <header></header>
+      <header><h1>BPM Techno &mdash; Real-Time BPM Counter</h1></header>
       <div className="HolyGrail-body">
         <main className="HolyGrail-content">
           {isShowingInit ? (
@@ -160,14 +163,19 @@ function App() {
               >
                 Start listening
               </button>
+
+              <p>You will be asked to provide access to your microphone. We do not send any audio stream data to the servers.</p>
             </div>
-          ) : null}
-          {isShowingResults ? (
+          ) : (
             <div>
-              <h1>{primaryBPM}</h1>
-              <h2>BPM</h2>
+              <h2>{primaryBPM}</h2>
+              <h3>{primaryBPM ? 'BPM' : 'Listening...'}</h3>
+
+              <button onClick={stopListening} className="btn-stop">
+                Reset
+              </button>
             </div>
-          ) : null}
+          )}
         </main>
         <nav className="HolyGrail-nav"></nav>
         <aside className="HolyGrail-ads"></aside>
