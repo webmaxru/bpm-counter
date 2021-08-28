@@ -27,6 +27,7 @@ function App() {
   const [isListening, setIsListening] = useState(false);
 
   const [isShowingInit, setIsShowingInit] = useState(true);
+  const [isResultReady, setIsResultReady] = useState(false);
 
   const stopListening = () => {
     /*     input.disconnect(scriptProcessorNode);
@@ -38,7 +39,55 @@ function App() {
 
     audioMotion.disconnectInput(); */
 
+    setIsListening(false);
+    setIsShowingInit(true);
     window.location.reload();
+  };
+
+  const onStream = (stream) => {
+    input = context.createMediaStreamSource(stream);
+    scriptProcessorNode = context.createScriptProcessor(4096, 1, 1);
+    input.connect(scriptProcessorNode);
+    scriptProcessorNode.connect(context.destination);
+
+    const onAudioProcess = new RealTimeBPMAnalyzer({
+      debug: true,
+      scriptNode: {
+        bufferSize: 4096,
+        numberOfInputChannels: 1,
+        numberOfOutputChannels: 1,
+      },
+      computeBPMDelay: 5000,
+      stabilizationTime: 10000,
+      continuousAnalysis: true,
+      pushTime: 1000,
+      pushCallback: (err, bpm, threshold) => {
+        if (err) {
+          console.error(`${err.name}: ${err.message}`);
+
+          setIsResultReady(false);
+          return;
+        }
+
+        if (bpm && bpm.length) {
+          setIsResultReady(true);
+          setThreshold(Math.round(threshold * 100) / 100);
+
+          setPrimaryBPM(`${bpm[0].tempo}`);
+          setSecondaryBPM(`${bpm[1].tempo}`);
+
+          console.table(bpm);
+          console.log(`Threshold, ${threshold}`);
+        }
+      },
+      onBpmStabilized: (threshold) => {
+        onAudioProcess.clearValidPeaks(threshold);
+      },
+    });
+
+    scriptProcessorNode.onaudioprocess = (e) => {
+      onAudioProcess.analyze(e);
+    };
   };
 
   const startListening = () => {
@@ -47,50 +96,6 @@ function App() {
       window.mozAudioContext ||
       window.webkitAudioContext;
     context = new window.AudioContext();
-
-    const onStream = (stream) => {
-      input = context.createMediaStreamSource(stream);
-      scriptProcessorNode = context.createScriptProcessor(4096, 1, 1);
-      input.connect(scriptProcessorNode);
-      scriptProcessorNode.connect(context.destination);
-
-      const onAudioProcess = new RealTimeBPMAnalyzer({
-        debug: true,
-        scriptNode: {
-          bufferSize: 4096,
-          numberOfInputChannels: 1,
-          numberOfOutputChannels: 1,
-        },
-        computeBPMDelay: 5000,
-        stabilizationTime: 10000,
-        continuousAnalysis: true,
-        pushTime: 1000,
-        pushCallback: function (err, bpm, threshold) {
-          if (err) throw err;
-
-          if (bpm && bpm.length) {
-            setThreshold(Math.round(threshold * 100) / 100);
-            setPrimaryBPM(
-              `${bpm[0].count > bpm[1].count ? bpm[0].tempo : bpm[1].tempo}`
-            );
-            setSecondaryBPM(
-              `${bpm[0].count > bpm[1].count ? bpm[1].tempo : bpm[0].tempo}`
-            );
-
-            console.log(
-              `BPM: #1 ${bpm[0].tempo} - ${bpm[0].count}, #2 ${bpm[1].tempo} - ${bpm[1].count}, ${threshold}`
-            );
-          }
-        },
-        onBpmStabilized: (threshold) => {
-          onAudioProcess.clearValidPeaks(threshold);
-        },
-      });
-
-      scriptProcessorNode.onaudioprocess = function (e) {
-        onAudioProcess.analyze(e);
-      };
-    };
 
     if (navigator.mediaDevices.getUserMedia) {
       navigator.mediaDevices
@@ -104,7 +109,7 @@ function App() {
 
           audioMotion.setOptions({
             gradient: 'my-grad',
-            height: window.innerHeight / 3,
+            height: window.innerHeight / 4,
             showBgColor: false,
             overlay: true,
             mode: 6,
@@ -122,9 +127,7 @@ function App() {
 
           const micStream =
             audioMotion.audioCtx.createMediaStreamSource(stream);
-          // connect microphone stream to analyzer
           audioMotion.connectInput(micStream);
-          // mute output to prevent feedback loops from the speakers
           audioMotion.volume = 0;
 
           onStream(stream);
@@ -132,8 +135,8 @@ function App() {
           setIsListening(true);
           setIsShowingInit(false);
         })
-        .catch((e) => {
-          console.log(e.name + ': ' + e.message);
+        .catch((err) => {
+          console.error(`${err.name}: ${err.message}`);
         });
     } else {
       navigator.getUserMedia =
@@ -141,17 +144,17 @@ function App() {
         navigator.webkitGetUserMedia ||
         navigator.mozGetUserMedia ||
         navigator.msGetUserMedia;
-      navigator.getUserMedia(
-        { audio: true },
-        onStream.bind(this),
-        function () {}
-      );
+      navigator.getUserMedia({ audio: true }, onStream.bind(this), (err) => {
+        console.error(`${err.name}: ${err.message}`);
+      });
     }
   };
 
   return (
     <>
-      <header><h1>BPM Techno &mdash; Real-Time BPM Counter</h1></header>
+      <header>
+        <h1>BPM Techno &mdash; Real-Time BPM Counter</h1>
+      </header>
       <div className="HolyGrail-body">
         <main className="HolyGrail-content">
           {isShowingInit ? (
@@ -164,15 +167,38 @@ function App() {
                 Start listening
               </button>
 
-              <p>You will be asked to provide access to your microphone. We do not send any audio stream data to the servers.</p>
+              <p>You will be asked to provide access to your microphone.</p>
+              <p>App does not send any audio stream data to the servers.</p>
             </div>
           ) : (
             <div>
-              <h2>{primaryBPM}</h2>
-              <h3>{primaryBPM ? 'BPM' : 'Listening...'}</h3>
+              <h2 style={{ opacity: threshold + 0.4 }}>
+                {isResultReady ? primaryBPM : ''}
+              </h2>
+              <h3>{isResultReady ? 'BPM' : 'Listening...'}</h3>
+
+              {isResultReady ? (
+                <h4>
+                  <small>or </small>
+                  {secondaryBPM}
+                  <small> BPM</small>
+                </h4>
+              ) : (
+                ''
+              )}
+
+              {!isResultReady && primaryBPM ? (
+                <h4>
+                  <small>Last: </small>
+                  {primaryBPM}
+                  <small> BPM</small>
+                </h4>
+              ) : (
+                ''
+              )}
 
               <button onClick={stopListening} className="btn-stop">
-                Reset
+                Start over
               </button>
             </div>
           )}
@@ -182,6 +208,11 @@ function App() {
       </div>
       <footer>
         <div id="AudioMotionAnalyzer" className="analyzer"></div>
+        <p>
+          Made in 🇳🇴&nbsp; by{' '}
+          <a href="https://twitter.com/webmaxru/">Maxim Salnikov</a> |{' '}
+          <a href="https://github.com/webmaxru/bpm-counter">GitHub</a>
+        </p>
       </footer>
     </>
   );
