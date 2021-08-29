@@ -9,6 +9,7 @@ function App() {
   let input;
   let scriptProcessorNode;
   let audioMotion;
+  let bufferSize = 16384;
 
   const audioMotionGradientOptions = {
     bgColor: '#0D4C73',
@@ -46,14 +47,15 @@ function App() {
 
   const onStream = (stream) => {
     input = context.createMediaStreamSource(stream);
-    scriptProcessorNode = context.createScriptProcessor(4096, 1, 1);
+    scriptProcessorNode = context.createScriptProcessor(bufferSize, 1, 1);
+
     input.connect(scriptProcessorNode);
     scriptProcessorNode.connect(context.destination);
 
     const onAudioProcess = new RealTimeBPMAnalyzer({
       debug: true,
       scriptNode: {
-        bufferSize: 4096,
+        bufferSize: bufferSize,
         numberOfInputChannels: 1,
         numberOfOutputChannels: 1,
       },
@@ -101,36 +103,38 @@ function App() {
       navigator.mediaDevices
         .getUserMedia({ audio: true })
         .then((stream) => {
-          audioMotion = new AudioMotionAnalyzer(
-            document.getElementById('AudioMotionAnalyzer')
-          );
-
-          audioMotion.registerGradient('my-grad', audioMotionGradientOptions);
-
-          audioMotion.setOptions({
-            gradient: 'my-grad',
-            height: window.innerHeight / 4,
-            showBgColor: false,
-            overlay: true,
-            mode: 6,
-            lumiBars: false,
-            showLeds: true,
-            showScaleX: false,
-            loRes: true,
-          });
-
-          audioMotion.setLedParams({
-            maxLeds: 20,
-            spaceV: 1,
-            spaceH: 2,
-          });
-
-          const micStream =
-            audioMotion.audioCtx.createMediaStreamSource(stream);
-          audioMotion.connectInput(micStream);
-          audioMotion.volume = 0;
-
           onStream(stream);
+
+          if (context.sampleRate <= 44100) {
+            audioMotion = new AudioMotionAnalyzer(
+              document.getElementById('AudioMotionAnalyzer')
+            );
+
+            audioMotion.registerGradient('my-grad', audioMotionGradientOptions);
+
+            audioMotion.setOptions({
+              gradient: 'my-grad',
+              height: window.innerHeight / 4,
+              showBgColor: false,
+              overlay: true,
+              mode: 6,
+              lumiBars: false,
+              showLeds: true,
+              showScaleX: false,
+              loRes: true,
+            });
+
+            audioMotion.setLedParams({
+              maxLeds: 20,
+              spaceV: 1,
+              spaceH: 2,
+            });
+
+            const micStream =
+              audioMotion.audioCtx.createMediaStreamSource(stream);
+            audioMotion.connectInput(micStream);
+            audioMotion.volume = 0;
+          }
 
           setIsListening(true);
           setIsShowingInit(false);
