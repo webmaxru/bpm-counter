@@ -1,0 +1,35 @@
+.content {
+    text-align: center;
+  }
+
+  .btn-start {
+    background: #f2b680;
+    border-radius: 5px;
+    color: #ffffff;
+    border: 0;
+    padding: 0.5em 1em;
+    font-size: 2em;
+  }
+  
+  .btn-stop {
+    background: #35748c;
+    border-radius: 5px;
+    color: #ffffff;
+    border: 0;
+    padding: 0.5em 1em;
+    font-size: 1em;
+    margin-top: 2em;
+  }
+
+  @media (min-width: 768px) {
+    .btn-start {
+      padding: 1em 2em;
+    }
+
+    .content {
+      flex: 1;
+      padding: 0 4em;
+      margin: 0;
+    }
+
+  }

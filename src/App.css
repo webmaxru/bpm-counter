@@ -1,9 +1,4 @@
-.HolyGrail-header,
-.HolyGrail-footer {
-  flex: none; /* 2 */
-}
-
-.HolyGrail-body {
+.body {
   display: flex;
   flex: 1 0 auto; /* 2 */
   flex-direction: column;
@@ -12,52 +7,19 @@
   justify-content: center;
 }
 
-.HolyGrail-content {
-  text-align: center;
-}
-
-.HolyGrail-nav {
+.nav {
   order: -1;
 }
 
-.HolyGrail-nav,
-.HolyGrail-ads {
+.nav,
+.ads {
   padding: 1em;
   color: #0d4c73;
-}
-
-a {
-  color: #ffffff;
-}
-
-h2 {
-  font-size: 8em;
-  color: #f2b680;
-  margin: 0;
-  line-height: 0.5em;
-}
-
-h3 {
-  font-size: 2em;
-  color: #d98c5f;
-  margin-bottom: 1em;
-  line-height: 0.5em;
-}
-
-h4 {
-  font-size: 3em;
-  color: #35748c;
-  margin-bottom: 0;
-  line-height: 0.5em;
 }
 
 header {
   color: #ffffff;
   text-align: center;
-}
-
-h1 {
-  font-size: 1em;
 }
 
 footer p {
@@ -69,40 +31,13 @@ footer p {
   margin: 0;
 }
 
-.btn-start {
-  background: #f2b680;
-  border-radius: 5px;
-  color: #ffffff;
-  border: 0;
-  padding: 0.5em 1em;
-  font-size: 2em;
-}
-
-.btn-stop {
-  background: #35748c;
-  border-radius: 5px;
-  color: #ffffff;
-  border: 0;
-  padding: 0.5em 1em;
-  font-size: 1em;
-  margin-top: 2em;
-}
-
 @media (min-width: 768px) {
-  .btn-start {
-    padding: 1em 2em;
-  }
-
-  .HolyGrail-body {
+  .body {
     flex-direction: row;
   }
-  .HolyGrail-content {
-    flex: 1;
-    padding: 0 4em;
-    margin: 0;
-  }
-  .HolyGrail-nav,
-  .HolyGrail-ads {
+
+  .nav,
+  .ads {
     flex: 0 0 12em;
   }
 }
