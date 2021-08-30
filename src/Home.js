@@ -7,12 +7,13 @@ import AudioMotionAnalyzer from 'audiomotion-analyzer';
 function Home(props) {
   let log = props.log;
 
-  let isMobile = props.isMobile;
+  const isMobile = props.isMobile;
+  const isForcedViz = props.isForcedViz;
 
   let context;
   let input;
   let scriptProcessorNode;
-  let bufferSize = isMobile ? 16384 : 4096;
+  const bufferSize = isMobile ? 16384 : 4096;
 
   const startListening = async () => {
     if (navigator.mediaDevices.getUserMedia) {
@@ -26,7 +27,7 @@ function Home(props) {
 
         onStream(stream);
 
-        if (!isMobile) {
+        if (!isMobile || isForcedViz) {
           const audioMotionGradientOptions = {
             bgColor: '#0D4C73',
             dir: 'v',

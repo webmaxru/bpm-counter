@@ -2,11 +2,12 @@
 import './App.css';
 import Home from './Home.js';
 import log from 'loglevel';
-import { BrowserView, isMobile } from 'react-device-detect';
+import { isMobile } from 'react-device-detect';
 
 function App() {
   const query = new URLSearchParams(window.location.search);
   const isDebug = query.get('debug') === 'true';
+  const isForcedViz = query.get('viz') === 'true';
   log.setDefaultLevel(isDebug ? 'info' : 'error');
 
   return (
@@ -15,14 +16,17 @@ function App() {
         <h1>BPM Techno &mdash; Real-Time BPM Counter</h1>
       </header>
       <div className="body">
-        <Home isDebug={isDebug} log={log} isMobile={isMobile}></Home>
+        <Home
+          isDebug={isDebug}
+          log={log}
+          isMobile={isMobile}
+          isForcedViz={isForcedViz}
+        ></Home>
         <nav className="nav"></nav>
         <aside className="ads"></aside>
       </div>
       <footer>
-        <BrowserView>
-          <div id="AudioMotionAnalyzer" className="analyzer"></div>
-        </BrowserView>
+        <div id="AudioMotionAnalyzer" className="analyzer"></div>
 
         {!isDebug ? (
           <p>
