@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 import './Home.css';
-import { useState, useEffect } from 'react';
+import Feedback from './Feedback.js';
+import { useState } from 'react';
 import RealTimeBPMAnalyzer from 'realtime-bpm-analyzer';
 import AudioMotionAnalyzer from 'audiomotion-analyzer';
 
@@ -158,7 +159,7 @@ function Home(props) {
       ) : (
         <div>
           <h2 style={{ opacity: threshold + 0.4 }}>
-            {isResultReady ? primaryBPM : ''}
+            {isResultReady ? primaryBPM : null}
           </h2>
           <h3>{isResultReady ? 'BPM' : 'Listening...'}</h3>
 
@@ -169,7 +170,7 @@ function Home(props) {
               <small> BPM</small>
             </h4>
           ) : (
-            ''
+            null
           )}
 
           {!isResultReady && primaryBPM ? (
@@ -179,12 +180,20 @@ function Home(props) {
               <small> BPM</small>
             </h4>
           ) : (
-            ''
+            null
           )}
 
           <button onClick={stopListening} className="btn-stop">
             Start over
           </button>
+
+          {primaryBPM ? (
+            <Feedback bpm={primaryBPM} log={log}></Feedback>
+          ) : (
+            null
+          )}
+
+          
         </div>
       )}
     </main>

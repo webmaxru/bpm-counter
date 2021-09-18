@@ -1,0 +1,29 @@
+{
+  "bindings": [
+    {
+      "authLevel": "anonymous",
+      "type": "httpTrigger",
+      "direction": "in",
+      "name": "req",
+      "methods": [
+        "post"
+      ]
+    },
+    {
+      "type": "http",
+      "direction": "out",
+      "name": "res"
+    },
+    {
+      "type": "cosmosDB",
+      "direction": "out",
+      "name": "outputDocument",
+      "databaseName": "bpmcounter-db",
+      "collectionName": "feedback",
+      "createIfNotExists": true,
+      "connectionStringSetting": "bpmcounterdb_DOCUMENTDB",
+      "partitionKey": "bpm",
+      "collectionThroughput": ""
+    }
+  ]
+}
