@@ -20,15 +20,15 @@
       },
       {
         "route": "/login",
-        "rewrite": "/.auth/login/github"
+        "rewrite": "/.auth/login/twitter"
       },
       {
-        "route": "/.auth/login/twitter",
+        "route": "/.auth/login/github",
         "statusCode": 404
       },
       {
         "route": "/logout",
-        "redirect": "/.auth/logout"
+        "redirect": "/.auth/logout?post_logout_redirect_uri=/about"
       },
       {
         "route": "/aboutme",
@@ -42,14 +42,14 @@
     },
     "responseOverrides": {
       "400": {
-        "rewrite": "/invalid-invitation-error.html"
+        "rewrite": "/400.html"
       },
       "401": {
         "redirect": "/login",
         "statusCode": 302
       },
       "403": {
-        "rewrite": "/custom-forbidden-page.html"
+        "rewrite": "/400.html"
       },
       "404": {
         "rewrite": "/404.html"

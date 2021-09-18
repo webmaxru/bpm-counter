@@ -35,6 +35,8 @@ const navigationRoute = new NavigationRoute(navHandler, {
     new RegExp('/logout'),
     new RegExp('/.auth'),
     new RegExp('/aboutme'),
+    new RegExp('/400.html'),
+    new RegExp('/404.html'),
   ], // Also might be specified explicitly via allowlist
 });
 registerRoute(navigationRoute);
