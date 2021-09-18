@@ -18,12 +18,10 @@
       "type": "cosmosDB",
       "direction": "out",
       "name": "outputDocument",
-      "databaseName": "bpmcounter-db",
+      "databaseName": "bpmtech-db",
       "collectionName": "feedback",
       "createIfNotExists": true,
-      "connectionStringSetting": "bpmcounterdb_DOCUMENTDB",
-      "partitionKey": "bpm",
-      "collectionThroughput": ""
+      "connectionStringSetting": "bpmcounterdbaccount_DOCUMENTDB"
     }
   ]
 }

@@ -28,7 +28,14 @@ precacheAndRoute(self.__WB_MANIFEST);
 // This assumes /index.html has been precached.
 const navHandler = createHandlerBoundToURL('/index.html');
 const navigationRoute = new NavigationRoute(navHandler, {
-  denylist: [new RegExp('/account/'), new RegExp('/admin/')], // Also might be specified explicitly via allowlist
+  denylist: [
+    new RegExp('/account'),
+    new RegExp('/admin'),
+    new RegExp('/login'),
+    new RegExp('/logout'),
+    new RegExp('/.auth'),
+    new RegExp('/aboutme'),
+  ], // Also might be specified explicitly via allowlist
 });
 registerRoute(navigationRoute);
 

@@ -78,11 +78,11 @@ function App() {
         <aside className="ads"></aside>
       </div>
       <footer>
-        <div id="AudioMotionAnalyzer" className="analyzer"></div>
+        <div id="AudioMotionAnalyzer"></div>
 
         {!isDebug ? (
           <p>
-            Made in <span className="emoji">🇳🇴</span>&nbsp; by&nbsp;
+            Made in 🇳🇴&nbsp; by&nbsp;
             <a href="https://twitter.com/webmaxru/">Maxim Salnikov</a> |&nbsp;
             <a href="https://github.com/webmaxru/bpm-counter">GitHub</a>
           </p>

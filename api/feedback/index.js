@@ -1,5 +1,5 @@
 module.exports = async function (context, req) {
-  if (!req.body || !req.body.bpm || !req.body.isCorrect) {
+  if (!req.body || !('bpm' in req.body) || !('isCorrect' in req.body)) {
     context.res = { status: 404, body: 'No required parameter!' };
     context.done();
   }
