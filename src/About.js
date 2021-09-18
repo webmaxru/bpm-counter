@@ -1,4 +1,26 @@
+import React, { useState } from 'react';
+
 function About() {
+  const [clientPrincipal, setClientPrincipal] = useState(null);
+
+  async function fetchClientPrincipal() {
+    try {
+      const res = await fetch('/.auth/me');
+      const json = await res.json();
+      if (json.clientPrincipal) {
+        setClientPrincipal(json.clientPrincipal);
+      }
+    } catch (e) {
+      if (window.location.hostname === 'localhost') {
+        console.warn(
+          "Can't access the auth endpoint. For local development, please use the Static Web Apps CLI to emulate authentication: https://github.com/azure/static-web-apps-cli"
+        );
+      } else {
+        console.error(`Failed to unpack JSON.`, e);
+      }
+    }
+  }
+
   return (
     <main className="content">
       <p>
@@ -34,91 +56,99 @@ function About() {
           </ul>
         </li>
         <li>
-          <b>Pre-production environments</b>
-
+          <b>Pre-production environments</b> |{' '}
+          <a href="https://docs.microsoft.com/en-us/azure/static-web-apps/review-publish-pull-requests">
+            Quickstarts
+          </a>
           <ul>
             <li>
               <a href="https://github.com/webmaxru/bpm-counter/pulls">
                 Pull requests
               </a>
             </li>
-            <li>
-              <a href="https://docs.microsoft.com/en-us/azure/static-web-apps/review-publish-pull-requests">
-                Quickstarts
-              </a>
-            </li>
           </ul>
         </li>
         <li>
-          <b>Creating API</b>
-
-          <ul>
-            <li>
-              <a href="/api/Greet?name=NDC">Test</a>
-            </li>
-            <li>
-              <a href="https://docs.microsoft.com/en-us/azure/static-web-apps/add-api">
-                Quickstarts
-              </a>
-            </li>
-          </ul>
+          <b>Creating API</b> |{' '}
+          <a href="https://docs.microsoft.com/en-us/azure/static-web-apps/add-api">
+            Quickstarts
+          </a>
         </li>
         <li>
-          <b>Authentication</b>
-
+          <b>Authentication</b> |{' '}
+          <a href="https://docs.microsoft.com/en-us/azure/static-web-apps/authentication-authorization">
+            Quickstarts
+          </a>
           <p>Use /.auth/ helpers</p>
-
-          <ul>
-            <li>
-              <a href=".auth/login/github">Log in with GitHub</a>
-            </li>
-            <li>
-              <a href=".auth/login/twitter">Log in with Twitter</a>
-            </li>
-            <li>
-              <a href=".auth/login/github?post_login_redirect_uri=/profile">
-                Log in with a redirect to /profile
-              </a>
-            </li>
-            <li>
-              <a href=".auth/me">Check status</a>
-            </li>
-            <li>
-              <a href=".auth/logout">Log out</a>
-            </li>
-            <li>
-              <a href="https://docs.microsoft.com/en-us/azure/static-web-apps/authentication-authorization">
-                Quickstarts
-              </a>
-            </li>
-          </ul>
+          <pre>/.auth/login/twitter</pre>
+          <a href=".auth/login/twitter">Log in with Twitter</a>
+          <br />
+          <br />
+          <pre>/.auth/login/github</pre>
+          <a href=".auth/login/github">Log in with GitHub</a>
+          <br />
+          <br />
+          <pre>/.auth/login/github?post_login_redirect_uri=/account</pre>
+          <a href="/.auth/login/github?post_login_redirect_uri=/account">
+            Log in with redirect to account
+          </a>
+          <br />
+          <br />
+          <pre>/.auth/logout</pre>
+          <a href=".auth/logout">Log out</a>
+          <br />
+          <br />
+          <pre>/.auth/me</pre>
+          <button className="button" onClick={fetchClientPrincipal}>
+            Fetch data
+          </button>
+          {clientPrincipal ? (
+            <>
+              <br />
+              <br />
+              <ul>
+                <li>identityProvider: {clientPrincipal.identityProvider}</li>
+                <li>userId: {clientPrincipal.userId}</li>
+                <li>userDetails: {clientPrincipal.userDetails}</li>
+                <li>userRoles: {clientPrincipal.userRoles.join(', ')}</li>
+              </ul>
+            </>
+          ) : null}
+          <br />
+          <br />
         </li>
         <li>
-          <b>Routes</b>
-
-          <p>Use routes.json in the app route</p>
-
-          <ul>
-            <li>
-              <a href="https://github.com/webmaxru/bpm-counter/blob/master/src/assets/routes.json">
-                Sample file
-              </a>
-            </li>
-            <li>
-              <a href="/login">Test /login</a>
-            </li>
-            <li>
-              <a href="/admin">Test /admin</a>
-            </li>
-            <li>
-              <a href="/profile">Test /profile</a>
-            </li>
-            <li>
-              <a href="https://docs.microsoft.com/en-us/azure/static-web-apps/routes">
-                Quickstarts
-              </a>
-            </li>
-          </ul>
+          <b>Routes</b> |{' '}
+          <a href="https://docs.microsoft.com/en-us/azure/static-web-apps/routes">
+            Quickstarts
+          </a>
+          <p>
+            Use staticwebapp.config.json (
+            <a href="https://github.com/webmaxru/bpm-counter/blob/main/src/staticwebapp.config.json">
+              sample
+            </a>
+            ) in the app route
+          </p>
+          <pre>/login</pre>
+          <a href="/login">Log in</a>
+          <br />
+          <br />
+          <pre>/logout</pre>
+          <a href="/logout">Log out</a>
+          <br />
+          <br />
+          <pre>/account</pre>
+          <a href="/account">Account - for "authenticated" only</a>
+          <br />
+          <br />
+          <pre>/admin</pre>
+          <a href="/admin">Admin - for "administrator" only</a>
+          <br />
+          <br />
+          <pre>/aboutme</pre>
+          <a href="/aboutme">Redirect 301</a>
+          <br />
+          <br />
         </li>
       </ol>
 

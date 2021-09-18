@@ -37,12 +37,22 @@ function Account() {
       ) : (
         <>
           {clientPrincipal ? (
-            <ul>
-              <li>identityProvider: {clientPrincipal.identityProvider}</li>
-              <li>userId: {clientPrincipal.userId}</li>
-              <li>userDetails: {clientPrincipal.userDetails}</li>
-              <li>userRoles: {clientPrincipal.userRoles.join(", ")}</li>
-            </ul>
+            <>
+              <pre>/.auth/me</pre>
+              <ul>
+                <li>identityProvider: {clientPrincipal.identityProvider}</li>
+                <li>userId: {clientPrincipal.userId}</li>
+                <li>userDetails: {clientPrincipal.userDetails}</li>
+                <li>userRoles: {clientPrincipal.userRoles.join(', ')}</li>
+              </ul>
+
+              <br />
+
+              <pre>/.auth/logout</pre>
+              <a href=".auth/logout">
+                Log out
+              </a>
+            </>
           ) : (
             <p>Error loading account info</p>
           )}

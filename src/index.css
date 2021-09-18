@@ -59,19 +59,36 @@ ul, ol {
   margin-bottom: 1em;
 }
 
-button {
+button, .button {
   background: #35748c;
   border-radius: 5px;
   color: #ffffff;
   border: 0;
   padding: 0.5em;
   font-size: 1em;
+  text-decoration: none;
 }
 
-button:hover {
+.button {
+  display: inline-block;
+}
+
+button:hover, .button:hover {
   box-shadow: 0 0 1em rgba(255, 255, 255, 0.2);
 }
 
-button:active {
+button:active, .button:hover {
   box-shadow: 0 0.2em 0.5em rgba(255, 255, 255, 0.3);
+}
+
+dl {
+  text-align: left;
+}
+
+pre {
+  border-radius: 5px;
+  border: 1px dashed #35748c;
+  padding: 0.5em 1em;
+  margin-bottom: 1em;
+  font-size: 1em;
 }
