@@ -44,7 +44,7 @@ function About() {
               </a>
             </li>
             <li>
-              <a href="https://docs.microsoft.com/en-us/azure/static-web-apps/front-end-frameworks">
+              <a href="https://docs.microsoft.com/en-us/azure/static-web-apps/front-end-frameworks/?ocid=aid3040965_ThankYou_DevComm&eventId=SWA_43q5ZzJFbkY0">
                 Sample configuration for the frontend frameworks
               </a>
             </li>
@@ -157,8 +157,16 @@ function About() {
 
       <ul>
         <li>
-          <a href="https://aka.ms/swadocs">
-            <strong>Documentation | aka.ms/swadocs</strong>
+          <a href="https://aka.ms/swa-docs">
+            <strong>Detailed documentation and how-to guides</strong>
+          </a>
+        </li>
+        <li>
+          <a href="https://aka.ms/swa-learning">
+            <strong>
+              Step-by-step learning paths on deploying and configuring your apps
+              in Azure Static Web Apps
+            </strong>
           </a>
         </li>
         <li>
@@ -184,6 +192,11 @@ function About() {
         <li>
           <a href="https://dev.to/azure/six-minutes-to-learn-azure-static-web-apps-ehn">
             SWA in 6 minutes
+          </a>
+        </li>
+        <li>
+          <a href="https://www.youtube.com/watch?v=AMhhuBixb4o&ab_channel=MicrosoftAzuren">
+            Azure Friday with SWA video
           </a>
         </li>
       </ul>

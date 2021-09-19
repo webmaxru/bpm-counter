@@ -7,8 +7,19 @@
 This is a 3-in-1 project:
 
 1. A real product for DJs to help with identifying BPM (beats per minute) of the track currently playing.
-2. A real-world demo and a playground for Azure Static Web Apps service.
+2. A real-world demo and a playground for [Azure Static Web Apps](https://azure.microsoft.com/en-us/services/app-service/static/?ocid=aid3040965_ThankYou_DevComm&eventId=SWA_43q5ZzJFbkY0) service.
 3. Proof of concept for a Progressive Web App (PWA) driven by Workbox-powered service worker.
+
+### Website
+
+[BPMTech.no](https://bpmtech.no)
+
+### Video demo
+
+[<img src="https://img.youtube.com/vi/o9BIK5QENJU/maxresdefault.jpg" width="300">](https://youtu.be/o9BIK5QENJU)
+
+(click to watch on YouTube)
+
 
 ## Available Scripts
 
