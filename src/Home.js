@@ -4,6 +4,8 @@ import Feedback from './Feedback.js';
 import { useState } from 'react';
 import RealTimeBPMAnalyzer from 'realtime-bpm-analyzer';
 import AudioMotionAnalyzer from 'audiomotion-analyzer';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function Home(props) {
   let log = props.log;
@@ -76,6 +78,7 @@ function Home(props) {
         log.error(`${err.name}: ${err.message}`);
       }
     } else {
+      toast.error('No luck with accessing audio in your browser...');
       log.error('Browser is not supported');
     }
   };
@@ -169,9 +172,7 @@ function Home(props) {
               {secondaryBPM}
               <small> BPM</small>
             </h4>
-          ) : (
-            null
-          )}
+          ) : null}
 
           {!isResultReady && primaryBPM ? (
             <h4>
@@ -179,23 +180,16 @@ function Home(props) {
               {primaryBPM}
               <small> BPM</small>
             </h4>
-          ) : (
-            null
-          )}
+          ) : null}
 
           <button onClick={stopListening} className="btn-stop">
             Start over
           </button>
 
-          {primaryBPM ? (
-            <Feedback bpm={primaryBPM} log={log}></Feedback>
-          ) : (
-            null
-          )}
-
-          
+          {primaryBPM ? <Feedback bpm={primaryBPM} log={log}></Feedback> : null}
         </div>
       )}
+      <ToastContainer />
     </main>
   );
 }

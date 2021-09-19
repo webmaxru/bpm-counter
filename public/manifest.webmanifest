@@ -1,6 +1,6 @@
 {
-  "short_name": "BPM Counter",
-  "name": "Online Real-Time Free BPM Counter",
+  "short_name": "BPM Techno",
+  "name": "BPM Techno - Real-Time BPM Counter",
   "description": "Produce some beats using any player, launchpad, keyboard, and mix them live with another track easily and precisely using this free online real-time BPM counter",
   "start_url": "/?offline",
   "display": "standalone",

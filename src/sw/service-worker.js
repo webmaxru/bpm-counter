@@ -7,6 +7,21 @@ import { NetworkFirst } from 'workbox-strategies';
 import { googleFontsCache } from 'workbox-recipes';
 import { BackgroundSyncPlugin } from 'workbox-background-sync';
 
+async function messageClient(event, messageType) {
+  if (!event.clientId) return;
+
+  // Get the client.
+  const client = await clients.get(event.clientId);
+  // Exit early if we don't get the client.
+  // Eg, if it closed.
+  if (!client) return;
+
+  // Send a message to the client.
+  client.postMessage({
+    type: messageType,
+  });
+}
+
 // SETTINGS
 
 // Claiming control to start runtime caching asap
@@ -55,16 +70,33 @@ addEventListener('message', (event) => {
 
 // BACKGROUND SYNC
 
+const messageAboutFailPlugin = {
+  fetchDidFail: async ({ originalRequest, request, error, event, state }) => {
+    messageClient(event, 'REQUEST_FAILED');
+  },
+};
+
 // Instantiating and configuring plugin
 const bgSyncPlugin = new BackgroundSyncPlugin('feedbackQueue', {
   maxRetentionTime: 24 * 60, // Retry for max of 24 Hours (specified in minutes)
+
+  onSync: async ({ queue }) => {
+    // Run standard replay
+    await queue.replayRequests();
+
+    self.clients.matchAll().then((clients) => {
+      clients.forEach((client) =>
+        client.postMessage({ type: 'REPLAY_COMPLETED' })
+      );
+    });
+  },
 });
 
 // Registering a route for retries
 registerRoute(
   ({ url }) => url.pathname.startsWith('/api/feedback'),
   new NetworkFirst({
-    plugins: [bgSyncPlugin],
+    plugins: [bgSyncPlugin, messageAboutFailPlugin],
   }),
   'POST'
 );

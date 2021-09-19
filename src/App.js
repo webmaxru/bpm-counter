@@ -32,16 +32,32 @@ function App() {
 
       const Msg = () => (
         <div>
-          A new version is available&nbsp;&nbsp;
-          <button onClick={refreshPage}>Refresh</button>
+          Updated app is available&nbsp;&nbsp;
+          <button onClick={refreshPage}>Reload</button>
         </div>
       );
 
       const showSkipWaitingPrompt = (event) => {
-        toast(<Msg />);
+        toast.info(<Msg />);
       };
 
       wb.addEventListener('waiting', showSkipWaitingPrompt);
+
+      wb.addEventListener('message', (event) => {
+        if (!event.data) {
+          return;
+        }
+        if (event.data.type === 'REPLAY_COMPLETED') {
+          toast.success(
+            'Your feedback was sent after the connection is restored'
+          );
+        }
+        if (event.data.type === 'REQUEST_FAILED') {
+          toast.warning(
+            'Your feedback will be sent after the connection is restored'
+          );
+        }
+      });
 
       wb.register();
     }

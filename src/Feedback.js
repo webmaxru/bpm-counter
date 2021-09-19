@@ -18,15 +18,17 @@ function Feedback(props) {
     });
 
     try {
+      // Let's assume that the request is successful
+      toast.success('Sending your feedback. Thanks!');
+
       let response = await fetch(url, requestOptions);
 
       if (!response.ok) {
         log.error(`HTTP error. Status: ${response.status}`);
         throw new Error();
       }
-
-      toast('Counted! Thanks!');
     } catch (err) {
+      toast.error('Oops, no luck with sending this time');
       log.error(`${err.name}: ${err.message}`);
     }
   }
