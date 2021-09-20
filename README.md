@@ -73,7 +73,7 @@ What will happen:
 
 - In a few seconds, you will see the website deployed to Azure with a development URL like *random-word.azurestaticapps.net* ([example](https://mango-mud-0136f961e.azurestaticapps.net/)). You can connect your own custom domain to it using "Custom domain" option in the portal.
 
-<img src="public/images/domains.png" width="300">
+<img src="public/images/domains.png" width="400">
 
 - A GitHub Actions file will be created in `.github/workflows` folder of your repo. Similar to [the one](https://github.com/webmaxru/bpm-counter/blob/main/.github/workflows/azure-static-web-apps-mango-mud-0136f961e.yml) in the original repo.
 
@@ -85,7 +85,7 @@ You are now ready to explore the Azure Static Web Apps features.
 2. Commit and push the changes to `main` branch (or the branch you specified during resource creation).
 3. Go to [Actions](https://github.com/webmaxru/bpm-counter/actions) page of your repo to make sure that the workflow is running.
 
-[<img src="public/images/actions.png" width="300">](https://github.com/webmaxru/bpm-counter/actions)
+[<img src="public/images/actions.png" width="400">](https://github.com/webmaxru/bpm-counter/actions)
 
 4. On completion, open your website in a browser, you will see the new version.
 
@@ -117,7 +117,7 @@ git push origin new-feature
 
 4. Go to [Actions](https://github.com/webmaxru/bpm-counter/actions) page of your repo to make sure that the workflow is running.
 
-[<img src="public/images/pr.png" width="300">)](https://github.com/webmaxru/bpm-counter/actions)
+[<img src="public/images/pr.png" width="400">](https://github.com/webmaxru/bpm-counter/actions)
 
 5. On completion, you will have a new version of the website deployed to Azure to a [new URL](https://mango-mud-0136f961e-2.westus2.azurestaticapps.net/). You can get this URL either from the workflow output on Azure or in the Azure Portal on Environments tab. GitHub Actions bot will also post this URL to your Pull Request [comments](https://github.com/webmaxru/bpm-counter/pull/2).
 
@@ -125,7 +125,7 @@ git push origin new-feature
 
 If the new version looks good and you merge this Pull Request to the main (tracked by SWA) branch, the workflow will automatically deploy the new version to this tracked branch and delete staging environment.
 
-<img src="public/images/environments.png" width="300">
+<img src="public/images/environments.png" width="400">
 
 **Please note, staged versions of your application are currently accessible publicly by their URL, even if your GitHub repository is private.**
 
@@ -152,13 +152,64 @@ How to create a new API function:
 4. Commit and push the changes to the branch.
 5. Your function will be automatically deployed to the SWA.
 
-<img src="public/images/functions.png" width="300">
+<img src="public/images/functions.png" width="400">
 
 [🗎 Documentation](https://docs.microsoft.com/en-us/azure/static-web-apps/add-api?ocid=aid3040965_ThankYou_DevComm&eventId=SWA_43q5ZzJFbkY0)
 
 ### Routing
 
-Azure SWA supports custom [routing](https://docs.microsoft.com/en-us/azure/app-service/app-service-web-routing-overview?ocid=aid3040965_ThankYou_DevComm&eventId=SWA_43q5ZzJFbkY0) which allows you to define different URLs for different versions of your application.
+Azure SWA supports custom routing which allows you to:
+
+- Set up redirects
+- Organize navigation fallback for the single-page applications
+- Set up custom headers
+- Register MIME types
+- Define custom pages for HTTP errors
+- Protect resources by a role-based access control (RBAC)
+
+You configure the rules in [staticwebapp.config.json](https://github.com/webmaxru/bpm-counter/blob/main/src/staticwebapp.config.json) which you can put anywhere in the application folder of the repo, there is no requirement to put it in the output (public) folder).
+
+How to test it:
+
+1. Go directly to [/about](https://bpmtech.no/about) page. You will see the application, not error 404 because of the [navigation fallback](https://github.com/webmaxru/bpm-counter/blob/main/src/staticwebapp.config.json#L39) rule.
+2. Go to [any non-existing resource](https://bpmtech.no/images/nopic.jpg) from the navigationFallback exclude list. You will see the custom 404 error page configured in [this](https://github.com/webmaxru/bpm-counter/blob/main/src/staticwebapp.config.json#L45) rule.
+3. Check the response headers. They contain "X-Powered-By: Maxim Salnikov and Azure Static Web Apps" set on [this line](https://github.com/webmaxru/bpm-counter/blob/main/src/staticwebapp.config.json#L59).
+4. Go to [/aboutme](https://bpmtech.no/aboutme) page. You will be redirected to [/about](https://bpmtech.no/about) because of [this](https://github.com/webmaxru/bpm-counter/blob/main/src/staticwebapp.config.json#L34) rule.
+
+**Please note, the hosted application is controlled by a service worker. So after the first load, the routing might look not exactly like explained above. To test the app without a service worker, start a new browser session in Private/Incognito mode.**
+
+[🗎 Documentation](https://docs.microsoft.com/en-us/azure/app-service/app-service-web-routing-overview?ocid=aid3040965_ThankYou_DevComm&eventId=SWA_43q5ZzJFbkY0)
+
+### Authentication
+
+With the help of Azure Static Web Apps, you can protect your application resources with the role-based access control (RBAC). 
+
+Setting up authentication:
+
+1. You specify the role(s) needed to access particular URLs in the [staticwebapp.config.json](https://github.com/webmaxru/bpm-counter/blob/main/src/staticwebapp.config.json) file. There are two built-in roles: `anonymous` (for all users) and `authenticated` (for those who are logged in).
+2. If the user tries to access URL without the required role, they will get error 401. You might want to set up a [redirect](https://github.com/webmaxru/bpm-counter/blob/main/src/staticwebapp.config.json#L48) to the login page.
+3. To let users log in, you direct users to one of the built-in identity providers (Azure Active Directory, GitHub, Twitter) login pages. For example, [/.auth/login/twitter](https://bpmtech.no/.auth/login/twitter). (You can also create a custom URL for this page using [routing rules](https://github.com/webmaxru/bpm-counter/blob/main/src/staticwebapp.config.json#L22).). The folder `.auth` on your Azure SWA project is built-in, it's so called *system folder* which contains some useful endpoints.
+4. After log in, the user will be redirected back to the application. And if the role is correctly set, they will get an access to the requested URL.
+5. To give user a custom role (for example, `administrator`), you use "Role management" tab in the Azure Portal. Click on "Invite" button, fill in the form and click "Generate". You will receive a link to send to the user to accept the role.	
+
+<img src="public/images/invite.png" width="400">
+
+You can manage the users and roles in the "Role management" tab.
+
+<img src="public/images/role.png" width="400">
+
+6. You can read authenticated user credentials (for example to implement some logic in UI) by sending request to [/.auth/me](https://bpmtech.no/.auth/me) endpoint. To check authentication info of the API calls, you read the `x-ms-client-principal` header in the request. 
+7. To log out, you redirect users to [/.auth/logout](https://bpmtech.no/.auth/logout) page.
+
+Demo:
+
+1. Try to access [/account](https://bpmtech.no/account) page. It's configured to be available only for `authenticated` users by [this rule](https://github.com/webmaxru/bpm-counter/blob/main/src/staticwebapp.config.json#L4).	You will be redirected to the Twitter login page and asked for consent.
+2. After logging in with Twitter, you will be redirected back to the application, and now can access [/account](https://bpmtech.no/account) page.
+3. Open [/.auth/me](https://bpmtech.no/.auth/me) URL in the separate tab to see the information returned by the server.
+4. Log out by going to [/.auth/logout](https://bpmtech.no/.auth/logout) URL.
+5. You can repeat the steps above to test the custom role needed to access [/admin](https://bpmtech.no/admin) page. In this case, you need to give the user the role `administrator` as described above.
+
+[🗎 Documentation](https://docs.microsoft.com/en-us/azure/static-web-apps/authentication-authorization?ocid=aid3040965_ThankYou_DevComm&eventId=SWA_43q5ZzJFbkY0)
 
 ## React-only version (no cloud)
 

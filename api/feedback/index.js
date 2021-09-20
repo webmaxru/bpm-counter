@@ -4,6 +4,10 @@ module.exports = async function (context, req) {
     context.done();
   }
 
+  const header = req.headers['x-ms-client-principal'];
+  const encoded = Buffer.from(header, 'base64');
+  const decoded = encoded.toString('ascii');
+
   const bpm = req.body.bpm;
   const isCorrect = req.body.isCorrect;
   const timestamp = Math.floor(Date.now() / 1);
@@ -16,6 +20,9 @@ module.exports = async function (context, req) {
   });
 
   context.res = {
-    body: 'Thank you!',
+    body: {
+      message: 'Thank you!',
+      clientPrincipal: JSON.parse(decoded),
+    },
   };
 };
