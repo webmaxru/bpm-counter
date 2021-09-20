@@ -23,16 +23,28 @@ function About() {
 
   return (
     <main className="content">
-      <p>
-        Questions? Contact{' '}
-        <a href="https://twitter.com/webmaxru">Maxim Salnikov</a>
-      </p>
-
-      <h3>Demo</h3>
-
+      This is a 3-in-1 project:
       <ol>
         <li>
-          <a href="https://github.com/webmaxru/bpm-counter/">GitHub Repo</a>
+          A real product for DJs to help with identifying BPM (beats per minute)
+          of the track currently playing.
+        </li>
+        <li>
+          A real-world demo and a playground for [Azure Static Web
+          Apps](https://azure.microsoft.com/en-us/services/app-service/static/?ocid=aid3040965_ThankYou_DevComm&eventId=SWA_43q5ZzJFbkY0)
+          (SWA) service.
+        </li>
+        <li>
+          Proof of concept for a Progressive Web App (PWA) driven by
+          Workbox-powered service worker.
+        </li>
+      </ol>
+      <h3>Demo</h3>
+      <ol>
+        <li>
+          <a href="https://github.com/webmaxru/bpm-counter/">
+            GitHub repo with a step-by-step demo guide
+          </a>
         </li>
         <li>
           <b>Build and deploy</b>
@@ -57,8 +69,8 @@ function About() {
         </li>
         <li>
           <b>Pre-production environments</b> |{' '}
-          <a href="https://docs.microsoft.com/en-us/azure/static-web-apps/review-publish-pull-requests">
-            Quickstarts
+          <a href="https://docs.microsoft.com/en-us/azure/static-web-apps/review-publish-pull-requests?ocid=aid3040965_ThankYou_DevComm&eventId=SWA_43q5ZzJFbkY0">
+            Documentation
           </a>
           <ul>
             <li>
@@ -70,14 +82,14 @@ function About() {
         </li>
         <li>
           <b>Creating API</b> |{' '}
-          <a href="https://docs.microsoft.com/en-us/azure/static-web-apps/add-api">
-            Quickstarts
+          <a href="https://docs.microsoft.com/en-us/azure/static-web-apps/add-api?ocid=aid3040965_ThankYou_DevComm&eventId=SWA_43q5ZzJFbkY0">
+            Documentation
           </a>
         </li>
         <li>
           <b>Authentication</b> |{' '}
-          <a href="https://docs.microsoft.com/en-us/azure/static-web-apps/authentication-authorization">
-            Quickstarts
+          <a href="https://docs.microsoft.com/en-us/azure/static-web-apps/authentication-authorization?ocid=aid3040965_ThankYou_DevComm&eventId=SWA_43q5ZzJFbkY0">
+            Documentation
           </a>
           <p>Use /.auth/ helpers</p>
           <pre>/.auth/login/twitter</pre>
@@ -119,8 +131,8 @@ function About() {
         </li>
         <li>
           <b>Routes</b> |{' '}
-          <a href="https://docs.microsoft.com/en-us/azure/static-web-apps/routes">
-            Quickstarts
+          <a href="https://docs.microsoft.com/en-us/azure/static-web-apps/routes?ocid=aid3040965_ThankYou_DevComm&eventId=SWA_43q5ZzJFbkY0">
+            Documentation
           </a>
           <p>
             Use staticwebapp.config.json (
@@ -151,10 +163,8 @@ function About() {
           <br />
         </li>
       </ol>
-
       <h3>Useful links</h3>
       <p>Here are some links to help you get started:</p>
-
       <ul>
         <li>
           <a href="https://aka.ms/swa-docs">
@@ -186,7 +196,7 @@ function About() {
         </li>
         <li>
           <a href="https://docs.microsoft.com/en-us/azure/static-web-apps/getting-started?tabs=angular">
-            Quickstarts - Angular
+            Documentation - Angular
           </a>
         </li>
         <li>
@@ -200,6 +210,10 @@ function About() {
           </a>
         </li>
       </ul>
+      <p>
+        Questions? Contact{' '}
+        <a href="https://twitter.com/webmaxru">Maxim Salnikov</a>
+      </p>
     </main>
   );
 }

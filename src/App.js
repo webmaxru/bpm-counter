@@ -16,6 +16,8 @@ function App() {
   const query = new URLSearchParams(window.location.search);
   const isDebug = query.get('debug') === 'true';
   const isForcedViz = query.get('viz') === 'true';
+  const testBPM = query.get('bpm');
+  
   log.setDefaultLevel(isDebug ? 'info' : 'error');
 
   useEffect(() => {
@@ -90,6 +92,7 @@ function App() {
               log={log}
               isMobile={isMobile}
               isForcedViz={isForcedViz}
+              testBPM={testBPM}	
             ></Home>
           </Route>
         </Switch>

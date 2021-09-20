@@ -12,6 +12,7 @@ function Home(props) {
 
   const isMobile = props.isMobile;
   const isForcedViz = props.isForcedViz;
+  const testBPM = props.testBPM;
 
   let context;
   let input;
@@ -84,12 +85,12 @@ function Home(props) {
   };
 
   const [threshold, setThreshold] = useState(0);
-  const [primaryBPM, setPrimaryBPM] = useState(``);
+  const [primaryBPM, setPrimaryBPM] = useState(testBPM || ``);
   const [secondaryBPM, setSecondaryBPM] = useState(``);
   const [isListening, setIsListening] = useState(false);
 
   const [isShowingInit, setIsShowingInit] = useState(true);
-  const [isResultReady, setIsResultReady] = useState(false);
+  const [isResultReady, setIsResultReady] = useState(testBPM ? true : false);
 
   const stopListening = () => {
     setIsListening(false);
