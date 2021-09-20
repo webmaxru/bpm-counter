@@ -28,7 +28,7 @@ function Feedback(props) {
         throw new Error();
       }
     } catch (err) {
-      toast.error('Oops, no luck with sending this time');
+      // toast.error('Oops, no luck with sending this time');
       log.error(`${err.name}: ${err.message}`);
     }
   }

@@ -4,9 +4,16 @@ module.exports = async function (context, req) {
     context.done();
   }
 
-  const header = req.headers['x-ms-client-principal'];
-  const encoded = Buffer.from(header, 'base64');
-  const decoded = encoded.toString('ascii');
+  let clientPrincipal = {};
+
+  try {
+    const header = req.headers['x-ms-client-principal'];
+    const encoded = Buffer.from(header, 'base64');
+    const decoded = encoded.toString('ascii');
+    clientPrincipal = JSON.parse(decoded);
+  } catch (err) {
+    context.log(`${err.name}: ${err.message}`);
+  }
 
   const bpm = req.body.bpm;
   const isCorrect = req.body.isCorrect;
@@ -22,7 +29,7 @@ module.exports = async function (context, req) {
   context.res = {
     body: {
       message: 'Thank you!',
-      clientPrincipal: JSON.parse(decoded),
+      clientPrincipal: clientPrincipal,
     },
   };
 };
