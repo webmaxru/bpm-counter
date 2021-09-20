@@ -69,7 +69,7 @@ function App() {
     <Router>
       <header>
         <h1>
-          <Link to="/">BPM Techno &mdash; Real-Time BPM Counter</Link>
+          <Link to="/">BPM Deep &mdash; Real-Time BPM Counter</Link>
         </h1>
         <Link to="/about" className="about">
           &#63;
