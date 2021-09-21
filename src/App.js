@@ -62,7 +62,7 @@ function App() {
         }
       });
 
-      //wb.register();
+      wb.register();
     }
   }, []);
 
@@ -70,7 +70,7 @@ function App() {
     <Router>
       <header>
         <h1>
-          <Link to="/">BPM Disco &mdash; Real-Time BPM Counter</Link>
+          <Link to="/">BPM Techno &mdash; Real-Time BPM Counter</Link>
         </h1>
         <Link to="/about" className="about">
           &#63;
