@@ -49,12 +49,26 @@ function Account() {
               <br />
 
               <pre>/.auth/logout</pre>
-              <a href=".auth/logout">
-                Log out
+              <a href=".auth/logout">Log out</a>
+
+              <br />
+              <br />
+
+              <pre>/.auth/purge/twitter</pre>
+              <a href=".auth/purge/twitter">
+                Remove personal information for Twitter as a provider
+              </a>
+
+              <br />
+              <br />
+
+              <pre>/.auth/purge/github</pre>
+              <a href=".auth/purge/github">
+                Remove personal information for GitHub as a provider
               </a>
             </>
           ) : (
-            <p>Error loading account info</p>
+            <p>Not logged in. <a href="/login">Log in</a> here.</p>
           )}
         </>
       )}

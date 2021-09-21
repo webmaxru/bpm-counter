@@ -189,7 +189,7 @@ Setting up authentication:
 1. You specify the role(s) needed to access particular URLs in the [staticwebapp.config.json](https://github.com/webmaxru/bpm-counter/blob/main/src/staticwebapp.config.json) file. There are two built-in roles: `anonymous` (for all users) and `authenticated` (for those who are logged in).
 2. If the user tries to access URL without the required role, they will get error 401. You might want to set up a [redirect](https://github.com/webmaxru/bpm-counter/blob/main/src/staticwebapp.config.json#L48) to the login page.
 3. To let users log in, you direct users to one of the built-in identity providers (Azure Active Directory, GitHub, Twitter) login pages. For example, [/.auth/login/twitter](https://bpmtech.no/.auth/login/twitter). (You can also create a custom URL for this page using [routing rules](https://github.com/webmaxru/bpm-counter/blob/main/src/staticwebapp.config.json#L22).). The folder `.auth` on your Azure SWA project is built-in, it's so called *system folder* which contains some useful endpoints.
-4. After log in, the user will be redirected back to the application. And if the role is correctly set, they will get an access to the requested URL.
+4. After logging in using the selected identity provider and giving consent on sharing personal information (email or user handle), the user will be redirected back to the application. And if the role is correctly set, they will get an access to the requested URL.
 5. To give user a custom role (for example, `administrator`), you use "Role management" tab in the Azure Portal. Click on "Invite" button, fill in the form and click "Generate". You will receive a link to send to the user to accept the role.	
 
 <img src="public/images/invite.png" width="400">
@@ -200,6 +200,7 @@ You can manage the users and roles in the "Role management" tab.
 
 6. You can read authenticated user credentials (for example to implement some logic in UI) by sending request to [/.auth/me](https://bpmtech.no/.auth/me) endpoint. To check authentication info of the API calls, you read the `x-ms-client-principal` header in the request. 
 7. To log out, you redirect users to [/.auth/logout](https://bpmtech.no/.auth/logout) page.
+8. To remove personally identifying information (email or user handle) from the application, you direct users to the link that is related to a particular identity provider: [/.auth/purge/twitter](https://bpmtech.no/.auth/purge/twitter).
 
 Demo:
 

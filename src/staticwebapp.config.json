@@ -15,15 +15,15 @@
         }
       },
       {
-        "route": "/customers/contoso",
-        "allowedRoles": ["administrator", "customers_contoso"]
+        "route": "/login-account",
+        "rewrite": "/.auth/login/twitter?post_login_redirect_uri=/account"
       },
       {
-        "route": "/login",
+        "route": "/login-twitter",
         "rewrite": "/.auth/login/twitter"
       },
       {
-        "route": "/.auth/login/github",
+        "route": "/.auth/login/aad",
         "statusCode": 404
       },
       {

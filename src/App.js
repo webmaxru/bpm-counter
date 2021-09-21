@@ -4,6 +4,7 @@ import Home from './Home.js';
 import About from './About.js';
 import Account from './Account.js';
 import Admin from './Admin.js';
+import Login from './Login.js';
 import log from 'loglevel';
 import { isMobile } from 'react-device-detect';
 import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
@@ -85,6 +86,9 @@ function App() {
           </Route>
           <Route path="/admin">
             <Admin />
+          </Route>
+          <Route path="/login">
+            <Login />
           </Route>
           <Route path="/">
             <Home

@@ -91,7 +91,11 @@ function About() {
           <a href="https://docs.microsoft.com/en-us/azure/static-web-apps/authentication-authorization?ocid=aid3040965_ThankYou_DevComm&eventId=SWA_43q5ZzJFbkY0">
             Documentation
           </a>
-          <p>Use /.auth/ helpers</p>
+          <pre>/login</pre>
+          <a href="/login">Common login page</a>
+          <br />
+          <br />
+          <p>Use /.auth/ helpers directly</p>
           <pre>/.auth/login/twitter</pre>
           <a href=".auth/login/twitter">Log in with Twitter</a>
           <br />
@@ -102,30 +106,42 @@ function About() {
           <br />
           <pre>/.auth/login/github?post_login_redirect_uri=/account</pre>
           <a href="/.auth/login/github?post_login_redirect_uri=/account">
-            Log in with redirect to account
+            Log in with GitHub with redirect to /account
           </a>
+          <br />
+          <br />
+          <pre>/.auth/me</pre>
+          <button className="button" onClick={fetchClientPrincipal}>
+            Fetch user account data
+          </button>
+          <br />
+          <br />
+          {clientPrincipal ? (
+            <ul>
+              <li>identityProvider: {clientPrincipal.identityProvider}</li>
+              <li>userId: {clientPrincipal.userId}</li>
+              <li>userDetails: {clientPrincipal.userDetails}</li>
+              <li>userRoles: {clientPrincipal.userRoles.join(', ')}</li>
+            </ul>
+          ) : (
+            <p>Not logged in</p>
+          )}
           <br />
           <br />
           <pre>/.auth/logout</pre>
           <a href=".auth/logout">Log out</a>
           <br />
           <br />
-          <pre>/.auth/me</pre>
-          <button className="button" onClick={fetchClientPrincipal}>
-            Fetch data
-          </button>
-          {clientPrincipal ? (
-            <>
-              <br />
-              <br />
-              <ul>
-                <li>identityProvider: {clientPrincipal.identityProvider}</li>
-                <li>userId: {clientPrincipal.userId}</li>
-                <li>userDetails: {clientPrincipal.userDetails}</li>
-                <li>userRoles: {clientPrincipal.userRoles.join(', ')}</li>
-              </ul>
-            </>
-          ) : null}
+          <pre>/.auth/purge/twitter</pre>
+          <a href=".auth/purge/twitter">
+            Remove personal information for Twitter as a provider
+          </a>
+          <br />
+          <br />
+          <pre>/.auth/purge/github</pre>
+          <a href=".auth/purge/github">
+            Remove personal information for GitHub as a provider
+          </a>
           <br />
           <br />
         </li>
