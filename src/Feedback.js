@@ -12,9 +12,6 @@ class Feedback extends React.Component {
 
     this.sendFeedback = this.sendFeedback.bind(this);
 
-    this.bpm = props.bpm;
-    this.log = props.log;
-
     this.url = `/api/feedback`;
     this.requestOptions = {
       method: 'POST',
@@ -31,7 +28,7 @@ class Feedback extends React.Component {
 
   async sendFeedback(isCorrect) {
     this.requestOptions.body = JSON.stringify({
-      bpm: this.bpm,
+      bpm: this.props.bpm,
       isCorrect: isCorrect,
     });
 
@@ -42,12 +39,12 @@ class Feedback extends React.Component {
       let response = await fetch(this.url, this.requestOptions);
 
       if (!response.ok) {
-        this.log.error(`HTTP error. Status: ${response.status}`);
+        this.props.log.error(`HTTP error. Status: ${response.status}`);
         throw new Error();
       }
     } catch (err) {
       toast.error('Oops, no luck with sending this time');
-      this.log.error(`${err.name}: ${err.message}`);
+      this.props.log.error(`${err.name}: ${err.message}`);
     }
   }
 
@@ -55,7 +52,7 @@ class Feedback extends React.Component {
     return (
       <div>
         <br />
-        <p>Does {this.bpm} sound correct?</p>
+        <p>Does {this.props.bpm} sound correct?</p>
         <button
           onClick={() => this.sendFeedback(true)}
           data-rh="Please, give us feedback - did it count BPM correctly?"
