@@ -1,11 +1,15 @@
 /* eslint-disable no-unused-vars */
 import './Home.css';
 import Feedback from './Feedback.js';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import RealTimeBPMAnalyzer from 'realtime-bpm-analyzer';
 import AudioMotionAnalyzer from 'audiomotion-analyzer';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import ReactHintFactory from 'react-hint';
+import 'react-hint/css/index.css'
+import './custom-hint.css'
+const ReactHint = ReactHintFactory(React);
 
 function Home(props) {
   let log = props.log;
@@ -153,6 +157,7 @@ function Home(props) {
             onClick={startListening}
             disabled={isListening}
             className="btn-start"
+            data-home="Click and wait for some time for BPM stabilizes"
           >
             Start listening
           </button>
@@ -191,6 +196,7 @@ function Home(props) {
         </div>
       )}
       <ToastContainer />
+      <ReactHint events position="top" className="custom-hint react-hint" attribute="data-home" />
     </main>
   );
 }

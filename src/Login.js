@@ -17,8 +17,9 @@ function Login() {
       <br />
       <pre>/.auth/login/aad</pre>
       <a href=".auth/login/aad" class="button">
-        Log in with Azure Active Directory (disabled)
-      </a>
+        Log in with Azure Active Directory
+      </a><br />
+      (disabled for the demo purposes)
       <br />
       <br />
       <pre>/.auth/login/twitter?post_login_redirect_uri=/account</pre>

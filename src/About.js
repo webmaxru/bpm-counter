@@ -23,79 +23,56 @@ function About() {
 
   return (
     <main className="content">
-      This is a 3-in-1 project:
+      <h3>This is a 3-in-1 project</h3>
       <ol>
         <li>
-          A real product for DJs to help with identifying BPM (beats per minute)
-          of the track currently playing.
+          A <strong>real product</strong> for DJs to help with identifying BPM
+          (beats per minute) of the track currently playing.
         </li>
         <li>
-          A real-world demo and a playground for [Azure Static Web
-          Apps](https://azure.microsoft.com/en-us/services/app-service/static/?ocid=aid3040965_ThankYou_DevComm&eventId=SWA_43q5ZzJFbkY0)
-          (SWA) service.
+          A <strong>demo and playground</strong> for the&nbsp;
+          <a href="https://azure.microsoft.com/en-us/services/app-service/static/?ocid=aid3040965">
+            Azure Static Web Apps (SWA)
+          </a>
+          &nbsp; service.
         </li>
         <li>
-          Proof of concept for a Progressive Web App (PWA) driven by
-          Workbox-powered service worker.
+          <strong>Proof of concept</strong> for a Progressive Web App (PWA)
+          driven by Workbox-powered service worker.
         </li>
       </ol>
-      <h3>Demo</h3>
-      <ol>
+      <h3>Author and credits</h3>
+      <p>
+        Built by <a href="https://twitter.com/webmaxru">Maxim Salnikov</a>. I
+        will be happy to see your feedback and contributions in{' '}
+        <a href="https://github.com/webmaxru/bpm-counter/issues/">
+          the project GitHub repo
+        </a>
+        .
+      </p>
+      <p>
+        The beat detection is based on&nbsp;
+        <a href="https://www.npmjs.com/package/realtime-bpm-analyzer">
+          realtime-bpm-analyzer
+        </a>
+        &nbsp; library.
+      </p>
+      <h3>Service links for Azure Static Web Apps demo</h3>
+      <p>
+        <a href="https://github.com/webmaxru/bpm-counter/">
+          GitHub repo with a step-by-step demo guide
+        </a>
+      </p>
+      <ul>
         <li>
-          <a href="https://github.com/webmaxru/bpm-counter/">
-            GitHub repo with a step-by-step demo guide
-          </a>
-        </li>
-        <li>
-          <b>Build and deploy</b>
-
-          <ul>
-            <li>
-              <a href="https://portal.azure.com/#blade/HubsExtension/BrowseResource/resourceType/Microsoft.Web%2FStaticSites">
-                SWA in Azure portal
-              </a>
-            </li>
-            <li>
-              <a href="https://docs.microsoft.com/en-us/azure/static-web-apps/front-end-frameworks/?ocid=aid3040965_ThankYou_DevComm&eventId=SWA_43q5ZzJFbkY0">
-                Sample configuration for the frontend frameworks
-              </a>
-            </li>
-            <li>
-              <a href="https://github.com/webmaxru/bpm-counter/tree/master/.github/workflows">
-                GitHub Actions
-              </a>
-            </li>
-          </ul>
-        </li>
-        <li>
-          <b>Pre-production environments</b> |{' '}
-          <a href="https://docs.microsoft.com/en-us/azure/static-web-apps/review-publish-pull-requests?ocid=aid3040965_ThankYou_DevComm&eventId=SWA_43q5ZzJFbkY0">
-            Documentation
-          </a>
-          <ul>
-            <li>
-              <a href="https://github.com/webmaxru/bpm-counter/pulls">
-                Pull requests
-              </a>
-            </li>
-          </ul>
-        </li>
-        <li>
-          <b>Creating API</b> |{' '}
-          <a href="https://docs.microsoft.com/en-us/azure/static-web-apps/add-api?ocid=aid3040965_ThankYou_DevComm&eventId=SWA_43q5ZzJFbkY0">
-            Documentation
-          </a>
-        </li>
-        <li>
-          <b>Authentication</b> |{' '}
-          <a href="https://docs.microsoft.com/en-us/azure/static-web-apps/authentication-authorization?ocid=aid3040965_ThankYou_DevComm&eventId=SWA_43q5ZzJFbkY0">
+          <b>Authentication</b> |&nbsp;
+          <a href="https://docs.microsoft.com/en-us/azure/static-web-apps/authentication-authorization?ocid=aid3040965">
             Documentation
           </a>
           <pre>/login</pre>
           <a href="/login">Common login page</a>
           <br />
           <br />
-          <p>Use /.auth/ helpers directly</p>
           <pre>/.auth/login/twitter</pre>
           <a href=".auth/login/twitter">Log in with Twitter</a>
           <br />
@@ -114,8 +91,6 @@ function About() {
           <button className="button" onClick={fetchClientPrincipal}>
             Fetch user account data
           </button>
-          <br />
-          <br />
           {clientPrincipal ? (
             <ul>
               <li>identityProvider: {clientPrincipal.identityProvider}</li>
@@ -126,7 +101,6 @@ function About() {
           ) : (
             <p>Not logged in</p>
           )}
-          <br />
           <br />
           <pre>/.auth/logout</pre>
           <a href=".auth/logout">Log out</a>
@@ -146,8 +120,8 @@ function About() {
           <br />
         </li>
         <li>
-          <b>Routes</b> |{' '}
-          <a href="https://docs.microsoft.com/en-us/azure/static-web-apps/routes?ocid=aid3040965_ThankYou_DevComm&eventId=SWA_43q5ZzJFbkY0">
+          <b>Routes</b> |&nbsp;
+          <a href="https://docs.microsoft.com/en-us/azure/static-web-apps/routes?ocid=aid3040965">
             Documentation
           </a>
           <p>
@@ -178,7 +152,7 @@ function About() {
           <br />
           <br />
         </li>
-      </ol>
+      </ul>
       <h3>Useful links</h3>
       <p>Here are some links to help you get started:</p>
       <ul>
@@ -196,18 +170,18 @@ function About() {
           </a>
         </li>
         <li>
-          <a href="https://burkeholland.github.io/posts/static-app-root-domain/">
-            Setting up a root domain (using CloudFlare)
+          <a href="https://docs.microsoft.com/en-us/azure/static-web-apps/front-end-frameworks/?ocid=aid3040965">
+            Sample configuration for the frontend frameworks
           </a>
         </li>
         <li>
-          <a href="https://azure.microsoft.com/en-us/services/app-service/static/">
+          <a href="https://azure.microsoft.com/en-us/services/app-service/static/?ocid=aid3040965">
             Static Web Apps on Azure - landing page
           </a>
         </li>
         <li>
           <a href="https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-azurestaticwebapps">
-            VS Code Extension
+            Azure SWA VS Code Extension
           </a>
         </li>
         <li>
@@ -225,9 +199,14 @@ function About() {
             Azure Friday with SWA video
           </a>
         </li>
+        <li>
+          <a href="https://docs.microsoft.com/en-us/azure/static-web-apps/add-api?ocid=aid3040965">
+            Creating API Documentation
+          </a>
+        </li>
       </ul>
       <p>
-        Questions? Contact{' '}
+        Questions? Contact&nbsp;
         <a href="https://twitter.com/webmaxru">Maxim Salnikov</a>
       </p>
     </main>

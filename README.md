@@ -7,7 +7,7 @@
 This is a 3-in-1 project:
 
 1. A real product for DJs to help with identifying BPM (beats per minute) of the track currently playing.
-2. A real-world demo and a playground for [Azure Static Web Apps](https://azure.microsoft.com/en-us/services/app-service/static/?ocid=aid3040965_ThankYou_DevComm&eventId=SWA_43q5ZzJFbkY0) service.
+2. A real-world demo and a playground for [Azure Static Web Apps](https://azure.microsoft.com/en-us/services/app-service/static/?ocid=aid3040965) service.
 3. Proof of concept for a Progressive Web App (PWA) driven by Workbox-powered service worker.
 
 ### Web application (installable, offline-ready)
@@ -23,7 +23,7 @@ This is a 3-in-1 project:
 ## This is a 3-in-1 project:
 
 1. A real product for DJs to help with identifying BPM (beats per minute) of the track currently playing.
-2. A real-world demo and a playground for [Azure Static Web Apps](https://azure.microsoft.com/en-us/services/app-service/static/?ocid=aid3040965_ThankYou_DevComm&eventId=SWA_43q5ZzJFbkY0) (SWA) service.
+2. A real-world demo and a playground for [Azure Static Web Apps](https://azure.microsoft.com/en-us/services/app-service/static/?ocid=aid3040965) (SWA) service.
 3. Proof of concept for a Progressive Web App (PWA) driven by Workbox-powered service worker.
 
 ## Flow and resources for the Azure Static Web Apps features demo
@@ -53,7 +53,7 @@ Open [http://localhost:4280](http://localhost:4280) in your browser.
 
 To deploy this project to Azure, you need to fork this repo to your own GitHub account. You will also need an Azure subscription. If you don't have it, you can [get Azure subscription here for free](https://aka.ms/free-azure-pass) with $200 credit.
 
-*Please note, that Azure Static Web Apps service has a [generous free tier](https://azure.microsoft.com/en-us/pricing/details/app-service/static/?ocid=aid3040965_ThankYou_DevComm&eventId=SWA_43q5ZzJFbkY0) which is enough for many types of the personal projects.*
+*Please note, that Azure Static Web Apps service has a [generous free tier](https://azure.microsoft.com/en-us/pricing/details/app-service/static/?ocid=aid3040965) which is enough for many types of the personal projects.*
 
 After you have the repo in your GitHub account, and Azure subscription ready, use an [Azure Static Web Apps extension for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-azurestaticwebapps) or [Azure Portal](https://portal.azure.com/?feature.customportal=false#create/Microsoft.StaticApp) to create an SWA resource.
 
@@ -129,11 +129,11 @@ If the new version looks good and you merge this Pull Request to the main (track
 
 **Please note, staged versions of your application are currently accessible publicly by their URL, even if your GitHub repository is private.**
 
-[🗎 Documentation](https://docs.microsoft.com/en-us/azure/static-web-apps/review-publish-pull-requests?ocid=aid3040965_ThankYou_DevComm&eventId=SWA_43q5ZzJFbkY0)
+[🗎 Documentation](https://docs.microsoft.com/en-us/azure/static-web-apps/review-publish-pull-requests?ocid=aid3040965)
 
 ### API Using Azure Functions
 
-You can use the [Azure Functions](https://azure.microsoft.com/en-us/services/functions/?ocid=aid3040965_ThankYou_DevComm&eventId=SWA_43q5ZzJFbkY0) to build your own API for your static web app. The simplest option is using Managed Functions option: all Azure Functions you create in `api` directory will be automatically deployed to the SWA. In this project, we use [`feedback` function](https://github.com/webmaxru/bpm-counter/blob/main/api/feedback/index.js) to gather statistics on correct or wrong BPMs detected.
+You can use the [Azure Functions](https://azure.microsoft.com/en-us/services/functions/?ocid=aid3040965) to build your own API for your static web app. The simplest option is using Managed Functions option: all Azure Functions you create in `api` directory will be automatically deployed to the SWA. In this project, we use [`feedback` function](https://github.com/webmaxru/bpm-counter/blob/main/api/feedback/index.js) to gather statistics on correct or wrong BPMs detected.
 
 To test it even without the music playing, you can pass a "hardcoded" BPM value to the application: [by using bpm parameter](https://bpmtech.no/?bpm=120). How to test it:
 
@@ -154,7 +154,7 @@ How to create a new API function:
 
 <img src="public/images/functions.png" width="400">
 
-[🗎 Documentation](https://docs.microsoft.com/en-us/azure/static-web-apps/add-api?ocid=aid3040965_ThankYou_DevComm&eventId=SWA_43q5ZzJFbkY0)
+[🗎 Documentation](https://docs.microsoft.com/en-us/azure/static-web-apps/add-api?ocid=aid3040965)
 
 ### Routing
 
@@ -178,7 +178,7 @@ How to test it:
 
 **Please note, the hosted application is controlled by a service worker. So after the first load, the routing might look not exactly like explained above. To test the app without a service worker, start a new browser session in Private/Incognito mode.**
 
-[🗎 Documentation](https://docs.microsoft.com/en-us/azure/app-service/app-service-web-routing-overview?ocid=aid3040965_ThankYou_DevComm&eventId=SWA_43q5ZzJFbkY0)
+[🗎 Documentation](https://docs.microsoft.com/en-us/azure/app-service/app-service-web-routing-overview?ocid=aid3040965)
 
 ### Authentication
 
@@ -210,7 +210,7 @@ Demo:
 4. Log out by going to [/.auth/logout](https://bpmtech.no/.auth/logout) URL.
 5. You can repeat the steps above to test the custom role needed to access [/admin](https://bpmtech.no/admin) page. In this case, you need to give the user the role `administrator` as described above.
 
-[🗎 Documentation](https://docs.microsoft.com/en-us/azure/static-web-apps/authentication-authorization?ocid=aid3040965_ThankYou_DevComm&eventId=SWA_43q5ZzJFbkY0)
+[🗎 Documentation](https://docs.microsoft.com/en-us/azure/static-web-apps/authentication-authorization?ocid=aid3040965)
 
 ## React-only version (no cloud)
 
