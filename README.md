@@ -20,12 +20,6 @@ This is a 3-in-1 project:
 
 *(click to watch on YouTube)*
 
-## This is a 3-in-1 project:
-
-1. A real product for DJs to help with identifying BPM (beats per minute) of the track currently playing.
-2. A real-world demo and a playground for [Azure Static Web Apps](https://azure.microsoft.com/en-us/services/app-service/static/?ocid=aid3040965) (SWA) service.
-3. Proof of concept for a Progressive Web App (PWA) driven by Workbox-powered service worker.
-
 ## Flow and resources for the Azure Static Web Apps features demo
 
 ### Installation
@@ -244,4 +238,4 @@ The beat detection is based on [realtime-bpm-analyzer](https://www.npmjs.com/pac
 
 ### Author
 
-&copy; 2021 [Maxim Salnikov](https://twitter.com/webmaxru)
+[Maxim Salnikov](https://twitter.com/webmaxru). Feel free to contact me if you have any questions about the project, PWA, Azure Static Web Apps.
