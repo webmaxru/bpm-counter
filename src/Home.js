@@ -7,8 +7,8 @@ import AudioMotionAnalyzer from 'audiomotion-analyzer';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ReactHintFactory from 'react-hint';
-import 'react-hint/css/index.css'
-import './custom-hint.css'
+import 'react-hint/css/index.css';
+import './custom-hint.css';
 const ReactHint = ReactHintFactory(React);
 
 function Home(props) {
@@ -172,14 +172,6 @@ function Home(props) {
           </h2>
           <h3>{isResultReady ? 'BPM' : 'Listening...'}</h3>
 
-          {isResultReady ? (
-            <h4>
-              <small>or </small>
-              {secondaryBPM}
-              <small> BPM</small>
-            </h4>
-          ) : null}
-
           {!isResultReady && primaryBPM ? (
             <h4>
               <small>Last: </small>
@@ -196,7 +188,15 @@ function Home(props) {
         </div>
       )}
       <ToastContainer />
-      <ReactHint events position="top" className="custom-hint react-hint" attribute="data-home" />
+
+      {!isMobile ? (
+        <ReactHint
+          events
+          position="top"
+          className="custom-hint react-hint"
+          attribute="data-home"
+        />
+      ) : null}
     </main>
   );
 }

@@ -81,12 +81,6 @@ function About() {
           <a href=".auth/login/github">Log in with GitHub</a>
           <br />
           <br />
-          <pre>/.auth/login/github?post_login_redirect_uri=/account</pre>
-          <a href="/.auth/login/github?post_login_redirect_uri=/account">
-            Log in with GitHub with redirect to /account
-          </a>
-          <br />
-          <br />
           <pre>/.auth/me</pre>
           <button className="button" onClick={fetchClientPrincipal}>
             Fetch user account data
