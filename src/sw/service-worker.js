@@ -52,6 +52,7 @@ const navigationRoute = new NavigationRoute(navHandler, {
     new RegExp('/aboutme'),
     new RegExp('/400.html'),
     new RegExp('/404.html'),
+    new RegExp('/privacy.html'),
   ], // Also might be specified explicitly via allowlist
 });
 registerRoute(navigationRoute);
