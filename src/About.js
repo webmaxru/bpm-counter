@@ -50,13 +50,6 @@ function About() {
         </a>
         .
       </p>
-      <p>
-        The beat detection is based on&nbsp;
-        <a href="https://www.npmjs.com/package/realtime-bpm-analyzer">
-          realtime-bpm-analyzer
-        </a>
-        &nbsp; library.
-      </p>
       <h3>Service links for Azure Static Web Apps demo</h3>
       <p>
         <a href="https://github.com/webmaxru/bpm-counter/">

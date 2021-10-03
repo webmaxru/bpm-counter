@@ -7,6 +7,7 @@
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
     "audiomotion-analyzer": "^3.5.0",
+    "bpm-detective": "^2.0.5",
     "loglevel": "^1.7.1",
     "react": "^17.0.2",
     "react-device-detect": "^1.17.0",

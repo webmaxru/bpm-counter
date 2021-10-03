@@ -54,12 +54,14 @@ h4 {
   line-height: 0.5em;
 }
 
-ul, ol {
+ul,
+ol {
   text-align: left;
   margin-bottom: 1em;
 }
 
-button, .button {
+button,
+.button {
   background: #35748c;
   border-radius: 5px;
   color: #ffffff;
@@ -73,11 +75,13 @@ button, .button {
   display: inline-block;
 }
 
-button:hover, .button:hover {
+button:hover,
+.button:hover {
   box-shadow: 0 0 1em rgba(255, 255, 255, 0.2);
 }
 
-button:active, .button:hover {
+button:active,
+.button:hover {
   box-shadow: 0 0.2em 0.5em rgba(255, 255, 255, 0.3);
 }
 
@@ -91,4 +95,29 @@ pre {
   padding: 0.5em 1em;
   margin-bottom: 1em;
   font-size: 1em;
+}
+
+input[type='text'],
+input[type='password'],
+input[type='email'],
+input[type='url'] {
+  background: #ffffff;
+  border-radius: 5px;
+  color: #333333;
+  border: 1px solid #35748c;
+  padding: 0.5em;
+  font-size: 1em;
+  width: 100%;
+}
+
+.hint {
+  border-bottom: 1px dashed #d98c5f;
+  color: #d98c5f;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+label {
+  margin-bottom: 0.5em;
+  display: block;
 }

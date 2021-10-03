@@ -52,9 +52,9 @@ To deploy this project to Azure, you need to fork this repo to your own GitHub a
 After you have the repo in your GitHub account, and Azure subscription ready, use an [Azure Static Web Apps extension for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-azurestaticwebapps) or [Azure Portal](https://portal.azure.com/?feature.customportal=false#create/Microsoft.StaticApp) to create an SWA resource.
 
 <p align="center">
-    <img src="public/images/vscode.gif" height="100">
+    <img src="public/images/cloud/vscode.gif" height="100">
     - or -
-    <img src="public/images/portal.gif" height="100">
+    <img src="public/images/cloud/portal.gif" height="100">
 </p>
 
 Use the following parameters:
@@ -67,7 +67,7 @@ What will happen:
 
 - In a few seconds, you will see the website deployed to Azure with a development URL like *random-word.azurestaticapps.net* ([example](https://mango-mud-0136f961e.azurestaticapps.net/)). You can connect your own custom domain to it using "Custom domain" option in the portal.
 
-<img src="public/images/domains.png" width="400">
+<img src="public/images/cloud/domains.png" width="400">
 
 - A GitHub Actions file will be created in `.github/workflows` folder of your repo. Similar to [the one](https://github.com/webmaxru/bpm-counter/blob/main/.github/workflows/azure-static-web-apps-mango-mud-0136f961e.yml) in the original repo.
 
@@ -79,13 +79,13 @@ You are now ready to explore the Azure Static Web Apps features.
 2. Commit and push the changes to `main` branch (or the branch you specified during resource creation).
 3. Go to [Actions](https://github.com/webmaxru/bpm-counter/actions) page of your repo to make sure that the workflow is running.
 
-[<img src="public/images/actions.png" width="400">](https://github.com/webmaxru/bpm-counter/actions)
+[<img src="public/images/cloud/actions.png" width="400">](https://github.com/webmaxru/bpm-counter/actions)
 
 4. On completion, open your website in a browser, you will see the new version.
 
 **Please note, this is a service worker-driven application, so you will see the prompt to reload the page.**
 
-<img src="public/images/update.png" width="300">
+<img src="public/images/cloud/update.png" width="300">
 
 ### Staging environments
 
@@ -111,7 +111,7 @@ git push origin new-feature
 
 4. Go to [Actions](https://github.com/webmaxru/bpm-counter/actions) page of your repo to make sure that the workflow is running.
 
-[<img src="public/images/pr.png" width="400">](https://github.com/webmaxru/bpm-counter/actions)
+[<img src="public/images/cloud/pr.png" width="400">](https://github.com/webmaxru/bpm-counter/actions)
 
 5. On completion, you will have a new version of the website deployed to Azure to a [new URL](https://mango-mud-0136f961e-2.westus2.azurestaticapps.net/). You can get this URL either from the workflow output on Azure or in the Azure Portal on Environments tab. GitHub Actions bot will also post this URL to your Pull Request [comments](https://github.com/webmaxru/bpm-counter/pull/2).
 
@@ -119,7 +119,7 @@ git push origin new-feature
 
 If the new version looks good and you merge this Pull Request to the main (tracked by SWA) branch, the workflow will automatically deploy the new version to this tracked branch and delete staging environment.
 
-<img src="public/images/environments.png" width="400">
+<img src="public/images/cloud/environments.png" width="400">
 
 **Please note, staged versions of your application are currently accessible publicly by their URL, even if your GitHub repository is private.**
 
@@ -139,14 +139,14 @@ How to create a new API function:
 
 1. Use "Create HTTP Function" button in VS Code extension.
 
-<img src="public/images/function.png" width="300">
+<img src="public/images/cloud/function.png" width="300">
 
 2. Follow the creation wizard.
 3. Write your code.
 4. Commit and push the changes to the branch.
 5. Your function will be automatically deployed to the SWA.
 
-<img src="public/images/functions.png" width="400">
+<img src="public/images/cloud/functions.png" width="400">
 
 [🗎 Documentation](https://docs.microsoft.com/en-us/azure/static-web-apps/add-api?ocid=aid3040965)
 
@@ -186,11 +186,11 @@ Setting up authentication:
 4. After logging in using the selected identity provider and giving consent on sharing personal information (email or user handle), the user will be redirected back to the application. And if the role is correctly set, they will get an access to the requested URL.
 5. To give user a custom role (for example, `administrator`), you use "Role management" tab in the Azure Portal. Click on "Invite" button, fill in the form and click "Generate". You will receive a link to send to the user to accept the role.	
 
-<img src="public/images/invite.png" width="400">
+<img src="public/images/cloud/invite.png" width="400">
 
 You can manage the users and roles in the "Role management" tab.
 
-<img src="public/images/role.png" width="400">
+<img src="public/images/cloud/role.png" width="400">
 
 6. You can read authenticated user credentials (for example to implement some logic in UI) by sending request to [/.auth/me](https://bpmtech.no/.auth/me) endpoint. To check authentication info of the API calls, you read the `x-ms-client-principal` header in the request. 
 7. To log out, you redirect users to [/.auth/logout](https://bpmtech.no/.auth/logout) page.
@@ -234,7 +234,9 @@ The production-ready service worker will also be generated.
 
 ### Credits
 
-The beat detection is based on [realtime-bpm-analyzer](https://www.npmjs.com/package/realtime-bpm-analyzer) library by [dlepaux](https://github.com/dlepaux)
+- Real-time BPM detection is based on [realtime-bpm-analyzer](https://www.npmjs.com/package/realtime-bpm-analyzer) library by [David Lepaux](https://github.com/dlepaux)
+- BPM detection in the files is based on [bpm-detective](https://www.npmjs.com/package/bpm-detective) library by [Carl Törnqvist](https://github.com/tornqvist/)
+- Spectrum analyzer is based [audioMotion-analyzer](https://www.npmjs.com/package/audiomotion-analyzer) library by [Henrique Vianna](https://github.com/hvianna/)
 
 ### Author
 

@@ -2,32 +2,121 @@
   "short_name": "BPM Techno",
   "name": "BPM Techno - Real-Time BPM Counter",
   "description": "Produce some beats using any player, launchpad, keyboard, and mix them live with another track easily and precisely using this free online real-time BPM counter",
-  "start_url": "/?offline",
+  "start_url": "/?utm_source=homescreen",
   "display": "standalone",
+  "display_override": ["window-control-overlay", "minimal-ui"],
   "theme_color": "#0d4c73",
   "background_color": "#0d4c73",
   "orientation": "portrait",
   "scope": "/",
+  "categories": ["entertainment", "music"],
   "icons": [
     {
       "src": "/images/icons/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png"
-  },
-  {
+    },
+    {
       "src": "/images/icons/icon-256x256.png",
       "sizes": "256x256",
       "type": "image/png"
-  },
-  {
+    },
+    {
       "src": "/images/icons/icon-384x384.png",
       "sizes": "384x384",
       "type": "image/png"
-  },
-  {
+    },
+    {
       "src": "/images/icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Upload Audio File",
+      "short_name": "Upload File",
+      "description": "Count BPM of the uploaded file",
+      "url": "/upload?utm_source=homescreen",
+      "icons": [
+        {
+          "src": "/images/shortcuts/upload.png",
+          "sizes": "192x192",
+          "type": "image/png",
+          "label": "Upload"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/images/screenshots/narrow-1.png",
+      "sizes": "1439x2881",
+      "platform": "narrow",
+      "label": "BPM Techno - Free Online Real-Time BPM Counter for DJ",
+      "type": "image/png"
+    },
+    {
+      "src": "/images/screenshots/narrow-2.png",
+      "sizes": "1439x2881",
+      "platform": "narrow",
+      "label": "BPM Techno - Free Online Real-Time BPM Counter for DJ",
+      "type": "image/png"
+    },
+    {
+      "src": "/images/screenshots/wide-1.png",
+      "sizes": "2732x2048",
+      "platform": "wide",
+      "label": "BPM Techno - Free Online Real-Time BPM Counter for DJ",
+      "type": "image/png"
+    },
+    {
+      "src": "/images/screenshots/wide-2.png",
+      "sizes": "2732x2048",
+      "platform": "wide",
+      "label": "BPM Techno - Free Online Real-Time BPM Counter for DJ",
+      "type": "image/png"
+    }
+  ],
+  "launch_handler": {
+    "route_to": "existing-client",
+    "navigate_existing_client": "always"
+  },
+  "protocol_handlers": [
+    {
+      "protocol": "web+bpm",
+      "url": "?utm_source=protocol&bpm=%s"
+    }
+  ],
+  "capture_links": "existing-client-navigate",
+  "url_handlers": [
+    {
+      "origin": "https://bpmtech.no"
+    }
+  ],
+  "file_handlers": [
+    {
+      "action": "/upload",
+      "accept": {
+        "text/csv": [".mp3"]
+      },
+      "icons": [
+        {
+          "src": "/images/shortcuts/upload.png",
+          "sizes": "192x192",
+          "type": "image/png",
+          "label": "Upload"
+        }
+      ]
+    }
+  ],
+  "share_target": {
+    "action": "/upload",
+    "method": "GET",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
   }
-  ]
 }

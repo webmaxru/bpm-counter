@@ -29,6 +29,7 @@ class Feedback extends React.Component {
   async sendFeedback(isCorrect) {
     this.requestOptions.body = JSON.stringify({
       bpm: this.props.bpm,
+      type: this.props.type,
       isCorrect: isCorrect,
     });
 

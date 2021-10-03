@@ -5,6 +5,7 @@ import About from './About.js';
 import Account from './Account.js';
 import Admin from './Admin.js';
 import Login from './Login.js';
+import Upload from './Upload.js';
 import log from 'loglevel';
 import { isMobile } from 'react-device-detect';
 import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
@@ -18,7 +19,7 @@ function App() {
   const isDebug = query.get('debug') === 'true';
   const isForcedViz = query.get('viz') === 'true';
   const testBPM = query.get('bpm');
-  
+
   log.setDefaultLevel(isDebug ? 'info' : 'error');
 
   useEffect(() => {
@@ -90,13 +91,16 @@ function App() {
           <Route path="/login">
             <Login />
           </Route>
+          <Route path="/upload">
+            <Upload isDebug={isDebug} log={log} />
+          </Route>
           <Route path="/">
             <Home
               isDebug={isDebug}
               log={log}
               isMobile={isMobile}
               isForcedViz={isForcedViz}
-              testBPM={testBPM}	
+              testBPM={testBPM}
             ></Home>
           </Route>
         </Switch>

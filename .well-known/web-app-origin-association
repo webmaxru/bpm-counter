@@ -1,0 +1,12 @@
+{
+  "web_apps": [
+    {
+      "manifest": "https://bpmtech.no/manifest.webmanifest",
+      "details": {
+        "paths": [
+          "/*"
+        ]
+      }
+    }
+  ]
+}
