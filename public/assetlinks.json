@@ -1,0 +1,6 @@
+[{
+        "relation": ["delegate_permission/common.handle_all_urls"],
+        "target" : { "namespace": "android_app", "package_name": "no.bpmtech.twa",
+                     "sha256_cert_fingerprints": ["EB:4A:CA:4B:33:AB:06:BE:1E:8A:D0:71:B3:96:94:DB:AB:41:83:BE:E3:9F:0D:5B:11:4A:86:82:4F:0E:74:84"] }
+      }
+]
