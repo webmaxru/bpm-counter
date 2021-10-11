@@ -2,7 +2,7 @@ const { injectManifest } = require("workbox-build");
 
 let workboxConfig = {
   globDirectory: "build",
-  globPatterns: ["favicon.ico", "index.html", "privacy.html", "static/**/*"],
+  globPatterns: ["favicon.ico", "index.html", "privacy.html", "static/**/*", "images/icons/*","manifest.webmanifest"],
   globIgnores: [
     "**/*.map",
     "**/*.txt"
