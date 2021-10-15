@@ -98,7 +98,7 @@
     {
       "action": "/upload",
       "accept": {
-        "text/csv": [".mp3"]
+        "audio/mpeg": [".mp3"]
       },
       "icons": [
         {
@@ -119,5 +119,17 @@
       "url": "url"
     }
   },
-  "iarc_rating_id": "09b8e729-04e0-43b1-8cb2-5caa729418a2"
+  "iarc_rating_id": "09b8e729-04e0-43b1-8cb2-5caa729418a2",
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=no.bpmtech.twa",
+      "id": "no.bpmtech.twa"
+    }, {
+      "platform": "windows",
+      "url": "https://www.microsoft.com/store/apps/9NQ4M5SC9PQ9",
+      "id": "9NQ4M5SC9PQ9"
+    }
+  ],
+  "prefer_related_applications": false
 }
