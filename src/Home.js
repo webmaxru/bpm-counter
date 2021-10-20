@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import './Home.css';
 import Feedback from './Feedback.js';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import RealTimeBPMAnalyzer from 'realtime-bpm-analyzer';
 import AudioMotionAnalyzer from 'audiomotion-analyzer';
 import { ToastContainer, toast } from 'react-toastify';
@@ -9,6 +9,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import ReactHintFactory from 'react-hint';
 import 'react-hint/css/index.css';
 import './custom-hint.css';
+import ReactGA from 'react-ga4';
+
 const ReactHint = ReactHintFactory(React);
 
 function Home(props) {
@@ -22,6 +24,13 @@ function Home(props) {
   let input;
   let scriptProcessorNode;
   const bufferSize = isMobile ? 16384 : 4096;
+
+  useEffect(() => {
+    ReactGA.event('event', 'select_content', {
+      content_type: 'mode',
+      item_id: 'realtime',
+    });
+  }, []);
 
   const startListening = async () => {
     if (navigator.mediaDevices.getUserMedia) {
@@ -143,6 +152,12 @@ function Home(props) {
 
           log.info(bpm);
           log.info(`Threshold, ${threshold}`);
+
+          ReactGA.event('event', 'detect', {
+            mode: 'realtime',
+            bpm: bpm[0].tempo,
+            threshold: threshold,
+          });
         }
       },
       onBpmStabilized: (threshold) => {
@@ -213,7 +228,9 @@ function Home(props) {
                 controls
               ></audio>
               <br />
-              <small>Play it loud! It takes 5-30 seconds to detect correct BPM (120). </small>
+              <small>
+                Play it loud! It takes 5-30 seconds to detect correct BPM (120).{' '}
+              </small>
             </p>
           ) : (
             <p>

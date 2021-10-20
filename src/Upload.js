@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import detect from 'bpm-detective';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Feedback from './Feedback.js';
+import ReactGA from 'react-ga4';
 
 function Upload(props) {
   let log = props.log;
@@ -13,7 +14,14 @@ function Upload(props) {
   const [primaryBPM, setPrimaryBPM] = useState(``);
   const [isResultReady, setIsResultReady] = useState(false);
 
-  function calculateBPM() {
+  useEffect(() => {
+    ReactGA.event('event', 'select_content', {
+      content_type: 'mode',
+      item_id: 'url',
+    });
+  }, []);
+
+  const calculateBPM = () => {
     setIsResultReady(false);
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
     const context = new window.AudioContext();
@@ -29,12 +37,18 @@ function Upload(props) {
         const bpm = detect(data);
         setPrimaryBPM(bpm);
         setIsResultReady(true);
+
+        ReactGA.event('event', 'detect', {
+          mode: 'url',
+          bpm: bpm,
+          threshold: null,
+        });
       })
       .catch((err) => {
         toast.error(`${err}`);
         console.error(err);
       });
-  }
+  };
 
   return (
     <main className="content">
@@ -53,7 +67,10 @@ function Upload(props) {
 
       <label for="url">
         URL of mp3/wav file&nbsp;|&nbsp;
-        <span onClick={() => setUrl('/samples/bpmtechno-120.mp3')} className="hint">
+        <span
+          onClick={() => setUrl('/samples/bpmtechno-120.mp3')}
+          className="hint"
+        >
           use sample
         </span>
       </label>

@@ -4,6 +4,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import ReactHintFactory from 'react-hint';
 import 'react-hint/css/index.css';
 import './custom-hint.css';
+import ReactGA from 'react-ga4';
+
 const ReactHint = ReactHintFactory(React);
 
 class Feedback extends React.Component {
@@ -38,6 +40,12 @@ class Feedback extends React.Component {
       toast.success('Sending your feedback. Thanks!');
 
       let response = await fetch(this.url, this.requestOptions);
+
+      ReactGA.event('event', 'share', {
+        method: 'API',
+        content_type: 'feedback',
+        item_id: isCorrect,
+      });
 
       if (!response.ok) {
         this.props.log.error(`HTTP error. Status: ${response.status}`);
