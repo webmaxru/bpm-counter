@@ -26,7 +26,7 @@ function Home(props) {
   const bufferSize = isMobile ? 16384 : 4096;
 
   useEffect(() => {
-    ReactGA.event('event', 'select_content', {
+    ReactGA.event('select_content', {
       content_type: 'mode',
       item_id: 'realtime',
     });
@@ -153,7 +153,7 @@ function Home(props) {
           log.info(bpm);
           log.info(`Threshold, ${threshold}`);
 
-          ReactGA.event('event', 'detect', {
+          ReactGA.event('detect', {
             mode: 'realtime',
             bpm: bpm[0].tempo,
             threshold: threshold,

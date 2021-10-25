@@ -41,7 +41,7 @@ class Feedback extends React.Component {
 
       let response = await fetch(this.url, this.requestOptions);
 
-      ReactGA.event('event', 'share', {
+      ReactGA.event('share', {
         method: 'API',
         content_type: 'feedback',
         item_id: isCorrect,

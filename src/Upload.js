@@ -15,7 +15,7 @@ function Upload(props) {
   const [isResultReady, setIsResultReady] = useState(false);
 
   useEffect(() => {
-    ReactGA.event('event', 'select_content', {
+    ReactGA.event('select_content', {
       content_type: 'mode',
       item_id: 'url',
     });
@@ -38,7 +38,7 @@ function Upload(props) {
         setPrimaryBPM(bpm);
         setIsResultReady(true);
 
-        ReactGA.event('event', 'detect', {
+        ReactGA.event('detect', {
           mode: 'url',
           bpm: bpm,
           threshold: null,
