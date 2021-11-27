@@ -38,7 +38,7 @@ npm install -g azure-functions-core-tools@3 --unsafe-perm true
 
 ```shell
 # Instead of CRA's "npm start" we use SWA CLI's command to start everything at once
-swa start http://localhost:3000 --run "npm start" --api ./api
+swa start http://localhost:3000 --run "npm start" --api-location ./api
 ```
 
 Open [http://localhost:4280](http://localhost:4280) in your browser.
