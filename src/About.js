@@ -3,6 +3,45 @@ import React, { useState } from 'react';
 function About() {
   const [clientPrincipal, setClientPrincipal] = useState(null);
 
+  let appInsights = null;
+
+  function trackException() {
+    appInsights.trackException({
+      error: new Error('some error'),
+      severityLevel: SeverityLevel.Error,
+    });
+  }
+
+  function trackTrace() {
+    appInsights.trackTrace({
+      message: 'some trace',
+      severityLevel: SeverityLevel.Information,
+    });
+  }
+
+  function trackEvent() {
+    appInsights.trackEvent({ name: 'some event' });
+  }
+
+  function throwError() {
+    let foo = {
+      field: { bar: 'value' },
+    };
+
+    // This will crash the app; the error will show up in the Azure Portal
+    return foo.fielld.bar;
+  }
+
+  function ajaxRequest() {
+    let xhr = new XMLHttpRequest();
+    xhr.open('GET', 'https://httpbin.org/status/200');
+    xhr.send();
+  }
+
+  function fetchRequest() {
+    fetch('https://httpbin.org/status/200');
+  }
+
   async function fetchClientPrincipal() {
     try {
       const res = await fetch('/.auth/me');
@@ -103,6 +142,18 @@ function About() {
           <a href=".auth/purge/github">
             Remove personal information for GitHub as a provider
           </a>
+          <br />
+          <br />
+          <button onClick={trackException}>Track Exception</button>
+          <button onClick={trackEvent}>Track Event</button>
+          <button onClick={trackTrace}>Track Trace</button>
+          <button onClick={throwError}>Autocollect an Error</button>
+          <button onClick={ajaxRequest}>
+            Autocollect a Dependency (XMLHttpRequest)
+          </button>
+          <button onClick={fetchRequest}>
+            Autocollect a dependency (Fetch)
+          </button>
           <br />
           <br />
         </li>
