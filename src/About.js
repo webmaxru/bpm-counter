@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { SeverityLevel } from '@microsoft/applicationinsights-web';
 
-function About() {
+function About(props) {
   const [clientPrincipal, setClientPrincipal] = useState(null);
 
-  let appInsights = null;
+  let appInsights = props.appInsights;
 
   function trackException() {
     appInsights.trackException({

@@ -89,7 +89,7 @@ function App() {
         <div className="body">
           <Switch>
             <Route path="/about">
-              <About />
+              <About appInsights={appInsights} />
             </Route>
             <Route path="/account">
               <Account />
