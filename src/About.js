@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { SeverityLevel } from '@microsoft/applicationinsights-web';
 
 function About() {
   const [clientPrincipal, setClientPrincipal] = useState(null);
