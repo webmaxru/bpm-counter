@@ -22,6 +22,11 @@ body {
 body > div {
   width: 100%;
   display: flex;
+}
+
+body > div > div {
+  width: 100%;
+  display: flex;
   flex-direction: column;
 }
 

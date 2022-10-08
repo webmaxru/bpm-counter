@@ -9,7 +9,7 @@ import Upload from './Upload.js';
 import log from 'loglevel';
 import { isMobile } from 'react-device-detect';
 import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Workbox } from 'workbox-window';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -23,7 +23,8 @@ function App() {
   const testBPM = query.get('bpm');
 
   log.setDefaultLevel(isDebug ? 'info' : 'error');
-  let appInsights = null;
+
+  const [appInsights, setAppInsights] = useState(null);
 
   useEffect(() => {
     if ('serviceWorker' in navigator) {
@@ -75,7 +76,7 @@ function App() {
       <TelemetryProvider
         instrumentationKey="f2f86b8c-90bb-4380-8168-48e41f8f74c8"
         after={() => {
-          appInsights = getAppInsights();
+          setAppInsights(getAppInsights());
         }}
       >
         <header>
