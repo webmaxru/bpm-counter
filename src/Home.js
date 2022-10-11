@@ -33,6 +33,16 @@ function Home(props) {
     });
   }, []);
 
+  useEffect(() => {
+    appInsights.trackEvent({
+      name: 'detect',
+      properties: {
+        content_type: 'mode',
+        item_id: 'realtime',
+      },
+    });
+  }, [appInsights]);
+
   const startListening = async () => {
     if (navigator.mediaDevices.getUserMedia) {
       try {
@@ -219,7 +229,12 @@ function Home(props) {
           </button>
 
           {primaryBPM ? (
-            <Feedback bpm={primaryBPM} log={log} type="mic"></Feedback>
+            <Feedback
+              bpm={primaryBPM}
+              log={log}
+              type="mic"
+              appInsights={appInsights}
+            ></Feedback>
           ) : null}
 
           <br />

@@ -1,5 +1,18 @@
+const appInsights = require('applicationinsights');
+appInsights.setup();
+const client = appInsights.defaultClient;
+
 module.exports = async function (context, req) {
+  var operationIdOverride = {
+    'ai.operation.id': context.traceContext.traceparent,
+  };
+
   if (!req.body || !('bpm' in req.body) || !('isCorrect' in req.body)) {
+    client.trackException({
+      exception: new Error('No required parameter!'),
+      tagOverrides: operationIdOverride,
+    });
+
     context.res = { status: 404, body: 'No required parameter!' };
     context.done();
   }
@@ -24,6 +37,17 @@ module.exports = async function (context, req) {
     bpm: bpm,
     isCorrect: isCorrect,
     timestamp: timestamp,
+  });
+
+  client.trackEvent({
+    name: 'feedback_save',
+    tagOverrides: operationIdOverride,
+    properties: {
+      id: new Date().toISOString() + Math.random().toString().substr(2, 8),
+      bpm: bpm,
+      isCorrect: isCorrect,
+      timestamp: timestamp,
+    },
   });
 
   context.res = {

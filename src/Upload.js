@@ -7,6 +7,7 @@ import ReactGA from 'react-ga4';
 
 function Upload(props) {
   let log = props.log;
+  const appInsights = props.appInsights;
 
   const query = new URLSearchParams(window.location.search);
 
@@ -20,6 +21,16 @@ function Upload(props) {
       item_id: 'url',
     });
   }, []);
+
+  useEffect(() => {
+    appInsights.trackEvent({
+      name: 'detect',
+      properties: {
+        content_type: 'mode',
+        item_id: 'url',
+      },
+    });
+  }, [appInsights]);
 
   const calculateBPM = () => {
     setIsResultReady(false);
