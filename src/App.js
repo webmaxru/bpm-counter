@@ -74,7 +74,7 @@ function App() {
   return (
     <Router>
       <TelemetryProvider
-        instrumentationKey="f2f86b8c-90bb-4380-8168-48e41f8f74c8"
+        instrumentationKey="c184dd43-7fba-48f7-bb07-a6755413b7ab"
         after={() => {
           setAppInsights(getAppInsights());
         }}
