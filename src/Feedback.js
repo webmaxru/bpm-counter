@@ -46,6 +46,14 @@ class Feedback extends React.Component {
         content_type: 'feedback',
         item_id: isCorrect,
       });
+      this.props.appInsights.trackEvent({
+        name: 'share',
+        properties: {
+          method: 'API',
+          content_type: 'feedback',
+          item_id: isCorrect,
+        },
+      });
 
       if (!response.ok) {
         this.props.log.error(`HTTP error. Status: ${response.status}`);

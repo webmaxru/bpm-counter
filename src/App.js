@@ -76,8 +76,9 @@ function App() {
       <TelemetryProvider
         connectionString="InstrumentationKey=c184dd43-7fba-48f7-bb07-a6755413b7ab;IngestionEndpoint=https://westus2-2.in.applicationinsights.azure.com/;LiveEndpoint=https://westus2.livediagnostics.monitor.azure.com/"
         after={() => {
-          setAppInsights(getAppInsights());
-          appInsights.trackPageView();
+          let appInsightsInstance = getAppInsights();
+          appInsightsInstance.trackPageView();
+          setAppInsights(appInsightsInstance);
         }}
       >
         <header>
@@ -112,6 +113,7 @@ function App() {
                 isMobile={isMobile}
                 isForcedViz={isForcedViz}
                 testBPM={testBPM}
+                appInsights={appInsights}
               ></Home>
             </Route>
           </Switch>

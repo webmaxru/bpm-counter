@@ -19,6 +19,7 @@ function Home(props) {
   const isMobile = props.isMobile;
   const isForcedViz = props.isForcedViz;
   const testBPM = props.testBPM;
+  const appInsights = props.appInsights;
 
   let context;
   let input;
@@ -29,6 +30,11 @@ function Home(props) {
     ReactGA.event('select_content', {
       content_type: 'mode',
       item_id: 'realtime',
+    });
+
+    appInsights.trackEvent({
+      name: 'select_content',
+      properties: { content_type: 'mode', item_id: 'realtime' },
     });
   }, []);
 
@@ -157,6 +163,14 @@ function Home(props) {
             mode: 'realtime',
             bpm: bpm[0].tempo,
             threshold: threshold,
+          });
+          appInsights.trackEvent({
+            name: 'detect',
+            properties: {
+              mode: 'realtime',
+              bpm: bpm[0].tempo,
+              threshold: threshold,
+            },
           });
         }
       },
