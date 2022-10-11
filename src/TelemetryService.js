@@ -11,15 +11,15 @@ let appInsights = null;
 const createTelemetryService = () => {
   /**
    * Initialize the Application Insights class
-   * @param {string} instrumentationKey - Application Insights Instrumentation Key
+   * @param {string} connectionString - Application Insights Instrumentation Key
    * @param {Object} browserHistory - client's browser history, supplied by the withRouter HOC
    * @return {void}
    */
-  const initialize = (instrumentationKey, browserHistory) => {
+  const initialize = (connectionString, browserHistory) => {
     if (!browserHistory) {
       throw new Error('Could not initialize Telemetry Service');
     }
-    if (!instrumentationKey) {
+    if (!connectionString) {
       throw new Error(
         'Instrumentation key not provided in ./src/telemetry-provider.jsx'
       );
@@ -29,7 +29,7 @@ const createTelemetryService = () => {
 
     appInsights = new ApplicationInsights({
       config: {
-        instrumentationKey: instrumentationKey,
+        connectionString: connectionString,
         maxBatchInterval: 0,
         disableFetchTracking: false,
         extensions: [reactPlugin],

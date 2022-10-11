@@ -16,13 +16,13 @@ class TelemetryProvider extends Component {
   componentDidMount() {
     const { history } = this.props;
     const { initialized } = this.state;
-    const AppInsightsInstrumentationKey = this.props.instrumentationKey; // PUT YOUR KEY HERE
+    const AppInsightsConnectionString= this.props.connectionString; // PUT YOUR KEY HERE
     if (
       !Boolean(initialized) &&
-      Boolean(AppInsightsInstrumentationKey) &&
+      Boolean(AppInsightsConnectionString) &&
       Boolean(history)
     ) {
-      ai.initialize(AppInsightsInstrumentationKey, history);
+      ai.initialize(AppInsightsConnectionString, history);
       this.setState({ initialized: true });
     }
 
