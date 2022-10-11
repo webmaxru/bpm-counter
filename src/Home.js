@@ -31,11 +31,6 @@ function Home(props) {
       content_type: 'mode',
       item_id: 'realtime',
     });
-
-    appInsights.trackEvent({
-      name: 'select_content',
-      properties: { content_type: 'mode', item_id: 'realtime' },
-    });
   }, []);
 
   const startListening = async () => {
