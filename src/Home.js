@@ -34,7 +34,7 @@ function Home(props) {
   }, []);
 
   useEffect(() => {
-    appInsights.trackEvent({
+    appInsights ?? appInsights.trackEvent({
       name: 'detect',
       properties: {
         content_type: 'mode',
