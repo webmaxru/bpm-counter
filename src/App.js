@@ -104,7 +104,7 @@ function App() {
               <Login />
             </Route>
             <Route path="/upload">
-              <Upload isDebug={isDebug} log={log} />
+              <Upload isDebug={isDebug} log={log} appInsights={appInsights} />
             </Route>
             <Route path="/">
               <Home
