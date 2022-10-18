@@ -1,7 +1,9 @@
 import { ApplicationInsights } from '@microsoft/applicationinsights-web';
 import { ReactPlugin } from '@microsoft/applicationinsights-react-js';
+import { ClickAnalyticsPlugin } from '@microsoft/applicationinsights-clickanalytics-js';
 
 let reactPlugin = null;
+let clickPlugin = null;
 let appInsights = null;
 
 /**
@@ -27,16 +29,22 @@ const createTelemetryService = () => {
 
     reactPlugin = new ReactPlugin();
 
+    clickPlugin = new ClickAnalyticsPlugin();
+    const clickPluginConfig = {
+      autoCapture: true,
+    };
+
     appInsights = new ApplicationInsights({
       config: {
         connectionString: connectionString,
         maxBatchInterval: 0,
         disableFetchTracking: false,
-        extensions: [reactPlugin],
+        extensions: [reactPlugin, clickPlugin],
         extensionConfig: {
           [reactPlugin.identifier]: {
             history: browserHistory,
           },
+          [clickPlugin.identifier]: clickPluginConfig,
         },
       },
     });

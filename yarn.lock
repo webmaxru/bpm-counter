@@ -1553,6 +1553,17 @@
     "@microsoft/applicationinsights-shims" "2.0.1"
     "@microsoft/dynamicproto-js" "^1.1.6"
 
+"@microsoft/applicationinsights-clickanalytics-js@^2.8.8":
+  "integrity" "sha512-VlyBhqMK2Qs8GHqja6z0NJFZAOsAvhVic0UWMzf530N9ofznaca+PRO52nuN0Iyxgj5De8S0kZcc+AXzt71k9Q=="
+  "resolved" "https://registry.npmjs.org/@microsoft/applicationinsights-clickanalytics-js/-/applicationinsights-clickanalytics-js-2.8.8.tgz"
+  "version" "2.8.8"
+  dependencies:
+    "@microsoft/applicationinsights-common" "2.8.8"
+    "@microsoft/applicationinsights-core-js" "2.8.8"
+    "@microsoft/applicationinsights-properties-js" "2.8.8"
+    "@microsoft/applicationinsights-shims" "2.0.1"
+    "@microsoft/dynamicproto-js" "^1.1.6"
+
 "@microsoft/applicationinsights-common@^2.8.5", "@microsoft/applicationinsights-common@2.8.8":
   "integrity" "sha512-+gvFSqguPK/hpdzY6FzgPAhR0uZPzIKS6LoEi9ET84SVGS0V/5251yZrqFjrGELJMS00YRHKZiWD03u1IUnLTw=="
   "resolved" "https://registry.npmjs.org/@microsoft/applicationinsights-common/-/applicationinsights-common-2.8.8.tgz"
