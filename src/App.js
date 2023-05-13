@@ -69,7 +69,7 @@ function App() {
 
       wb.register();
     }
-  }, []);
+  }, ["disabled"]);
 
   return (
     <Router>

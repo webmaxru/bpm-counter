@@ -2,7 +2,10 @@
 import './Home.css';
 import Feedback from './Feedback.js';
 import React, { useEffect, useState } from 'react';
-import { createRealTimeBpmProcessor, getBiquadFilters } from 'realtime-bpm-analyzer';
+import {
+  createRealTimeBpmProcessor,
+  getBiquadFilters,
+} from 'realtime-bpm-analyzer';
 import AudioMotionAnalyzer from 'audiomotion-analyzer';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -21,11 +24,6 @@ function Home(props) {
   const testBPM = props.testBPM;
   const appInsights = props.appInsights;
 
-  let context;
-  let input;
-  let scriptProcessorNode;
-  const bufferSize = isMobile ? 16384 : 4096;
-
   useEffect(() => {
     ReactGA.event('select_content', {
       content_type: 'mode',
@@ -34,7 +32,7 @@ function Home(props) {
   }, []);
 
   useEffect(() => {
-     appInsights?.trackEvent({
+    appInsights?.trackEvent({
       name: 'detect',
       properties: {
         content_type: 'mode',
@@ -46,14 +44,69 @@ function Home(props) {
   const startListening = async () => {
     if (navigator.mediaDevices.getUserMedia) {
       try {
-        window.AudioContext = window.AudioContext || window.webkitAudioContext;
-        context = new window.AudioContext();
+        // window.AudioContext = window.AudioContext || window.webkitAudioContext;
+        const audioContext = new AudioContext();
 
         const stream = await navigator.mediaDevices.getUserMedia({
           audio: true,
         });
 
-        onStream(stream);
+        console.log('stream', stream);
+
+        const source = audioContext.createMediaStreamSource(stream);
+
+        const realtimeAnalyzerNode = await createRealTimeBpmProcessor(
+          audioContext
+        );
+        console.log('realtimeAnalyzerNode', realtimeAnalyzerNode);
+
+        const { lowpass, highpass } = getBiquadFilters(audioContext);
+
+        source.connect(lowpass).connect(highpass).connect(realtimeAnalyzerNode);
+        //source.connect(audioContext.destination);
+
+        console.log('source', source);
+
+        realtimeAnalyzerNode.port.postMessage({
+          message: 'ASYNC_CONFIGURATION',
+          parameters: {
+            continuousAnalysis: true,
+            stabilizationTime: 20000,
+          },
+        });
+
+        realtimeAnalyzerNode.port.onmessage = (event) => {
+          if (event.data.message === 'BPM') {
+            console.log(event.data.result);
+          }
+
+          if (event.data.message === 'BPM_STABLE') {
+            let result = event.data.result;
+
+            setIsResultReady(true);
+            setThreshold(Math.round(result.threshold * 100) / 100);
+
+            setPrimaryBPM(`${result.bpm[0]?.tempo}`);
+            setSecondaryBPM(`${result.bpm[1]?.tempo}`);
+
+            log.info(result.bpm);
+            log.info(`Threshold, ${result.threshold}`);
+
+            ReactGA.event('detect', {
+              mode: 'realtime',
+              bpm: result.bpm[0]?.tempo,
+              threshold: result.threshold,
+            });
+            appInsights.trackEvent({
+              name: 'detect',
+              properties: {
+                mode: 'realtime',
+                bpm: result.bpm[0]?.tempo,
+                threshold: result.threshold,
+              },
+            });
+          }
+        };
 
         if (!isMobile || isForcedViz) {
           const audioMotionGradientOptions = {
@@ -128,59 +181,10 @@ function Home(props) {
     window.location.reload();
   };
 
-  const onStream = async (stream) => {
-    input = context.createMediaStreamSource(stream);
-
-    const realtimeAnalyzerNode = await createRealTimeBpmProcessor(context);
-    
-    const {lowpass, highpass} = getBiquadFilters(context);
-    
-    input.connect(lowpass).connect(highpass).connect(realtimeAnalyzerNode);
-    input.connect(context.destination);
-
-    realtimeAnalyzerNode.port.postMessage({
-      message: 'ASYNC_CONFIGURATION',
-      parameters: {
-        continuousAnalysis: true,
-        stabilizationTime: 20_000,
-      }
-    })
-
-    realtimeAnalyzerNode.port.onmessage = (event) => {
-      if (event.data.message === 'BPM' || event.data.message === 'BPM_STABLE') {
-
-        let result = event.data.result;
-
-        setIsResultReady(true);
-        setThreshold(Math.round(result.threshold * 100) / 100);
-
-        setPrimaryBPM(`${result.bpm[0].tempo}`);
-        setSecondaryBPM(`${result.bpm[1].tempo}`);
-
-        log.info(result.bpm);
-        log.info(`Threshold, ${result.threshold}`);
-
-        ReactGA.event('detect', {
-          mode: 'realtime',
-          bpm: result.bpm[0].tempo,
-          threshold: result.threshold,
-        });
-        appInsights.trackEvent({
-          name: 'detect',
-          properties: {
-            mode: 'realtime',
-            bpm: result.bpm[0].tempo,
-            threshold: result.threshold,
-          },
-        });
-      }
-
-    };
-
-  };
-
   return (
     <main className="content">
+      <audio src="http://audio-mp3.ibiblio.org:8000/wcpe.mp3" id="track"></audio>
+
       {isShowingInit ? (
         <div>
           <button
