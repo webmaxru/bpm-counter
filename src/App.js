@@ -67,9 +67,9 @@ function App() {
         }
       });
 
-      wb.register();
+      //wb.register();
     }
-  }, ["disabled"]);
+  }, []);
 
   return (
     <Router>
