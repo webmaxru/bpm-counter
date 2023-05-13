@@ -1,12 +1,7 @@
 {
   "web_apps": [
     {
-      "manifest": "https://bpmtech.no/manifest.webmanifest",
-      "details": {
-        "paths": [
-          "/*"
-        ]
-      }
+      "web_app_identity": "https://bpm-in.push.foo"
     }
   ]
 }
