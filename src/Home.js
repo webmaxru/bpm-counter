@@ -108,7 +108,8 @@ function Home(props) {
           }
         };
 
-        if (!isMobile || isForcedViz) {
+        if (false) {
+          // !isMobile || isForcedViz
           const audioMotionGradientOptions = {
             bgColor: '#0D4C73',
             dir: 'v',
@@ -183,8 +184,6 @@ function Home(props) {
 
   return (
     <main className="content">
-      <audio src="http://audio-mp3.ibiblio.org:8000/wcpe.mp3" id="track"></audio>
-
       {isShowingInit ? (
         <div>
           <button
