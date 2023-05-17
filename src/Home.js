@@ -56,7 +56,7 @@ function Home(props) {
         const source = audioContext.createMediaStreamSource(stream);
 
         const gainNode = audioContext.createGain();
-        gainNode.gain.value = 3;
+        gainNode.gain.value = 100;
 
         const realtimeAnalyzerNode = await createRealTimeBpmProcessor(
           audioContext
