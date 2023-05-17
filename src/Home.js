@@ -55,6 +55,9 @@ function Home(props) {
 
         const source = audioContext.createMediaStreamSource(stream);
 
+        const gainNode = audioContext.createGain();
+        gainNode.gain.value = 3;
+
         const realtimeAnalyzerNode = await createRealTimeBpmProcessor(
           audioContext
         );
@@ -62,8 +65,11 @@ function Home(props) {
 
         const { lowpass, highpass } = getBiquadFilters(audioContext);
 
-        source.connect(lowpass).connect(highpass).connect(realtimeAnalyzerNode);
-        //source.connect(audioContext.destination);
+        source
+          .connect(gainNode)
+          .connect(lowpass)
+          .connect(highpass)
+          .connect(realtimeAnalyzerNode);
 
         console.log('source', source);
 
