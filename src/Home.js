@@ -66,8 +66,8 @@ function Home(props) {
         const { lowpass, highpass } = getBiquadFilters(audioContext);
 
         source
-          .connect(gainNode)
-          .connect(lowpass)
+          //.connect(gainNode)
+          //.connect(lowpass)
           .connect(highpass)
           .connect(realtimeAnalyzerNode);
 
