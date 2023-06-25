@@ -51,8 +51,6 @@ function Home(props) {
           audio: true,
         });
 
-        console.log('stream', stream);
-
         const source = audioContext.createMediaStreamSource(stream);
 
         const gainNode = audioContext.createGain();
@@ -61,31 +59,14 @@ function Home(props) {
         const realtimeAnalyzerNode = await createRealTimeBpmProcessor(
           audioContext
         );
-        console.log('realtimeAnalyzerNode', realtimeAnalyzerNode);
 
-        const { lowpass, highpass } = getBiquadFilters(audioContext);
-
-        source
-          //.connect(gainNode)
-          //.connect(lowpass)
-          .connect(highpass)
-          .connect(realtimeAnalyzerNode);
-
-        console.log('source', source);
+        source.connect(realtimeAnalyzerNode);
 
         realtimeAnalyzerNode.port.postMessage({
           message: 'ASYNC_CONFIGURATION',
-          parameters: {
-            continuousAnalysis: true,
-            stabilizationTime: 20000,
-          },
         });
 
         realtimeAnalyzerNode.port.onmessage = (event) => {
-          if (event.data.message === 'BPM') {
-            console.log(event.data.result);
-          }
-
           if (event.data.message === 'BPM_STABLE') {
             let result = event.data.result;
 
@@ -114,8 +95,7 @@ function Home(props) {
           }
         };
 
-        if (false) {
-          // !isMobile || isForcedViz
+        if (!isMobile || isForcedViz) {
           const audioMotionGradientOptions = {
             bgColor: '#0D4C73',
             dir: 'v',

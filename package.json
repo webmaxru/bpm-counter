@@ -20,7 +20,7 @@
     "react-router-dom": "^5.3.0",
     "react-scripts": "^5.0.1",
     "react-toastify": "^8.0.2",
-    "realtime-bpm-analyzer": "^3.2.0",
+    "realtime-bpm-analyzer": "^3.2.1",
     "rollup": "^2.56.3",
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-replace": "^2.2.0",
