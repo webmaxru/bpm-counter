@@ -15,6 +15,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { getAppInsights } from './TelemetryService';
 import TelemetryProvider from './telemetry-provider';
+import { Adsense } from '@ctrl/react-adsense';
 
 function App() {
   const query = new URLSearchParams(window.location.search);
@@ -67,14 +68,18 @@ function App() {
         }
       });
 
-      wb.register();
+      wb.register()
+        .then((registration) => {})
+        .catch((err) => {
+          console.error(err);
+        });
     }
   }, []);
 
   return (
     <Router>
       <TelemetryProvider
-        connectionString="InstrumentationKey=f2f86b8c-90bb-4380-8168-48e41f8f74c8;IngestionEndpoint=https://westus2-2.in.applicationinsights.azure.com/;LiveEndpoint=https://westus2.livediagnostics.monitor.azure.com/" 
+        connectionString="InstrumentationKey=f2f86b8c-90bb-4380-8168-48e41f8f74c8;IngestionEndpoint=https://westus2-2.in.applicationinsights.azure.com/;LiveEndpoint=https://westus2.livediagnostics.monitor.azure.com/"
         after={() => {
           let appInsightsInstance = getAppInsights();
           appInsightsInstance.trackPageView();
@@ -119,7 +124,9 @@ function App() {
           </Switch>
 
           <nav className="nav"></nav>
-          <aside className="ads"></aside>
+          <aside className="ads">
+            <Adsense client="ca-pub-6118980043742623" slot="2715985331" />
+          </aside>
         </div>
         <footer>
           <div id="AudioMotionAnalyzer"></div>

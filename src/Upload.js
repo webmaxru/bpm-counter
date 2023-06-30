@@ -22,16 +22,6 @@ function Upload(props) {
     });
   }, []);
 
-  useEffect(() => {
-    appInsights.trackEvent({
-      name: 'detect',
-      properties: {
-        content_type: 'mode',
-        item_id: 'url',
-      },
-    });
-  }, [appInsights]);
-
   const calculateBPM = () => {
     setIsResultReady(false);
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -53,6 +43,14 @@ function Upload(props) {
           mode: 'url',
           bpm: bpm,
           threshold: null,
+        });
+
+        appInsights.trackEvent({
+          name: 'detect',
+          properties: {
+            content_type: 'mode',
+            item_id: 'url',
+          },
         });
       })
       .catch((err) => {
@@ -76,7 +74,7 @@ function Upload(props) {
 
       <br />
 
-      <label for="url">
+      <label htmlFor="url">
         URL of mp3/wav file&nbsp;|&nbsp;
         <span
           onClick={() => setUrl('/samples/bpmtechno-120.mp3')}

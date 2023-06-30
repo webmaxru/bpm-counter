@@ -2,7 +2,7 @@
 import './Home.css';
 import Feedback from './Feedback.js';
 import React, { useEffect, useState } from 'react';
-import { createRealTimeBpmProcessor, getBiquadFilters } from 'realtime-bpm-analyzer';
+import RealTimeBPMAnalyzer from 'realtime-bpm-analyzer';
 import AudioMotionAnalyzer from 'audiomotion-analyzer';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -10,6 +10,7 @@ import ReactHintFactory from 'react-hint';
 import 'react-hint/css/index.css';
 import './custom-hint.css';
 import ReactGA from 'react-ga4';
+import {Adsense} from '@ctrl/react-adsense';
 
 const ReactHint = ReactHintFactory(React);
 
@@ -128,55 +129,65 @@ function Home(props) {
     window.location.reload();
   };
 
-  const onStream = async (stream) => {
+  const onStream = (stream) => {
     input = context.createMediaStreamSource(stream);
+    scriptProcessorNode = context.createScriptProcessor(bufferSize, 1, 1);
 
-    const realtimeAnalyzerNode = await createRealTimeBpmProcessor(context);
-    
-    const {lowpass, highpass} = getBiquadFilters(context);
-    
-    input.connect(lowpass).connect(highpass).connect(realtimeAnalyzerNode);
-    input.connect(context.destination);
+    input.connect(scriptProcessorNode);
+    scriptProcessorNode.connect(context.destination);
 
-    realtimeAnalyzerNode.port.postMessage({
-      message: 'ASYNC_CONFIGURATION',
-      parameters: {
-        continuousAnalysis: true,
-        stabilizationTime: 20_000,
-      }
-    })
+    const onAudioProcess = new RealTimeBPMAnalyzer({
+      debug: props.isDebug,
+      scriptNode: {
+        bufferSize: bufferSize,
+        numberOfInputChannels: 1,
+        numberOfOutputChannels: 1,
+      },
+      computeBPMDelay: 5000,
+      stabilizationTime: 10000,
+      continuousAnalysis: true,
+      pushTime: 1000,
+      pushCallback: (err, bpm, threshold) => {
+        if (err) {
+          log.warn(`${err.name}: ${err.message}`);
 
-    realtimeAnalyzerNode.port.onmessage = (event) => {
-      if (event.data.message === 'BPM' || event.data.message === 'BPM_STABLE') {
+          setIsResultReady(false);
+          return;
+        }
 
-        let result = event.data.result;
+        if (bpm && bpm.length) {
+          setIsResultReady(true);
+          setThreshold(Math.round(threshold * 100) / 100);
 
-        setIsResultReady(true);
-        setThreshold(Math.round(result.threshold * 100) / 100);
+          setPrimaryBPM(`${bpm[0].tempo}`);
+          setSecondaryBPM(`${bpm[1].tempo}`);
 
-        setPrimaryBPM(`${result.bpm[0].tempo}`);
-        setSecondaryBPM(`${result.bpm[1].tempo}`);
+          log.info(bpm);
+          log.info(`Threshold, ${threshold}`);
 
-        log.info(result.bpm);
-        log.info(`Threshold, ${result.threshold}`);
-
-        ReactGA.event('detect', {
-          mode: 'realtime',
-          bpm: result.bpm[0].tempo,
-          threshold: result.threshold,
-        });
-        appInsights.trackEvent({
-          name: 'detect',
-          properties: {
+          ReactGA.event('detect', {
             mode: 'realtime',
-            bpm: result.bpm[0].tempo,
-            threshold: result.threshold,
-          },
-        });
-      }
+            bpm: bpm[0].tempo,
+            threshold: threshold,
+          });
+          appInsights.trackEvent({
+            name: 'detect',
+            properties: {
+              mode: 'realtime',
+              bpm: bpm[0].tempo,
+              threshold: threshold,
+            },
+          });
+        }
+      },
+      onBpmStabilized: (threshold) => {
+        onAudioProcess.clearValidPeaks(threshold);
+      },
+    });
 
+    scriptProcessorNode.onaudioprocess = (e) => {
+      onAudioProcess.analyze(e);
     };
-
   };
 
   return (
