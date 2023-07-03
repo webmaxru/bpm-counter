@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import ReactGA from 'react-ga4';
 
 function AdLink(props) {
-  let log = props.log;
   const appInsights = props.appInsights;
 
   console.log(appInsights)
@@ -31,10 +30,6 @@ function AdLink(props) {
   };
 
   let adText = ads[ad].texts[getRandomInt(ads[ad].texts.length) - 1];
-
-  useEffect(() => {
-    // adText = ads[ad].texts[getRandomInt(ads[ad].texts.length)-1];
-  }, []);
 
   const handleClick = (event) => {
     ReactGA.event('click_ad', {
