@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@ctrl/react-adsense": "^1.7.0",
     "@microsoft/applicationinsights-clickanalytics-js": "^2.8.8",
     "@microsoft/applicationinsights-react-js": "^3.4.0",
     "@microsoft/applicationinsights-web": "^2.8.8",

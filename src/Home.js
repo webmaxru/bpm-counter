@@ -10,7 +10,7 @@ import ReactHintFactory from 'react-hint';
 import 'react-hint/css/index.css';
 import './custom-hint.css';
 import ReactGA from 'react-ga4';
-import {Adsense} from '@ctrl/react-adsense';
+import AdLink from './AdLink.js';
 
 const ReactHint = ReactHintFactory(React);
 
@@ -35,7 +35,7 @@ function Home(props) {
   }, []);
 
   useEffect(() => {
-     appInsights?.trackEvent({
+    appInsights?.trackEvent({
       name: 'detect',
       properties: {
         content_type: 'mode',
@@ -207,7 +207,7 @@ function Home(props) {
           <p>App does not send any audio stream data to the servers.</p>
 
           <p>
-            NEW! <a href="/upload">BPM detection in hosted mp3/wav files</a>
+            <AdLink ad="search-dj-controllers" appInsights={appInsights} />
           </p>
         </div>
       ) : (
@@ -224,6 +224,10 @@ function Home(props) {
               <small> BPM</small>
             </h4>
           ) : null}
+
+          <p>
+            <AdLink ad="search-dj-controllers" appInsights={appInsights} />
+          </p>
 
           <button onClick={stopListening} className="btn-stop">
             Start over

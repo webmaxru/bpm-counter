@@ -15,7 +15,6 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { getAppInsights } from './TelemetryService';
 import TelemetryProvider from './telemetry-provider';
-import { Adsense } from '@ctrl/react-adsense';
 
 function App() {
   const query = new URLSearchParams(window.location.search);
@@ -124,9 +123,7 @@ function App() {
           </Switch>
 
           <nav className="nav"></nav>
-          <aside className="ads">
-            <Adsense client="ca-pub-6118980043742623" slot="2715985331" />
-          </aside>
+          <aside className="ads"></aside>
         </div>
         <footer>
           <div id="AudioMotionAnalyzer"></div>
