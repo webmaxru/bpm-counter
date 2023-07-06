@@ -207,7 +207,7 @@ function Home(props) {
           <p>App does not send any audio stream data to the servers.</p>
 
           <p>
-            <AdLink ad="search-dj-controllers" appInsights={appInsights} />
+            <AdLink ad="item-music-prod" appInsights={appInsights} />
           </p>
         </div>
       ) : (
@@ -226,7 +226,7 @@ function Home(props) {
           ) : null}
 
           <p>
-            <AdLink ad="search-dj-controllers" appInsights={appInsights} />
+            <AdLink ad="item-sample-pack" appInsights={appInsights} />
           </p>
 
           <button onClick={stopListening} className="btn-stop">
