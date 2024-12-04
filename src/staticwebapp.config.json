@@ -59,6 +59,7 @@
       "X-Powered-By": "Maxim Salnikov and Azure Static Web Apps"
     },
     "mimeTypes": {
-      ".json": "text/json"
+      ".json": "text/json",
+      ".webmanifest": "application/manifest+json"
     }
   }
