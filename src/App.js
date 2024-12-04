@@ -73,6 +73,11 @@ function App() {
           console.error(err);
         });
     }
+
+
+    const [navTiming] = window.performance.getEntriesByType("navigation");
+    console.log(navTiming)
+    
   }, []);
 
   return (

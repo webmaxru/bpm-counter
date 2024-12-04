@@ -34,6 +34,50 @@ clientsClaim();
 // Setting custom cache names
 setCacheNameDetails({ precache: 'wb6-precache', runtime: 'wb6-runtime' });
 
+// STATIC ROUTING
+
+self.addEventListener('install', async (event) => {
+
+  if (event.addRoutes) {
+    try {
+      event.addRoutes([
+        {
+          condition: {
+            urlPattern: { pathname: '/login' },
+          },
+          source: 'network',
+        },
+        {
+          condition: {
+            urlPattern: { pathname: '/about' },
+          },
+          source: 'fetch-event',
+        },
+        {
+          condition: {
+            urlPattern: { pathname: '/privacy.html' },
+          },
+          source: {
+            cacheName: 'wb6-precache',
+          },
+        },
+        {
+          condition: {
+            urlPattern: { pathname: '/favicon.ico' },
+          },
+          source: 'race-network-and-fetch-handler',
+        },
+      ]);
+      console.log('[SW] Routes registered');
+    } catch (err) {
+      console.error(err);
+    }
+  } else {
+    console.error('[SW] No static routing support');
+  }
+
+});
+
 // PRECACHING
 
 // Precache and serve resources from __WB_MANIFEST array
