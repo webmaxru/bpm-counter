@@ -1,8 +1,8 @@
-/* eslint-disable no-unused-vars */
+git /* eslint-disable no-unused-vars */
 import './Home.css';
 import Feedback from './Feedback.js';
 import React, { useEffect, useState } from 'react';
-import RealTimeBPMAnalyzer from 'realtime-bpm-analyzer';
+import { createRealTimeBpmProcessor } from 'realtime-bpm-analyzer';
 import AudioMotionAnalyzer from 'audiomotion-analyzer';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -129,64 +129,53 @@ function Home(props) {
     window.location.reload();
   };
 
-  const onStream = (stream) => {
+  const onStream = async (stream) => {
     input = context.createMediaStreamSource(stream);
-    scriptProcessorNode = context.createScriptProcessor(bufferSize, 1, 1);
 
-    input.connect(scriptProcessorNode);
-    scriptProcessorNode.connect(context.destination);
-
-    const onAudioProcess = new RealTimeBPMAnalyzer({
-      debug: props.isDebug,
-      scriptNode: {
-        bufferSize: bufferSize,
-        numberOfInputChannels: 1,
-        numberOfOutputChannels: 1,
-      },
-      computeBPMDelay: 5000,
-      stabilizationTime: 10000,
+    // Create the BPM processor node using the new API
+    const bpmNode = await createRealTimeBpmProcessor(context, {
       continuousAnalysis: true,
-      pushTime: 1000,
-      pushCallback: (err, bpm, threshold) => {
-        if (err) {
-          log.warn(`${err.name}: ${err.message}`);
+      stabilizationTime: 10000,
+      debug: props.isDebug,
+    });
 
-          setIsResultReady(false);
-          return;
-        }
+    // Connect the microphone input to the BPM processor
+    input.connect(bpmNode);
+    // Optionally connect to destination if you want to hear the audio
+    // bpmNode.connect(context.destination);
 
-        if (bpm && bpm.length) {
+    // Listen for BPM events
+    bpmNode.port.onmessage = (event) => {
+      if (event.data.message === 'BPM') {
+        const bpmArr = event.data.data.bpm;
+        const threshold = event.data.data.threshold;
+        if (bpmArr && bpmArr.length) {
           setIsResultReady(true);
           setThreshold(Math.round(threshold * 100) / 100);
+          setPrimaryBPM(`${bpmArr[0].tempo}`);
+          setSecondaryBPM(`${bpmArr[1]?.tempo || ''}`);
 
-          setPrimaryBPM(`${bpm[0].tempo}`);
-          setSecondaryBPM(`${bpm[1].tempo}`);
-
-          log.info(bpm);
+          log.info(bpmArr);
           log.info(`Threshold, ${threshold}`);
 
           ReactGA.event('detect', {
             mode: 'realtime',
-            bpm: bpm[0].tempo,
+            bpm: bpmArr[0].tempo,
             threshold: threshold,
           });
           appInsights.trackEvent({
             name: 'detect',
             properties: {
               mode: 'realtime',
-              bpm: bpm[0].tempo,
+              bpm: bpmArr[0].tempo,
               threshold: threshold,
             },
           });
         }
-      },
-      onBpmStabilized: (threshold) => {
-        onAudioProcess.clearValidPeaks(threshold);
-      },
-    });
-
-    scriptProcessorNode.onaudioprocess = (e) => {
-      onAudioProcess.analyze(e);
+      }
+      if (event.data.message === 'BPM_STABLE') {
+        // Optionally handle stabilized BPM
+      }
     };
   };
 
