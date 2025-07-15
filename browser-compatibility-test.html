@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>realtime-bpm-analyzer v4.0.2 Compatibility Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        pre { background: #f5f5f5; padding: 10px; overflow-x: auto; }
+        button { margin: 5px; padding: 10px; }
+    </style>
+</head>
+<body>
+    <h1>realtime-bpm-analyzer v4.0.2 API Test</h1>
+    
+    <div class="test-section">
+        <h2>1. Library Import Test</h2>
+        <div id="import-results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. AudioWorklet Support Test</h2>
+        <div id="audioworklet-results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. API Configuration Test</h2>
+        <div id="config-results"></div>
+        <button onclick="testNewAPI()">Test New API</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>4. Old vs New Configuration Comparison</h2>
+        <div id="comparison-results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>5. Test Results Summary</h2>
+        <div id="summary-results"></div>
+    </div>
+
+    <script type="module">
+        let testResults = [];
+        
+        function logResult(test, status, message) {
+            const result = { test, status, message };
+            testResults.push(result);
+            console.log(`${test}: ${status} - ${message}`);
+        }
+        
+        function displayResult(elementId, test, status, message) {
+            const element = document.getElementById(elementId);
+            const className = status === 'PASS' ? 'success' : status === 'FAIL' ? 'error' : 'info';
+            element.innerHTML += `<div class="${className}"><strong>${test}:</strong> ${status} - ${message}</div>`;
+        }
+        
+        // Test 1: Library Import
+        try {
+            const realtimeBpm = await import('./node_modules/realtime-bpm-analyzer/dist/index.esm.js');
+            
+            displayResult('import-results', 'Import Test', 'PASS', 'Library imported successfully');
+            
+            // Check available exports
+            const exports = Object.keys(realtimeBpm);
+            displayResult('import-results', 'Available Exports', 'INFO', exports.join(', '));
+            
+            // Test specific exports
+            const requiredExports = ['createRealTimeBpmProcessor', 'getBiquadFilter', 'analyzeFullBuffer', 'RealTimeBpmAnalyzer'];
+            requiredExports.forEach(exportName => {
+                if (realtimeBpm[exportName]) {
+                    displayResult('import-results', exportName, 'PASS', `Available (${typeof realtimeBpm[exportName]})`);
+                } else {
+                    displayResult('import-results', exportName, 'FAIL', 'Not available');
+                }
+            });
+            
+            // Test 2: AudioWorklet Support
+            if (window.AudioContext && AudioContext.prototype.audioWorklet) {
+                displayResult('audioworklet-results', 'AudioWorklet Support', 'PASS', 'Browser supports AudioWorklet');
+            } else {
+                displayResult('audioworklet-results', 'AudioWorklet Support', 'FAIL', 'Browser does not support AudioWorklet');
+            }
+            
+            // Test 3: Configuration comparison
+            const oldConfig = {
+                debug: false,
+                scriptNode: {
+                    bufferSize: 4096,
+                    numberOfInputChannels: 1,
+                    numberOfOutputChannels: 1,
+                },
+                computeBPMDelay: 5000,
+                stabilizationTime: 10000,
+                continuousAnalysis: true,
+                pushTime: 1000,
+                pushCallback: (err, bpm, threshold) => {},
+                onBpmStabilized: (threshold) => {}
+            };
+            
+            const newConfig = {
+                continuousAnalysis: true,
+                stabilizationTime: 20000,
+                muteTimeInIndexes: 10000,
+                debug: false
+            };
+            
+            displayResult('comparison-results', 'Old Config Keys', 'INFO', Object.keys(oldConfig).join(', '));
+            displayResult('comparison-results', 'New Config Keys', 'INFO', Object.keys(newConfig).join(', '));
+            
+            // Show mapping
+            const configMapping = {
+                'debug': 'debug (kept)',
+                'scriptNode': 'REMOVED (handled by AudioWorklet)',
+                'computeBPMDelay': 'REMOVED (handled internally)',
+                'stabilizationTime': 'stabilizationTime (default changed: 10000 → 20000)',
+                'continuousAnalysis': 'continuousAnalysis (kept)',
+                'pushTime': 'REMOVED (handled internally)',
+                'pushCallback': 'REMOVED (replaced with message events)',
+                'onBpmStabilized': 'REMOVED (replaced with BPM_STABLE message)',
+                'muteTimeInIndexes': 'NEW parameter (default: 10000)'
+            };
+            
+            Object.entries(configMapping).forEach(([key, mapping]) => {
+                displayResult('comparison-results', key, 'INFO', mapping);
+            });
+            
+            // Make functions available globally for button
+            window.testNewAPI = async function() {
+                try {
+                    const audioContext = new AudioContext();
+                    const processor = await realtimeBpm.createRealTimeBpmProcessor(audioContext, newConfig);
+                    
+                    displayResult('config-results', 'AudioWorklet Creation', 'PASS', 'Successfully created AudioWorklet processor');
+                    displayResult('config-results', 'Processor Type', 'INFO', processor.constructor.name);
+                    
+                    // Test message handling setup
+                    processor.port.onmessage = (event) => {
+                        displayResult('config-results', 'Message Handler', 'PASS', `Received: ${event.data.message}`);
+                    };
+                    
+                    displayResult('config-results', 'Message Handler Setup', 'PASS', 'Message handler configured successfully');
+                    
+                } catch (error) {
+                    displayResult('config-results', 'AudioWorklet Creation', 'FAIL', error.message);
+                }
+            };
+            
+            // Test 4: Summary
+            setTimeout(() => {
+                const passCount = testResults.filter(r => r.status === 'PASS').length;
+                const failCount = testResults.filter(r => r.status === 'FAIL').length;
+                const infoCount = testResults.filter(r => r.status === 'INFO').length;
+                
+                displayResult('summary-results', 'Test Summary', 'INFO', 
+                    `Total: ${testResults.length}, Pass: ${passCount}, Fail: ${failCount}, Info: ${infoCount}`);
+                
+                if (failCount === 0) {
+                    displayResult('summary-results', 'Migration Readiness', 'PASS', 
+                        'Browser is compatible with realtime-bpm-analyzer v4.0.2');
+                } else {
+                    displayResult('summary-results', 'Migration Readiness', 'FAIL', 
+                        'Browser compatibility issues detected');
+                }
+            }, 100);
+            
+        } catch (error) {
+            displayResult('import-results', 'Import Test', 'FAIL', error.message);
+            displayResult('summary-results', 'Critical Error', 'FAIL', 'Cannot proceed with testing due to import failure');
+        }
+    </script>
+</body>
+</html>

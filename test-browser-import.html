@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test realtime-bpm-analyzer v4.0.2</title>
+</head>
+<body>
+    <h1>Testing realtime-bpm-analyzer v4.0.2</h1>
+    <div id="output"></div>
+    
+    <script type="module">
+        try {
+            // Try to import the library
+            const realtimeBpm = await import('./node_modules/realtime-bpm-analyzer/dist/index.js');
+            
+            console.log('Import successful:', realtimeBpm);
+            document.getElementById('output').innerHTML += '<p>Import successful</p>';
+            document.getElementById('output').innerHTML += '<p>Available exports: ' + Object.keys(realtimeBpm).join(', ') + '</p>';
+            
+            // Test specific functions
+            if (realtimeBpm.createRealTimeBpmProcessor) {
+                document.getElementById('output').innerHTML += '<p>✓ createRealTimeBpmProcessor found</p>';
+            } else {
+                document.getElementById('output').innerHTML += '<p>✗ createRealTimeBpmProcessor not found</p>';
+            }
+            
+            if (realtimeBpm.getBiquadFilter) {
+                document.getElementById('output').innerHTML += '<p>✓ getBiquadFilter found</p>';
+            } else {
+                document.getElementById('output').innerHTML += '<p>✗ getBiquadFilter not found</p>';
+            }
+            
+        } catch (error) {
+            console.error('Import failed:', error);
+            document.getElementById('output').innerHTML += '<p>Import failed: ' + error.message + '</p>';
+        }
+    </script>
+</body>
+</html>

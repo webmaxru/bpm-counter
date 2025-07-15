@@ -2,7 +2,7 @@
 import './Home.css';
 import Feedback from './Feedback.js';
 import React, { useEffect, useState } from 'react';
-import RealTimeBPMAnalyzer from 'realtime-bpm-analyzer';
+import realtimeBpm, { createRealTimeBpmProcessor, getBiquadFilter } from 'realtime-bpm-analyzer';
 import AudioMotionAnalyzer from 'audiomotion-analyzer';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -54,7 +54,7 @@ function Home(props) {
           audio: true,
         });
 
-        onStream(stream);
+        await onStream(stream);
 
         if (!isMobile || isForcedViz) {
           const audioMotionGradientOptions = {
@@ -101,7 +101,33 @@ function Home(props) {
         setIsListening(true);
         setIsShowingInit(false);
       } catch (err) {
-        log.error(`${err.name}: ${err.message}`);
+        // Enhanced error handling for getUserMedia and AudioContext errors
+        if (err.name === 'NotAllowedError') {
+          log.error('Microphone access denied by user');
+          toast.error('Microphone access is required for real-time BPM analysis');
+        } else if (err.name === 'NotFoundError') {
+          log.error('No microphone found');
+          toast.error('No microphone detected. Please connect a microphone and try again.');
+        } else if (err.name === 'NotReadableError') {
+          log.error('Microphone is already in use');
+          toast.error('Microphone is already in use by another application');
+        } else if (err.name === 'OverconstrainedError') {
+          log.error('Microphone constraints cannot be satisfied');
+          toast.error('Microphone configuration error. Please try with different settings.');
+        } else if (err.name === 'SecurityError') {
+          log.error('Security error accessing microphone');
+          toast.error('Security restrictions prevent microphone access. Please check your browser settings.');
+        } else if (err.name === 'NotSupportedError' && err.message.includes('AudioContext')) {
+          log.error('AudioContext not supported');
+          toast.error('Your browser does not support audio processing required for BPM analysis');
+        } else {
+          log.error(`Audio initialization error: ${err.name}: ${err.message}`);
+          toast.error('Failed to initialize audio system. Please try refreshing the page.');
+        }
+        
+        // Reset UI state on error
+        setIsListening(false);
+        setIsShowingInit(true);
       }
     } else {
       toast.error('No luck with accessing audio in your browser...');
@@ -129,65 +155,153 @@ function Home(props) {
     window.location.reload();
   };
 
-  const onStream = (stream) => {
-    input = context.createMediaStreamSource(stream);
-    scriptProcessorNode = context.createScriptProcessor(bufferSize, 1, 1);
-
-    input.connect(scriptProcessorNode);
-    scriptProcessorNode.connect(context.destination);
-
-    const onAudioProcess = new RealTimeBPMAnalyzer({
-      debug: props.isDebug,
-      scriptNode: {
-        bufferSize: bufferSize,
-        numberOfInputChannels: 1,
-        numberOfOutputChannels: 1,
-      },
-      computeBPMDelay: 5000,
-      stabilizationTime: 10000,
-      continuousAnalysis: true,
-      pushTime: 1000,
-      pushCallback: (err, bpm, threshold) => {
-        if (err) {
-          log.warn(`${err.name}: ${err.message}`);
-
-          setIsResultReady(false);
+  const onStream = async (stream) => {
+    try {
+      input = context.createMediaStreamSource(stream);
+      
+      // Create the new AudioWorklet-based BPM processor with enhanced error handling
+      let realtimeAnalyzerNode;
+      try {
+        realtimeAnalyzerNode = await createRealTimeBpmProcessor(context, {
+          debug: props.isDebug,
+          stabilizationTime: 10000, // Keep same as before
+          continuousAnalysis: true,
+          muteTimeInIndexes: 10000, // New parameter in v4.0.2
+        });
+      } catch (workletError) {
+        // Handle AudioWorklet-specific initialization errors
+        if (workletError.name === 'NotSupportedError') {
+          log.error('AudioWorklet not supported in this browser');
+          toast.error('Real-time BPM analysis requires a modern browser with AudioWorklet support');
+          return;
+        } else if (workletError.name === 'InvalidStateError') {
+          log.error('Audio context is in invalid state for AudioWorklet');
+          toast.error('Audio system initialization failed. Please try refreshing the page.');
+          return;
+        } else if (workletError.message && workletError.message.includes('addModule')) {
+          log.error('Failed to load AudioWorklet module');
+          toast.error('Failed to load audio processing module. Please check your internet connection.');
+          return;
+        } else {
+          log.error(`AudioWorklet initialization failed: ${workletError.name}: ${workletError.message}`);
+          toast.error('Failed to initialize real-time BPM analyzer. Please try again.');
           return;
         }
+      }
 
-        if (bpm && bpm.length) {
-          setIsResultReady(true);
-          setThreshold(Math.round(threshold * 100) / 100);
+      // Create lowpass filter with error handling
+      let lowpass;
+      try {
+        lowpass = getBiquadFilter(context);
+      } catch (filterError) {
+        log.error(`Failed to create audio filter: ${filterError.name}: ${filterError.message}`);
+        toast.error('Audio processing setup failed');
+        return;
+      }
 
-          setPrimaryBPM(`${bpm[0].tempo}`);
-          setSecondaryBPM(`${bpm[1].tempo}`);
+      // Connect audio nodes with error handling
+      try {
+        input.connect(lowpass).connect(realtimeAnalyzerNode);
+      } catch (connectionError) {
+        log.error(`Audio node connection failed: ${connectionError.name}: ${connectionError.message}`);
+        toast.error('Audio routing setup failed');
+        return;
+      }
 
-          log.info(bpm);
-          log.info(`Threshold, ${threshold}`);
+      // Handle messages from the AudioWorklet processor with enhanced error handling
+      realtimeAnalyzerNode.port.onmessage = (event) => {
+        try {
+          const { message, data } = event.data;
 
-          ReactGA.event('detect', {
-            mode: 'realtime',
-            bpm: bpm[0].tempo,
-            threshold: threshold,
-          });
-          appInsights.trackEvent({
-            name: 'detect',
-            properties: {
-              mode: 'realtime',
-              bpm: bpm[0].tempo,
-              threshold: threshold,
-            },
-          });
+          if (message === 'BPM') {
+            if (data && data.bpm && data.bpm.length) {
+              setIsResultReady(true);
+              setThreshold(Math.round(data.threshold * 100) / 100);
+
+              setPrimaryBPM(`${data.bpm[0].tempo}`);
+              setSecondaryBPM(data.bpm[1] ? `${data.bpm[1].tempo}` : '');
+
+              log.info(data.bpm);
+              log.info(`Threshold, ${data.threshold}`);
+
+              ReactGA.event('detect', {
+                mode: 'realtime',
+                bpm: data.bpm[0].tempo,
+                threshold: data.threshold,
+              });
+              appInsights.trackEvent({
+                name: 'detect',
+                properties: {
+                  mode: 'realtime',
+                  bpm: data.bpm[0].tempo,
+                  threshold: data.threshold,
+                },
+              });
+            } else {
+              log.warn('Received BPM message with invalid data structure');
+            }
+          } else if (message === 'BPM_STABLE') {
+            // BPM has stabilized - this replaces the old onBpmStabilized callback
+            log.info('BPM stabilized:', data);
+          } else if (message === 'ANALYZER_RESETED') {
+            // Analyzer was reset due to continuous analysis
+            log.info('Analyzer reset for continuous analysis');
+          } else if (message === 'ERROR') {
+            // Handle errors from the AudioWorklet processor
+            const errorMsg = data?.error || 'Unknown error from BPM analyzer';
+            log.error(`BPM analyzer error: ${errorMsg}`);
+            toast.error('BPM analysis encountered an error. Audio processing may be interrupted.');
+          } else if (message === 'PROCESSOR_ERROR') {
+            // Handle processor-specific errors
+            log.error(`Audio processor error: ${data?.error || 'Unknown processor error'}`);
+            toast.error('Audio processing error occurred. Please try restarting the analysis.');
+          } else {
+            log.warn(`Unknown message from BPM analyzer: ${message}`);
+          }
+        } catch (messageError) {
+          log.error(`Error processing BPM analyzer message: ${messageError.name}: ${messageError.message}`);
+          // Don't show toast for message processing errors to avoid spam
         }
-      },
-      onBpmStabilized: (threshold) => {
-        onAudioProcess.clearValidPeaks(threshold);
-      },
-    });
+      };
 
-    scriptProcessorNode.onaudioprocess = (e) => {
-      onAudioProcess.analyze(e);
-    };
+      // Handle port errors
+      realtimeAnalyzerNode.port.onmessageerror = (error) => {
+        log.error('BPM analyzer message error:', error);
+        toast.error('Communication error with BPM analyzer');
+      };
+
+      // Store reference for cleanup
+      scriptProcessorNode = realtimeAnalyzerNode;
+      
+    } catch (err) {
+      // Enhanced general error handling with specific error types
+      if (err.name === 'NotAllowedError') {
+        log.error('Microphone access denied by user');
+        toast.error('Microphone access is required for real-time BPM analysis');
+      } else if (err.name === 'NotFoundError') {
+        log.error('No microphone found');
+        toast.error('No microphone detected. Please connect a microphone and try again.');
+      } else if (err.name === 'NotReadableError') {
+        log.error('Microphone is already in use');
+        toast.error('Microphone is already in use by another application');
+      } else if (err.name === 'OverconstrainedError') {
+        log.error('Microphone constraints cannot be satisfied');
+        toast.error('Microphone configuration error. Please try with different settings.');
+      } else if (err.name === 'SecurityError') {
+        log.error('Security error accessing microphone');
+        toast.error('Security restrictions prevent microphone access. Please check your browser settings.');
+      } else if (err.name === 'TypeError' && err.message.includes('AudioWorklet')) {
+        log.error('AudioWorklet not available');
+        toast.error('Your browser does not support advanced audio processing required for real-time BPM analysis');
+      } else {
+        log.error(`Error setting up BPM analyzer: ${err.name}: ${err.message}`);
+        toast.error('Failed to initialize BPM analyzer. Please try refreshing the page.');
+      }
+      
+      // Reset UI state on error
+      setIsListening(false);
+      setIsShowingInit(true);
+    }
   };
 
   return (
