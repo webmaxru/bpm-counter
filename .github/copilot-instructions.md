@@ -5,9 +5,22 @@
 React 17 SPA deployed on **Azure Static Web Apps** with an Azure Functions API backend.
 
 - **Frontend**: Create React App (react-scripts 5), React Router v5 (`<Switch>`/`<Route>`), plain CSS
-- **API**: Single Azure Function (`api/feedback/`) — Node.js, CommonJS, Azure Functions v2 runtime
-- **PWA**: Custom Workbox `injectManifest` + Rollup pipeline (not CRA's built-in SW)
+- **API**: Single Azure Function (`api/feedback/`) — Node.js, CommonJS, Azure Functions v2 runtime, CosmosDB output binding
+- **PWA**: Custom Workbox 7 `injectManifest` + Rollup 2 pipeline (not CRA's built-in SW)
 - **Telemetry**: Dual tracking — Azure Application Insights AND Google Analytics 4
+
+### Critical version constraints
+
+Do NOT use APIs or patterns from newer versions of these libraries:
+
+| Dependency | Version | Constraint |
+|---|---|---|
+| `react` | `^17.0.2` | Uses `ReactDOM.render()`, NOT `createRoot()` (React 18) |
+| `react-router-dom` | `^5.3.0` | Uses `<Switch>`, `<Route>`, `withRouter`. NOT v6 (`<Routes>`, `useNavigate`) |
+| `react-scripts` | `^5.0.1` | CRA 5 (Webpack 5 under the hood) |
+| `realtime-bpm-analyzer` | `^1.1.5` | v1 API using `ScriptProcessorNode` |
+| `rollup` | `^2.56.3` | Rollup 2 legacy plugin format — NOT Rollup 3+ |
+| `react-toastify` | `^8.0.2` | v8 API |
 
 ### Key directories
 
@@ -22,14 +35,15 @@ React 17 SPA deployed on **Azure Static Web Apps** with an Azure Functions API b
 ### Component patterns
 
 - **Functional components with hooks** are the primary pattern (`Home`, `Upload`, `App`)
-- **Class components** exist only where required: `Feedback` (refs + lifecycle), `TelemetryProvider` (HOC compatibility with `withAITracking`/`withRouter`)
+- **Class components** exist only where required: `Feedback` (refs + lifecycle via `react-hint` factory pattern), `TelemetryProvider` (HOC compatibility with `withAITracking`/`withRouter`)
 - No global state library — local `useState` + props drilling. `appInsights` and `log` are passed as props from `App`
+- `appInsights` may be `null` initially — use optional chaining (`appInsights?.trackEvent()`) when calling telemetry methods
 
 ### Dual BPM engines
 
 Two separate libraries handle BPM detection:
-- `realtime-bpm-analyzer` — real-time mic input via AudioWorklet (`Home.js`)
-- `bpm-detective` — offline file analysis via `decodeAudioData` (`Upload.js`)
+- `realtime-bpm-analyzer` — real-time mic input via ScriptProcessorNode (`Home.js`)
+- `bpm-detective` — URL-based audio fetch + `decodeAudioData` (`Upload.js`). Supports `?url=` query param to pre-fill
 
 ## Build and Test
 
@@ -42,22 +56,34 @@ cd api && npm install
 swa start http://localhost:3000 --run "npm start" --api-location ./api
 # App available at http://localhost:4280
 
+# HTTPS dev (for mobile testing over LAN — requires .pem cert files)
+npm run startsecure
+
 # Production build (3-stage: CRA → Workbox inject → Rollup bundle SW)
 npm run build
 
-# Tests (Jest + React Testing Library, watch mode)
+# Tests (Jest + React Testing Library)
 npm test
 ```
+
+> **Note**: No test files exist yet. Testing libraries (`@testing-library/react`, Jest) are installed as dependencies but unused. Creating tests would start from scratch — create `src/setupTests.js` for global Web Audio API mocks, then add `*.test.js` files alongside components.
+
+### Environment
+
+- `.env` sets `GENERATE_SOURCEMAP=false` only
+- **No `REACT_APP_*` vars** — App Insights connection string and GA4 measurement ID are hardcoded in source (`App.js`, `index.js`)
 
 ### Query param feature flags
 
 - `?debug=true` — verbose logging
 - `?viz=true` — force audio visualization on mobile
-- `?bpm=N` — pre-set a test BPM value (skips mic)
+- `?bpm=N` — pre-set a BPM value (shows result immediately, but doesn't disable mic)
+- `?url=<audio-url>` — pre-fill URL on the Upload page
 
 ## Conventions
 
 - **Styling**: Plain CSS files per component (no CSS modules, no CSS-in-JS). Color palette: dark blue `#0D4C73`, teal `#35748C`, gold `#F2B680`, orange `#D98C5F`
+- **File naming**: PascalCase for components (`Home.js`), one component per file, default export. Exception: `telemetry-provider.jsx` (only `.jsx` file)
 - **Testing**: Mock Web Audio APIs and external deps (`realtime-bpm-analyzer`, `bpm-detective`, `audiomotion-analyzer`) via `jest.mock()`. Global audio mocks live in `src/setupTests.js`
 - **Service worker build**: After editing `src/sw/service-worker.js`, the full `npm run build` pipeline is needed: CRA build → `node sw-build.js` (Workbox injectManifest) → `npx rollup -c` (IIFE bundle)
 - **API functions**: Each function has its own subfolder under `api/` with `function.json` (bindings) + `index.js` (handler). Auth level is `anonymous` — SWA handles authentication
