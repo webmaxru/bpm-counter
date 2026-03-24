@@ -83,7 +83,7 @@ function App() {
   return (
     <Router>
       <TelemetryProvider
-        connectionString="InstrumentationKey=f2f86b8c-90bb-4380-8168-48e41f8f74c8;IngestionEndpoint=https://westus2-2.in.applicationinsights.azure.com/;LiveEndpoint=https://westus2.livediagnostics.monitor.azure.com/"
+        connectionString={process.env.REACT_APP_APPINSIGHTS_CONNECTION_STRING}
         after={() => {
           let appInsightsInstance = getAppInsights();
           appInsightsInstance.trackPageView();

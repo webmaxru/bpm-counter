@@ -51,7 +51,7 @@ function AdLink(props) {
       ad: ad,
       text: adText,
     });
-    appInsights.trackEvent({
+    appInsights?.trackEvent({
       name: 'click_ad',
       properties: {
         ad: ad,

@@ -45,7 +45,7 @@ function Upload(props) {
           threshold: null,
         });
 
-        appInsights.trackEvent({
+        appInsights?.trackEvent({
           name: 'detect',
           properties: {
             content_type: 'mode',

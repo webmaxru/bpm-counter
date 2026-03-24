@@ -170,7 +170,7 @@ function Home(props) {
             bpm: bpm[0].tempo,
             threshold: threshold,
           });
-          appInsights.trackEvent({
+          appInsights?.trackEvent({
             name: 'detect',
             properties: {
               mode: 'realtime',

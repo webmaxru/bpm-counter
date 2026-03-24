@@ -46,7 +46,7 @@ class Feedback extends React.Component {
         content_type: 'feedback',
         item_id: isCorrect,
       });
-      this.props.appInsights.trackEvent({
+      this.props.appInsights?.trackEvent({
         name: 'share',
         properties: {
           method: 'API',

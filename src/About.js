@@ -7,21 +7,21 @@ function About(props) {
   let appInsights = props.appInsights;
 
   function trackException() {
-    appInsights.trackException({
+    appInsights?.trackException({
       error: new Error('some error'),
       severityLevel: SeverityLevel.Error,
     });
   }
 
   function trackTrace() {
-    appInsights.trackTrace({
+    appInsights?.trackTrace({
       message: 'some trace',
       severityLevel: SeverityLevel.Information,
     });
   }
 
   function trackEvent() {
-    appInsights.trackEvent({ name: 'some event' });
+    appInsights?.trackEvent({ name: 'some event' });
   }
 
   function throwError() {
