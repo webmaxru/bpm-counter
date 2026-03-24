@@ -8,3 +8,8 @@
 - **User:** Maxim Salnikov
 
 ## Learnings
+- **bpm-detective upgrade (2026-03-24):** Requested upgrade from `^2.0.5`. Researched npm — `2.0.5` is already the latest stable version (only dist-tag: `latest: 2.0.5`). No newer version exists. No code changes needed. API remains: `import detect from 'bpm-detective'` → `detect(audioBuffer)` returning a BPM number.
+
+### 2026-03-24 — Session logged by Scribe
+- Orchestration log: `.squad/orchestration-log/2026-03-24T12-00-01Z-trinity-bpm-detective-check.md`
+- Decision merged into `.squad/decisions.md`
