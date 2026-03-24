@@ -1,16 +1,16 @@
-# Project Context
+# Scribe — History
 
-- **Project:** bpm-counter
+## Project Context
+- **Project:** BPM Counter — a web app that detects BPM in music from microphone input
+- **Stack:** Next.js (static export), Azure Functions (backend), Azure Static Web Apps (deployment)
+- **User:** Maxim Salnikov
 - **Created:** 2026-03-23
 
 ## Core Context
 
-Agent Scribe initialized and ready for work.
-
-## Recent Updates
-
-📌 Team initialized on 2026-03-23
+Scribe initialized. Responsible for logging sessions, merging decision inbox, and maintaining cross-agent context.
 
 ## Learnings
 
-Initial setup complete.
+- Team cast from The Matrix universe on 2026-03-24
+- Members: Neo (Lead), Trinity (Frontend), Tank (Backend), Mouse (Tester)

@@ -6,12 +6,15 @@ How to decide who handles what.
 
 | Work Type | Route To | Examples |
 |-----------|----------|----------|
-| {domain 1} | {Name} | {example tasks} |
-| {domain 2} | {Name} | {example tasks} |
-| {domain 3} | {Name} | {example tasks} |
-| Code review | {Name} | Review PRs, check quality, suggest improvements |
-| Testing | {Name} | Write tests, find edge cases, verify fixes |
-| Scope & priorities | {Name} | What to build next, trade-offs, decisions |
+| Frontend / UI / Components | Trinity | React components, Next.js pages, CSS, audio visualization |
+| Backend / API / Database | Tank | Azure Functions, CosmosDB bindings, API endpoints |
+| Testing / QA | Mouse | Unit tests, e2e tests, test mocking, coverage |
+| Code review | Neo | Review PRs, check quality, suggest improvements |
+| Architecture / Design | Neo | System design, tech decisions, scope trade-offs |
+| Scope & priorities | Neo | What to build next, trade-offs, decisions |
+| PWA / Service Worker | Trinity | Workbox config, offline support, caching |
+| SWA Config / Auth | Tank | staticwebapp.config.json, route rules, auth roles |
+| Telemetry | Trinity (client) / Tank (server) | App Insights, GA4, event tracking |
 | Session logging | Scribe | Automatic — never needs routing |
 
 ## Issue Routing
