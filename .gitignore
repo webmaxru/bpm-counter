@@ -33,3 +33,10 @@ yarn-error.log*
 # playwright-cli
 .playwright-cli/
 test-*.png
+# Squad: ignore runtime state (logs, inbox, sessions)
+.squad/orchestration-log/
+.squad/log/
+.squad/decisions/inbox/
+.squad/sessions/
+# Squad: SubSquad activation file (local to this machine)
+.squad-workstream
