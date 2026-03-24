@@ -27,3 +27,14 @@
 ### 2026-03-24 — Session logged by Scribe
 - Orchestration log: `.squad/orchestration-log/2026-03-24T12-00-00Z-switch-realtime-bpm-upgrade.md`
 - Decision merged into `.squad/decisions.md`
+
+### Test audio generation for mic-based BPM validation (2026-03-24)
+- Created `scripts/generate-test-audio.js` — zero-dependency Node.js script that writes raw PCM → WAV
+- Generates 7 WAV files (80, 90, 100, 110, 120, 130, 140 BPM) in `public/samples/`
+- Kick drum synthesis: sine wave sweeping 150 → 45 Hz with exponential amplitude decay (~100 ms), amplitude 0.85
+- Hi-hat on off-beat 8th notes: short noise burst (~30 ms), amplitude 0.20, fast exponential decay — helps detection at lower BPMs
+- 45-second duration covers the `stabilizationTime: 10000` ms window with plenty of margin
+- WAV format chosen over MP3 to avoid encoding dependencies; 16-bit PCM mono @ 44100 Hz
+- Each file is ~3.8 MB — acceptable for test assets, should be `.gitignore`d if repo size is a concern
+- Added `npm run generate-test-audio` script to `package.json`
+- **Gotcha:** `Float64Array` used as mix buffer to avoid clipping during additive synthesis; clamp to [-1,1] before converting to Int16
