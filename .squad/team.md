@@ -16,6 +16,7 @@
 | Trinity | Frontend Dev | .squad/agents/trinity/charter.md | ⚛️ Frontend |
 | Tank | Backend Dev | .squad/agents/tank/charter.md | 🔧 Backend |
 | Mouse | Tester | .squad/agents/mouse/charter.md | 🧪 Tester |
+| Switch | Audio Engineer | .squad/agents/switch/charter.md | 🎵 Audio |
 | Scribe | Scribe | .squad/agents/scribe/charter.md | 📋 Scribe |
 | Ralph | Work Monitor | — | 🔄 Monitor |
 

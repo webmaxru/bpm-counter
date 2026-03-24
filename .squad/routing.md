@@ -14,6 +14,9 @@ How to decide who handles what.
 | Scope & priorities | Neo | What to build next, trade-offs, decisions |
 | PWA / Service Worker | Trinity | Workbox config, offline support, caching |
 | SWA Config / Auth | Tank | staticwebapp.config.json, route rules, auth roles |
+| Web Audio API / BPM detection | Switch | AudioContext, mic capture, ScriptProcessorNode, realtime-bpm-analyzer, bpm-detective |
+| Audio visualization | Switch | audiomotion-analyzer, AnalyserNode, canvas rendering |
+| Audio decoding / formats | Switch | decodeAudioData, audio file handling, codec support |
 | Telemetry | Trinity (client) / Tank (server) | App Insights, GA4, event tracking |
 | Session logging | Scribe | Automatic — never needs routing |
 
