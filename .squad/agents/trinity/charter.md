@@ -20,7 +20,7 @@ Frontend Developer. Owns all UI, components, styling, and client-side logic.
 - React 17 (`ReactDOM.render()`, NOT `createRoot`)
 - React Router v5 (`<Switch>`, `<Route>`, `withRouter`)
 - react-toastify v8
-- realtime-bpm-analyzer v1 (ScriptProcessorNode API)
+- realtime-bpm-analyzer v5 (AudioWorklet API via `createRealtimeBpmAnalyzer()`)
 - Color palette: dark blue #0D4C73, teal #35748C, gold #F2B680, orange #D98C5F
 
 ## Model
