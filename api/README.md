@@ -107,6 +107,8 @@ Returned when the request body is missing or does not contain both `bpm` and `is
 "No required parameter!"
 ```
 
+> **Note:** The function currently returns HTTP `404` for validation errors. Semantically, `400 Bad Request` would be more appropriate per REST conventions — this is a known quirk in the existing implementation.
+
 #### Bindings (`function.json`)
 
 ```json
@@ -299,7 +301,7 @@ context.bindings.outputDocument = JSON.stringify({ ... });
 ### Prerequisites
 
 - [Node.js](https://nodejs.org/) (LTS recommended)
-- [Azure Functions Core Tools](https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-tools-reference) v3+
+- [Azure Functions Core Tools](https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-tools-reference) v3 or v4 (both support the v2 runtime used by this project)
 - [Azure Static Web Apps CLI](https://github.com/Azure/static-web-apps-cli) (`npm install -g @azure/static-web-apps-cli`)
 
 ### Install Dependencies
