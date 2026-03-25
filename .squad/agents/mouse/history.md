@@ -9,6 +9,32 @@
 
 ## Learnings
 
+### BPM detection e2e tests via Chromium fake audio capture (2026-03-25)
+
+**Created files:**
+- `e2e/bpm-detection.spec.js` — parameterized Playwright tests that feed WAV files into Chromium's fake mic device
+
+**Modified files:**
+- `playwright.config.js` — added `bpm-detection` project (testMatch, 90s timeout, mic permission); excluded bpm-detection.spec.js from default `chromium` project; changed webServer to `cross-env PORT=4173 npm start` on port 4173
+- `package.json` — added `test:e2e` and `test:e2e:bpm` npm scripts
+
+**Critical gotchas discovered:**
+
+1. **Chromium fake audio + AudioWorklet requires `getSettings()` activation.** Without calling `track.getSettings()` on the `getUserMedia` audio tracks, Chromium's fake audio capture sends silence to AudioWorklet processors. Fix: inject `page.addInitScript()` that monkey-patches `navigator.mediaDevices.getUserMedia` to call `getSettings()` on every track before returning the stream. This must be injected BEFORE navigation (not `page.evaluate`) so it runs before any page JS.
+
+2. **realtime-bpm-analyzer v5 only reliably detects 120+ BPM from synthetic audio.** The 4/4 kick+hi-hat WAV patterns at 44100 Hz (resampled to 48000 Hz by Chromium) don't produce enough transient energy for BPM detection below 120. Results: 80/90/100 BPM = no detection; 110 BPM = mis-detected as 176; 120/130/140 BPM = accurate within ±3 BPM. Tests only cover 120, 130, 140.
+
+3. **Each test needs its own `chromium.launch()`.** The `--use-file-for-fake-audio-capture` is a browser-level launch arg, not per-context. Each BPM test launches a fresh browser with the appropriate WAV file, creates a context + page, then closes everything in a `finally` block. Cannot use Playwright's default `{ page }` fixture.
+
+4. **Port 3000 conflicts.** CRA dev server prompts interactively when port 3000 is in use, breaking Playwright's webServer auto-start. Fix: use `cross-env PORT=4173 npm start` to bind to a known-free port. The bpm-detection test uses `BASE_URL` constant set to `http://localhost:4173`.
+
+5. **`--autoplay-policy=no-user-gesture-required`** as a Chromium arg helps ensure AudioContext activation without user gesture issues in headless mode.
+
+**Detection timing observations:**
+- 120 BPM: ~11s, 130 BPM: ~9s, 140 BPM: ~6-20s (variable)
+- Faster tempos = faster detection (more transients per analysis window)
+- `stabilizationTime: 10000` in the app means minimum ~10s before first BPM event
+
 ### Test foundation (2026-03-24)
 
 **Created files:**
