@@ -15,6 +15,16 @@ module.exports = defineConfig({
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
+      testIgnore: '**/bpm-detection.spec.js',
+    },
+    {
+      name: 'bpm-detection',
+      testMatch: '**/bpm-detection.spec.js',
+      timeout: 90000,
+      use: {
+        ...devices['Desktop Chrome'],
+        permissions: ['microphone'],
+      },
     },
   ],
   webServer: {

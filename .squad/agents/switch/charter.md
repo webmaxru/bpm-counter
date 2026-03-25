@@ -24,7 +24,7 @@ Web Audio API expert and audio processing specialist. Owns all audio pipeline co
 - Audio visualization setup (audiomotion-analyzer integration)
 
 ## Constraints
-- `realtime-bpm-analyzer` is at `^5.0.1` (v5 API using `AudioWorklet` via `createRealtimeBpmAnalyzer()`)
+- `realtime-bpm-analyzer` is pinned to `^1.1.5` (v1 API using `ScriptProcessorNode`)
 - `react` is `^17.0.2` — no React 18 APIs
 - Audio cleanup currently uses `window.location.reload()` — be aware of this pattern
 - `?viz=true` query param forces visualization on mobile

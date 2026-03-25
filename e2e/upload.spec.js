@@ -18,3 +18,21 @@ test('upload page allows entering a URL and has calculate button', async ({ page
 
   await expect(page.getByRole('link', { name: /real-time BPM detection/i })).toBeVisible();
 });
+
+test('calculates BPM from sample audio file', async ({ page }) => {
+  await page.goto('/upload');
+
+  // Click "use sample" to fill the URL
+  await page.getByText('use sample').click();
+
+  const urlInput = page.getByRole('textbox', { name: /URL of mp3\/wav file/i });
+  await expect(urlInput).toHaveValue('/samples/bpmtechno-120.mp3');
+
+  // Click calculate
+  await page.getByRole('button', { name: /Fetch and calculate/i }).click();
+
+  // Wait for BPM result — the sample is 120 BPM
+  const bpmHeading = page.locator('h2');
+  await expect(bpmHeading).toBeVisible({ timeout: 30000 });
+  await expect(bpmHeading).toHaveText(/\d+/);
+});

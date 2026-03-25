@@ -33,6 +33,9 @@ yarn-error.log*
 # playwright-cli
 .playwright-cli/
 test-*.png
+# Artifacts (test output, logs, temp files)
+/.artifacts/
+
 # Squad: ignore runtime state (logs, inbox, sessions)
 .squad/orchestration-log/
 .squad/log/

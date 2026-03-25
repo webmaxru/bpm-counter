@@ -28,7 +28,15 @@
     "startsecure": "cross-env HTTPS=true SSL_CRT_FILE=192.168.1.9.pem SSL_KEY_FILE=192.168.1.9-key.pem react-scripts start",
     "startprod": "cross-env NODE_ENV=production react-scripts start",
     "build-sw": "node sw-build.js && npx rollup -c",
+    "generate-test-audio": "node scripts/generate-test-audio.js",
+    "test:e2e": "npx playwright test",
+    "test:e2e:bpm": "npx playwright test --project=bpm-detection",
     "fix-ssl": "npm audit fix --force"
+  },
+  "jest": {
+    "moduleNameMapper": {
+      "^realtime-bpm-analyzer$": "<rootDir>/node_modules/realtime-bpm-analyzer/dist/dist/index.js"
+    }
   },
   "eslintConfig": {
     "extends": [
