@@ -17,7 +17,7 @@
     "react-router-dom": "^5.3.0",
     "react-scripts": "^5.0.1",
     "react-toastify": "^8.0.2",
-    "realtime-bpm-analyzer": "^5.0.1",
+    "realtime-bpm-analyzer": "^5.0.2",
     "web-vitals": "^1.0.1"
   },
   "scripts": {
@@ -32,11 +32,6 @@
     "test:e2e": "npx playwright test",
     "test:e2e:bpm": "npx playwright test --project=bpm-detection",
     "fix-ssl": "npm audit fix --force"
-  },
-  "jest": {
-    "moduleNameMapper": {
-      "^realtime-bpm-analyzer$": "<rootDir>/node_modules/realtime-bpm-analyzer/dist/dist/index.js"
-    }
   },
   "eslintConfig": {
     "extends": [
