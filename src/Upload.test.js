@@ -18,7 +18,7 @@ jest.mock('bpm-detective', () => jest.fn(() => 120));
 
 // Mock applicationinsights-react-js (withAITracking used in Upload export)
 jest.mock('@microsoft/applicationinsights-react-js', () => ({
-  withAITracking: (_plugin, component) => component,
+  withAITracking: jest.fn((_plugin, component) => component),
   ReactPlugin: jest.fn().mockImplementation(() => ({
     identifier: 'ReactPlugin',
   })),
@@ -98,6 +98,22 @@ describe('Upload', () => {
     expect(screen.getByRole('textbox')).toHaveValue(
       '/samples/bpmtechno-120.mp3'
     );
+  });
+});
+
+describe('Upload — withAITracking HOC', () => {
+  // Validates P0 #1 fix: withAITracking receives a non-null reactPlugin at import time
+  // Pre-fix: reactPlugin was null because createTelemetryService() captured it before init
+  it('wraps Upload with withAITracking using a non-null reactPlugin', () => {
+    // Fresh module load captures the import-time withAITracking call
+    jest.resetModules();
+    require('./Upload');
+    const { withAITracking } = require('@microsoft/applicationinsights-react-js');
+
+    expect(withAITracking).toHaveBeenCalledTimes(1);
+    const plugin = withAITracking.mock.calls[0][0];
+    expect(plugin).not.toBeNull();
+    expect(plugin).toBeDefined();
   });
 });
 
@@ -190,11 +206,11 @@ describe('Upload — telemetry integration', () => {
     );
   });
 
-  // Validates P1 #7 fix: decode/fetch errors should call trackException
-  it('calls trackException when audio decode fails', async () => {
-    const decodeError = new Error('Could not decode audio data');
+  // Validates P1 #7 fix: fetch errors should call trackException
+  it('calls trackException when fetch fails', async () => {
+    const fetchError = new Error('Network request failed');
     global.fetch = jest.fn(() =>
-      Promise.reject(decodeError)
+      Promise.reject(fetchError)
     );
 
     // Suppress expected console.error from the catch block
@@ -223,5 +239,42 @@ describe('Upload — telemetry integration', () => {
     });
 
     consoleSpy.mockRestore();
+  });
+
+  // Validates P1 #7 fix: decodeAudioData rejection should call trackException
+  it('calls trackException when decodeAudioData fails', async () => {
+    mockSuccessfulFetch();
+
+    const decodeError = new Error('Unable to decode audio data');
+    const OriginalAudioContext = window.AudioContext;
+    window.AudioContext = jest.fn(() => ({
+      decodeAudioData: jest.fn((_buffer, _resolve, reject) => reject(decodeError)),
+    }));
+
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+
+    render(
+      <TelemetryContext.Provider value={mockAppInsights}>
+        <Upload {...defaultProps} />
+      </TelemetryContext.Provider>
+    );
+
+    fireEvent.change(screen.getByRole('textbox'), {
+      target: { value: 'https://example.com/corrupt.mp3' },
+    });
+    fireEvent.click(
+      screen.getByRole('button', { name: /Fetch and calculate/i })
+    );
+
+    await waitFor(() => {
+      expect(mockAppInsights.trackException).toHaveBeenCalledWith(
+        expect.objectContaining({
+          exception: decodeError,
+        })
+      );
+    });
+
+    consoleSpy.mockRestore();
+    window.AudioContext = OriginalAudioContext;
   });
 });
