@@ -4,7 +4,7 @@ import Feedback from './Feedback.js';
 import React, { useContext, useEffect, useState } from 'react';
 import { createRealtimeBpmAnalyzer } from 'realtime-bpm-analyzer';
 import AudioMotionAnalyzer from 'audiomotion-analyzer';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ReactHintFactory from 'react-hint';
 import 'react-hint/css/index.css';
@@ -263,8 +263,6 @@ function Home(props) {
           )}
         </div>
       )}
-
-      <ToastContainer />
 
       {!isMobile ? (
         <ReactHint

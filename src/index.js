@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
@@ -9,11 +9,11 @@ import { getAppInsights } from './TelemetryService';
 ReactGA.initialize(process.env.REACT_APP_GA4_MEASUREMENT_ID);
 ReactGA.send('pageview');
 
-ReactDOM.render(
+const root = createRoot(document.getElementById('root'));
+root.render(
   <React.StrictMode>
     <App />
-  </React.StrictMode>,
-  document.getElementById('root')
+  </React.StrictMode>
 );
 
 // P1 #10: Forward Core Web Vitals to App Insights

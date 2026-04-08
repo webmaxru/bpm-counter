@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
 import detect from 'bpm-detective';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Feedback from './Feedback.js';
 import ReactGA from 'react-ga4';
@@ -109,8 +109,6 @@ function Upload(props) {
       <p>
         Return to <a href="/">real-time BPM detection</a>
       </p>
-
-      <ToastContainer />
     </main>
   );
 }

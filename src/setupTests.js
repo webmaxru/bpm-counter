@@ -87,5 +87,13 @@ window.performance.getEntriesByType = function () {
 const originalError = console.error;
 console.error = (...args) => {
   if (typeof args[0] === 'string' && args[0].includes('act(')) return;
+  // Suppress React Router v5 UNSAFE_ lifecycle warnings in StrictMode
+  if (typeof args[0] === 'string' && args[0].includes('UNSAFE_')) return;
   originalError.call(console, ...args);
+};
+
+const originalWarn = console.warn;
+console.warn = (...args) => {
+  if (typeof args[0] === 'string' && args[0].includes('react-dom/test-utils')) return;
+  originalWarn.call(console, ...args);
 };

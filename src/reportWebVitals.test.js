@@ -11,7 +11,7 @@
 jest.mock('web-vitals', () => ({
   __esModule: true,
   getCLS: jest.fn(),
-  getFID: jest.fn(),
+  getINP: jest.fn(),
   getFCP: jest.fn(),
   getLCP: jest.fn(),
   getTTFB: jest.fn(),
@@ -32,7 +32,7 @@ describe('reportWebVitals', () => {
     await new Promise((resolve) => setTimeout(resolve, 100));
 
     expect(webVitals.getCLS).toHaveBeenCalledWith(callback);
-    expect(webVitals.getFID).toHaveBeenCalledWith(callback);
+    expect(webVitals.getINP).toHaveBeenCalledWith(callback);
     expect(webVitals.getFCP).toHaveBeenCalledWith(callback);
     expect(webVitals.getLCP).toHaveBeenCalledWith(callback);
     expect(webVitals.getTTFB).toHaveBeenCalledWith(callback);
@@ -44,7 +44,7 @@ describe('reportWebVitals', () => {
     await new Promise((resolve) => setTimeout(resolve, 100));
 
     expect(webVitals.getCLS).not.toHaveBeenCalled();
-    expect(webVitals.getFID).not.toHaveBeenCalled();
+    expect(webVitals.getINP).not.toHaveBeenCalled();
   });
 
   it('does nothing when callback is not a function', async () => {

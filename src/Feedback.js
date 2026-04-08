@@ -1,5 +1,5 @@
 import React from 'react';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ReactHintFactory from 'react-hint';
 import 'react-hint/css/index.css';
@@ -85,7 +85,6 @@ class Feedback extends React.Component {
         </button>
         &nbsp;&nbsp;&nbsp;
         <button onClick={() => this.sendFeedback(false)}>👎🏽</button>
-        <ToastContainer />
         <ReactHint
           events="false"
           ref={(ref) => (this.instance = ref)}

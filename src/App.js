@@ -29,6 +29,8 @@ function App() {
   const [appInsights, setAppInsights] = useState(null);
 
   useEffect(() => {
+    let mounted = true;
+
     if ('serviceWorker' in navigator) {
       const wb = new Workbox('/sw.js');
 
@@ -78,17 +80,22 @@ function App() {
         }
       });
 
-      wb.register()
-        .then((registration) => {})
-        .catch((err) => {
-          console.error(err);
-        });
+      if (mounted) {
+        wb.register()
+          .then((registration) => {})
+          .catch((err) => {
+            console.error(err);
+          });
+      }
     }
 
 
     const [navTiming] = window.performance.getEntriesByType("navigation");
     console.log(navTiming)
     
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   return (
