@@ -9,6 +9,15 @@
 
 ## Learnings
 
+### API validation test coverage needed (2026-04-08)
+
+**From Tank's Azure Functions audit:** The `api/feedback/` endpoint has critical validation bugs that need e2e test coverage:
+1. Null/undefined request body crashes with `'bpm' in req.body` error (non-object primitive throws)
+2. `context.done()` does not halt execution; validation errors still write to CosmosDB
+3. Anonymous write endpoint has no rate limiting — abuse/spam risk
+
+**Action for Mouse:** Add e2e tests that validate error handling on the feedback POST endpoint. Cover scenarios: empty body, missing bpm field, invalid bpm value, null body. Verify HTTP 400 response and no CosmosDB write on validation failure.
+
 ### BPM detection e2e tests via Chromium fake audio capture (2026-03-25)
 
 **Created files:**

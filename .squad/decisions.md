@@ -32,6 +32,38 @@ Global browser API mocks (Web Audio, MediaDevices, Performance) in `src/setupTes
 
 Playwright e2e tests use Chromium `--use-file-for-fake-audio-capture` to feed synthesized WAV files as mic input. Only 120, 130, and 140 BPM are tested (±3 tolerance). Tempos below 120 excluded — `realtime-bpm-analyzer` v5 cannot reliably detect them through Chromium's fake audio capture pipeline (44100→48000 Hz resample + AudioWorklet processing). 80/90/100 BPM: zero detection; 110 BPM: mis-detected as 176 (false harmonic). Future options: regenerate WAVs at 48 kHz, use real music, sharper transients, or test via `bpm-detective`. Files: `e2e/bpm-detection.spec.js` (new), `playwright.config.js` (bpm-detection project), `package.json` (test:e2e scripts).
 
+### Azure Functions best practices audit (2026-04-08)
+**Author:** Tank (Backend Dev) | **Status:** Proposed
+
+Comprehensive audit of `api/` backend against current Azure Functions standards identified 13 findings across P0 (3), P1 (3), and P2 (7):
+
+**P0 — Critical Bugs:**
+1. Validation error in `api/feedback/index.js`: `context.done()` does not stop execution in async functions; code continues to access `req.body.bpm` causing crashes on null/undefined body.
+2. Anonymous write endpoint with no rate limiting, CAPTCHA, or request validation — CosmosDB cost/spam abuse risk.
+3. App Insights setup fragility: `appInsights.setup()` at module scope with no connection string param; missing env var causes cold start failure.
+
+**P1 — Modernization:**
+4. Extension bundle outdated `[2.*, 3.0.0)` → upgrade to `[4.*, 5.0.0)` for security patches and modern CosmosDB binding properties.
+5. SWA managed functions + CosmosDB output binding unsupported per SWA docs — current implementation may work via extension bundles but lacks official guarantee.
+6. Programming model v3 (function.json + CommonJS) → v4 (@azure/functions) migration recommended for better testability and modern API.
+
+**P2 — Code Quality:**
+7. `Math.floor(Date.now() / 1)` uses no-op division by 1.
+8. Document ID generated twice (different values) — should generate once, reuse.
+9. `substr()` deprecated → use `substring()` or `slice()`.
+10. Unnecessary `JSON.stringify()` on CosmosDB output document.
+11. HTTP 404 for validation error → should be 400 (Bad Request).
+12. Empty `proxies.json` (deprecated feature) — can be removed.
+13. Missing `local.settings.sample.json` onboarding template.
+14. Missing security headers in SWA config: `X-Content-Type-Options`, `X-Frame-Options`.
+
+**Recommended Phases:**
+- **Phase 1:** Fix P0 bugs (blocking production).
+- **Phase 2:** Update extension bundle, remove proxies.json, add security headers.
+- **Phase 3:** Team decision on v4 migration.
+
+**Impact:** Trinity (frontend) unaffected; Mouse should add validation test cases; Neo reviews v4 decision.
+
 ## Governance
 
 - All meaningful changes require team consensus

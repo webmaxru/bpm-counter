@@ -9,6 +9,20 @@
 
 ## Learnings
 
+### 2026-04-08 — Azure Functions v3 → v4 migration decision point (from Tank's audit)
+
+**Status:** Proposed for team consensus  
+**Scope:** Programming model upgrade for `api/` backend
+
+Tank's audit recommends evaluating v4 migration:
+- **Current:** function.json-based (v3 legacy) + CommonJS `module.exports`
+- **Target:** @azure/functions npm package with code-based registration (v4)
+- **Benefits:** no function.json, better unit testability, modern context API
+- **Binding changes:** `collectionName` → `containerName`, `connectionStringSetting` → `connection`
+- **Risk:** SWA managed functions officially support only HTTP triggers/bindings; CosmosDB output binding via extension bundles is not guaranteed. v4 migration should include verification or architectural change (move Cosmos write to SDK code or standalone Function App).
+
+**Neo's role:** Review v4 migration feasibility as a team decision. Consider phasing: Phase 1 (bug fixes P0), Phase 2 (extension bundle + headers), Phase 3 (v4 migration eval).
+
 ### 2026-03-24 — Full Project Structure Review
 - **Architecture**: React 17 CRA + Azure Functions v2 + SWA. Solid for its scope.
 - **Key files**: `App.js` (root + SW registration + hardcoded App Insights key), `index.js` (GA4 init), `TelemetryService.js` (App Insights SDK setup), `telemetry-provider.jsx` (class component HOC for AI tracking)
