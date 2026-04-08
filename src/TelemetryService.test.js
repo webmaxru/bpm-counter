@@ -111,6 +111,19 @@ describe('TelemetryService', () => {
       expect(mockAppInsightsInstance.loadAppInsights).toHaveBeenCalledTimes(1);
     });
 
+    it('second call returns cached instance (idempotent)', () => {
+      const { initialize } = loadModule();
+      const {
+        ApplicationInsights,
+      } = require('@microsoft/applicationinsights-web');
+
+      const first = initialize(testConnString, mockHistory);
+      const second = initialize('other-conn', mockHistory);
+
+      expect(first).toBe(second);
+      expect(ApplicationInsights).toHaveBeenCalledTimes(1);
+    });
+
     it('throws when browserHistory is missing', () => {
       const { initialize } = loadModule();
       expect(() => initialize(testConnString, null)).toThrow(

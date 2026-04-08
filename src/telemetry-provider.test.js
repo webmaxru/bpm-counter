@@ -97,6 +97,20 @@ describe('TelemetryProvider', () => {
     expect(TelemetryService.initialize).not.toHaveBeenCalled();
   });
 
+  it('does NOT call initialize() when history prop is missing', () => {
+    const afterFn = jest.fn();
+    render(
+      <TelemetryProvider
+        connectionString="InstrumentationKey=test"
+        after={afterFn}
+      >
+        <div>child</div>
+      </TelemetryProvider>
+    );
+    expect(TelemetryService.initialize).not.toHaveBeenCalled();
+    expect(afterFn).not.toHaveBeenCalled();
+  });
+
   // Validates P0 #4 fix: after() must not crash when init is skipped
   it('does not crash when after() is called without initialization', () => {
     const afterFn = jest.fn();

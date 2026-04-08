@@ -32,6 +32,20 @@ jest.mock('react-ga4', () => ({
   send: jest.fn(),
 }));
 
+// Mock react-toastify to capture toast calls
+jest.mock('react-toastify', () => {
+  const React = require('react');
+  return {
+    toast: Object.assign(jest.fn(), {
+      success: jest.fn(),
+      warning: jest.fn(),
+      info: jest.fn(),
+      error: jest.fn(),
+    }),
+    ToastContainer: () => React.createElement('div'),
+  };
+});
+
 // Mock applicationinsights-react-js (AppInsightsErrorBoundary, withAITracking)
 jest.mock('@microsoft/applicationinsights-react-js', () => {
   const React = require('react');
@@ -113,6 +127,7 @@ jest.mock('react-device-detect', () => ({
 // Re-import mocked module for beforeEach re-application
 const TelemetryService = require('./TelemetryService');
 const workboxWindow = require('workbox-window');
+const { toast } = require('react-toastify');
 
 beforeEach(() => {
   // Re-apply mock implementations cleared by CRA's resetMocks
@@ -245,6 +260,10 @@ describe('App — service worker telemetry', () => {
         name: 'sw_replay_completed',
       })
     );
+
+    expect(toast.success).toHaveBeenCalledWith(
+      'Your feedback was sent after the connection is restored'
+    );
   });
 
   // Validates P1 #11 fix: SW events should be tracked in App Insights
@@ -266,6 +285,10 @@ describe('App — service worker telemetry', () => {
       expect.objectContaining({
         name: 'sw_request_failed',
       })
+    );
+
+    expect(toast.warning).toHaveBeenCalledWith(
+      'Your feedback will be sent after the connection is restored'
     );
   });
 });

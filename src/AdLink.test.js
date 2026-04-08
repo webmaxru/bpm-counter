@@ -26,7 +26,7 @@ afterEach(() => {
 
 describe('AdLink', () => {
   it('renders a link for "item-music-prod" ad', () => {
-    render(<AdLink ad="item-music-prod" appInsights={null} />);
+    render(<AdLink ad="item-music-prod" />);
     const link = screen.getByRole('link');
     expect(link).toBeInTheDocument();
     expect(link).toHaveAttribute('target', '_blank');
@@ -38,7 +38,7 @@ describe('AdLink', () => {
   });
 
   it('renders a link for "item-sample-pack" ad', () => {
-    render(<AdLink ad="item-sample-pack" appInsights={null} />);
+    render(<AdLink ad="item-sample-pack" />);
     const link = screen.getByRole('link');
     expect(link).toBeInTheDocument();
     expect(link).toHaveAttribute(
@@ -48,7 +48,7 @@ describe('AdLink', () => {
   });
 
   it('renders a link for "search-dj-controllers" ad', () => {
-    render(<AdLink ad="search-dj-controllers" appInsights={null} />);
+    render(<AdLink ad="search-dj-controllers" />);
     const link = screen.getByRole('link');
     expect(link).toBeInTheDocument();
     expect(link).toHaveAttribute(
@@ -58,7 +58,7 @@ describe('AdLink', () => {
   });
 
   it('link text is not empty', () => {
-    render(<AdLink ad="item-music-prod" appInsights={null} />);
+    render(<AdLink ad="item-music-prod" />);
     const link = screen.getByRole('link');
     expect(link.textContent.length).toBeGreaterThan(0);
   });
@@ -70,7 +70,11 @@ describe('AdLink — telemetry', () => {
   it('does NOT call console.log', () => {
     const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
 
-    render(<AdLink ad="item-music-prod" appInsights={mockAppInsights} />);
+    render(
+      <TelemetryContext.Provider value={mockAppInsights}>
+        <AdLink ad="item-music-prod" />
+      </TelemetryContext.Provider>
+    );
 
     expect(consoleSpy).not.toHaveBeenCalled();
     consoleSpy.mockRestore();
@@ -98,9 +102,13 @@ describe('AdLink — telemetry', () => {
     );
   });
 
-  it('click handler calls trackEvent even when appInsights is null (no crash)', () => {
+  it('click handler does not crash when appInsights is null', () => {
     expect(() => {
-      render(<AdLink ad="item-music-prod" appInsights={null} />);
+      render(
+        <TelemetryContext.Provider value={null}>
+          <AdLink ad="item-music-prod" />
+        </TelemetryContext.Provider>
+      );
       const link = screen.getByRole('link');
       fireEvent.click(link);
     }).not.toThrow();
