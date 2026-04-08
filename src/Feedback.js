@@ -1,13 +1,11 @@
 import React from 'react';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import ReactHintFactory from 'react-hint';
-import 'react-hint/css/index.css';
+import { Tooltip } from 'react-tooltip';
+import 'react-tooltip/dist/react-tooltip.css';
 import './custom-hint.css';
 import ReactGA from 'react-ga4';
 import { TelemetryContext } from './TelemetryContext';
-
-const ReactHint = ReactHintFactory(React);
 
 class Feedback extends React.Component {
   // P2 #19: Use Context instead of prop drilling
@@ -15,6 +13,8 @@ class Feedback extends React.Component {
 
   constructor(props) {
     super(props);
+
+    this.state = { showHint: true };
 
     this.sendFeedback = this.sendFeedback.bind(this);
 
@@ -26,10 +26,13 @@ class Feedback extends React.Component {
   }
 
   componentDidMount() {
-    this.instance.toggleHint({ target: this.button });
-    setTimeout(() => {
-      if (this.instance) this.instance.toggleHint({ target: null });
+    this.hintTimer = setTimeout(() => {
+      this.setState({ showHint: false });
     }, 5000);
+  }
+
+  componentWillUnmount() {
+    clearTimeout(this.hintTimer);
   }
 
   async sendFeedback(isCorrect) {
@@ -78,19 +81,20 @@ class Feedback extends React.Component {
         <p>Does {this.props.bpm} sound correct?</p>
         <button
           onClick={() => this.sendFeedback(true)}
-          data-rh="Please, give us feedback - did it count BPM correctly?"
-          ref={(ref) => (this.button = ref)}
+          data-tooltip-id="feedback-hint"
+          data-tooltip-content="Please, give us feedback - did it count BPM correctly?"
         >
           👍🏽
         </button>
         &nbsp;&nbsp;&nbsp;
         <button onClick={() => this.sendFeedback(false)}>👎🏽</button>
-        <ReactHint
-          events="false"
-          ref={(ref) => (this.instance = ref)}
-          delay="2000"
-          position="bottom"
-          className="custom-hint react-hint"
+        <Tooltip
+          id="feedback-hint"
+          isOpen={this.state.showHint}
+          place="bottom"
+          className="custom-hint"
+          openEvents={{}}
+          closeEvents={{}}
         />
       </div>
     );

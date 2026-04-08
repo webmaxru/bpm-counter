@@ -1,19 +1,14 @@
 /**
  * TelemetryProvider component tests
  *
- * Tests the provider component with mocked SDK dependencies.
- * The provider wraps the app, initializes App Insights, and calls
- * the after() callback so App can access the SDK instance.
- *
- * Tests marked "validates Px #N fix" assert CORRECT post-fix behavior.
+ * Tests the functional provider component that uses useLocation() hook
+ * for page view tracking (React Router v7). Mocks useLocation and TelemetryService.
  */
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 
-// Mock react-router-dom (withRouter as passthrough so we control history prop)
 jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  withRouter: (component) => component,
+  useLocation: jest.fn(() => ({ pathname: '/', search: '', hash: '' })),
 }));
 
 jest.mock('./TelemetryService', () => ({
@@ -27,21 +22,20 @@ import TelemetryProvider from './telemetry-provider';
 
 // Get mock references after module resolution
 const TelemetryService = require('./TelemetryService');
-
-const mockHistory = { listen: jest.fn(), push: jest.fn() };
+const { useLocation: mockUseLocation } = require('react-router-dom');
 
 describe('TelemetryProvider', () => {
   beforeEach(() => {
     TelemetryService.initialize.mockClear();
     TelemetryService.getAppInsights.mockClear();
     TelemetryService.getAppInsights.mockReturnValue(null);
+    mockUseLocation.mockReturnValue({ pathname: '/', search: '', hash: '' });
   });
 
   it('renders children when connection string is provided', () => {
     TelemetryService.getAppInsights.mockReturnValue({ trackPageView: jest.fn() });
     render(
       <TelemetryProvider
-        history={mockHistory}
         connectionString="InstrumentationKey=test"
         after={jest.fn()}
       >
@@ -56,7 +50,6 @@ describe('TelemetryProvider', () => {
     expect(() => {
       render(
         <TelemetryProvider
-          history={mockHistory}
           connectionString=""
           after={jest.fn()}
         >
@@ -67,11 +60,10 @@ describe('TelemetryProvider', () => {
     expect(screen.getByTestId('child')).toBeInTheDocument();
   });
 
-  it('calls initialize() when connection string and history are available', () => {
+  it('calls initialize() with connection string only (no history)', () => {
     TelemetryService.getAppInsights.mockReturnValue({ trackPageView: jest.fn() });
     render(
       <TelemetryProvider
-        history={mockHistory}
         connectionString="InstrumentationKey=test"
         after={jest.fn()}
       >
@@ -79,15 +71,13 @@ describe('TelemetryProvider', () => {
       </TelemetryProvider>
     );
     expect(TelemetryService.initialize).toHaveBeenCalledWith(
-      'InstrumentationKey=test',
-      mockHistory
+      'InstrumentationKey=test'
     );
   });
 
   it('does NOT call initialize() when connection string is missing', () => {
     render(
       <TelemetryProvider
-        history={mockHistory}
         connectionString=""
         after={jest.fn()}
       >
@@ -97,27 +87,12 @@ describe('TelemetryProvider', () => {
     expect(TelemetryService.initialize).not.toHaveBeenCalled();
   });
 
-  it('does NOT call initialize() when history prop is missing', () => {
-    const afterFn = jest.fn();
-    render(
-      <TelemetryProvider
-        connectionString="InstrumentationKey=test"
-        after={afterFn}
-      >
-        <div>child</div>
-      </TelemetryProvider>
-    );
-    expect(TelemetryService.initialize).not.toHaveBeenCalled();
-    expect(afterFn).not.toHaveBeenCalled();
-  });
-
   // Validates P0 #4 fix: after() must not crash when init is skipped
   it('does not crash when after() is called without initialization', () => {
     const afterFn = jest.fn();
     expect(() => {
       render(
         <TelemetryProvider
-          history={mockHistory}
           connectionString=""
           after={afterFn}
         >
@@ -135,7 +110,6 @@ describe('TelemetryProvider', () => {
     TelemetryService.getAppInsights.mockReturnValue({ trackPageView: jest.fn() });
     render(
       <TelemetryProvider
-        history={mockHistory}
         connectionString="InstrumentationKey=test"
         after={afterFn}
       >
@@ -143,5 +117,70 @@ describe('TelemetryProvider', () => {
       </TelemetryProvider>
     );
     expect(afterFn).toHaveBeenCalled();
+  });
+
+  it('tracks page view on location change', () => {
+    const mockAI = { trackPageView: jest.fn() };
+    TelemetryService.getAppInsights.mockReturnValue(mockAI);
+
+    const { rerender } = render(
+      <TelemetryProvider
+        connectionString="InstrumentationKey=test"
+        after={jest.fn()}
+      >
+        <div>child</div>
+      </TelemetryProvider>
+    );
+
+    // Change location and rerender
+    mockUseLocation.mockReturnValue({ pathname: '/about', search: '', hash: '' });
+    rerender(
+      <TelemetryProvider
+        connectionString="InstrumentationKey=test"
+        after={jest.fn()}
+      >
+        <div>child</div>
+      </TelemetryProvider>
+    );
+
+    expect(mockAI.trackPageView).toHaveBeenCalledWith(
+      expect.objectContaining({ uri: '/about' })
+    );
+  });
+
+  it('includes search and hash in page view URI', () => {
+    const mockAI = { trackPageView: jest.fn() };
+    TelemetryService.getAppInsights.mockReturnValue(mockAI);
+    mockUseLocation.mockReturnValue({ pathname: '/', search: '?q=test', hash: '#section' });
+
+    render(
+      <TelemetryProvider
+        connectionString="InstrumentationKey=test"
+        after={jest.fn()}
+      >
+        <div>child</div>
+      </TelemetryProvider>
+    );
+
+    expect(mockAI.trackPageView).toHaveBeenCalledWith(
+      expect.objectContaining({ uri: '/?q=test#section' })
+    );
+  });
+
+  it('does not track page view when not initialized', () => {
+    // getAppInsights returns null (not initialized)
+    TelemetryService.getAppInsights.mockReturnValue(null);
+
+    render(
+      <TelemetryProvider
+        connectionString=""
+        after={jest.fn()}
+      >
+        <div>child</div>
+      </TelemetryProvider>
+    );
+
+    // No trackPageView should be called since AI is null
+    // (No error thrown either — optional chaining handles it)
   });
 });

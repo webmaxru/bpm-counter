@@ -1,38 +1,39 @@
-import React, { Component, Fragment } from 'react';
+import React, { useEffect, useRef, Fragment } from 'react';
 import { initialize, getAppInsights } from './TelemetryService';
-import { withRouter } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 /**
- * This Component provides telemetry with Azure App Insights
- *
- * NOTE: the package '@microsoft/applicationinsights-react-js' has a HOC withAITracking that requires this to be a Class Component rather than a Functional Component
+ * TelemetryProvider — initializes App Insights and tracks page views via React Router location.
+ * Converted from class component (withRouter HOC no longer needed with React Router v7 hooks).
  */
-class TelemetryProvider extends Component {
-  state = {
-    initialized: false,
-  };
+function TelemetryProvider({ connectionString, after, children }) {
+  const location = useLocation();
+  const initialized = useRef(false);
+  const afterRef = useRef(after);
+  afterRef.current = after;
 
-  componentDidMount() {
-    const { history, connectionString, after } = this.props;
-    const { initialized } = this.state;
+  // Initialize App Insights (once)
+  useEffect(() => {
+    if (!initialized.current && connectionString) {
+      initialize(connectionString);
+      initialized.current = true;
 
-    if (!initialized && connectionString && history) {
-      initialize(connectionString, history);
-      this.setState({ initialized: true });
+      const appInsightsInstance = getAppInsights();
+      if (afterRef.current && appInsightsInstance) {
+        afterRef.current();
+      }
     }
+  }, [connectionString]);
 
-    // P0 #4: Only call after() if initialization succeeded
-    const appInsightsInstance = getAppInsights();
-    if (after && appInsightsInstance) {
-      after();
+  // Track page views on navigation
+  useEffect(() => {
+    if (initialized.current) {
+      const ai = getAppInsights();
+      ai?.trackPageView({ uri: location.pathname + location.search + location.hash });
     }
-  }
+  }, [location]);
 
-  render() {
-    const { children } = this.props;
-    return <Fragment>{children}</Fragment>;
-  }
+  return <Fragment>{children}</Fragment>;
 }
 
-// P1 #9: Removed withAITracking — engagement tracking moves to page components
-export default withRouter(TelemetryProvider);
+export default TelemetryProvider;

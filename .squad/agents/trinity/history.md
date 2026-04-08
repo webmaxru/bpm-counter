@@ -34,3 +34,26 @@
 - **Connection string:** Uses `REACT_APP_APPINSIGHTS_CONNECTION_STRING` env var via `.env` file (good — not hardcoded in source).
 - **SDK handles unload flush internally** — no explicit `flush()` needed on page unload.
 - Decision inbox: `.squad/decisions/inbox/trinity-appinsights-audit.md`
+
+### 2025-05-XX — React Router v7 & react-tooltip Upgrade
+- **Successfully upgraded from react-hint (abandoned) to react-tooltip and react-router-dom v5 to v7**
+- **react-hint → react-tooltip migration:**
+  - Home.js: Converted from ReactHintFactory to declarative Tooltip component with data-tooltip-id
+  - Feedback.js: Replaced imperative toggleHint() refs with controlled state (this.state.showHint + isOpen prop)
+  - Added componentWillUnmount to Feedback.js for timer cleanup
+  - CSS: Updated selectors from `.react-hint__content` to `.custom-hint` and `.react-tooltip-arrow`
+  - **Code review correction**: Added `openEvents={{}}` and `closeEvents={{}}` to Feedback.js Tooltip to disable default hover/focus events (prevents conflict with programmatic isOpen control)
+- **React Router v5 → v7 migration:**
+  - App.js: Replaced `<Switch>` with `<Routes>`, converted Route children to element prop syntax
+  - TelemetryProvider: Converted from class component with withRouter HOC to functional component with useLocation hook
+  - Used useRef for initialization flag (StrictMode safe) and after callback (avoids stale closure)
+  - Moved page view tracking from reactPlugin history integration to manual useEffect with location dependency
+  - **Code review correction**: Include `location.hash` in page view URI for complete tracking
+- **TelemetryService changes:**
+  - Made browserHistory parameter optional in initialize() — now only used if provided
+  - Updated reactPlugin config to conditionally include history: `browserHistory ? { history: browserHistory } : {}`
+- **Bundle impact:** +21.3 kB in main.js (react-tooltip vs react-hint)
+- **Build verification:** ✅ Production build succeeded with no compilation errors (verified after corrections)
+- **Test impact:** Tests will need mock updates (react-hint → react-tooltip, withRouter → useLocation) — deferred to Mouse
+- Decision: `.squad/decisions/inbox/trinity-router-tooltip-upgrade.md`
+

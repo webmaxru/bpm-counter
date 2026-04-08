@@ -124,18 +124,19 @@ describe('TelemetryService', () => {
       expect(ApplicationInsights).toHaveBeenCalledTimes(1);
     });
 
-    it('throws when browserHistory is missing', () => {
+    it('succeeds when browserHistory is null (optional param)', () => {
       const { initialize } = loadModule();
-      expect(() => initialize(testConnString, null)).toThrow(
-        'Could not initialize Telemetry Service'
-      );
+      expect(() => initialize(testConnString, null)).not.toThrow();
     });
 
-    it('throws when browserHistory is undefined', () => {
+    it('succeeds when browserHistory is undefined (optional param)', () => {
       const { initialize } = loadModule();
-      expect(() => initialize(testConnString, undefined)).toThrow(
-        'Could not initialize Telemetry Service'
-      );
+      expect(() => initialize(testConnString, undefined)).not.toThrow();
+    });
+
+    it('succeeds when browserHistory is omitted entirely', () => {
+      const { initialize } = loadModule();
+      expect(() => initialize(testConnString)).not.toThrow();
     });
 
     it('throws when connectionString is missing', () => {

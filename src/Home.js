@@ -6,16 +6,14 @@ import { createRealtimeBpmAnalyzer } from 'realtime-bpm-analyzer';
 import AudioMotionAnalyzer from 'audiomotion-analyzer';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import ReactHintFactory from 'react-hint';
-import 'react-hint/css/index.css';
+import { Tooltip } from 'react-tooltip';
+import 'react-tooltip/dist/react-tooltip.css';
 import './custom-hint.css';
 import ReactGA from 'react-ga4';
 import AdLink from './AdLink.js';
 import { withAITracking } from '@microsoft/applicationinsights-react-js';
 import { reactPlugin } from './TelemetryService';
 import { TelemetryContext } from './TelemetryContext';
-
-const ReactHint = ReactHintFactory(React);
 
 function Home(props) {
   let log = props.log;
@@ -192,7 +190,8 @@ function Home(props) {
             onClick={startListening}
             disabled={isListening}
             className="btn-start"
-            data-home="Click and wait for some time for BPM stabilizes"
+            data-tooltip-id="home-hint"
+            data-tooltip-content="Click and wait for some time for BPM stabilizes"
           >
             Start listening
           </button>
@@ -265,12 +264,7 @@ function Home(props) {
       )}
 
       {!isMobile ? (
-        <ReactHint
-          events
-          position="top"
-          className="custom-hint react-hint"
-          attribute="data-home"
-        />
+        <Tooltip id="home-hint" place="top" className="custom-hint" />
       ) : null}
     </main>
   );

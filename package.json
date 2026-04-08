@@ -13,10 +13,10 @@
     "react-device-detect": "^1.17.0",
     "react-dom": "^19.0.0",
     "react-ga4": "^1.1.2",
-    "react-hint": "^3.2.1",
-    "react-router-dom": "^5.3.0",
+    "react-router-dom": "^7.14.0",
     "react-scripts": "^5.0.1",
     "react-toastify": "^11.0.0",
+    "react-tooltip": "^5.30.0",
     "realtime-bpm-analyzer": "^5.0.2",
     "web-vitals": "^5.0.0"
   },
@@ -32,6 +32,13 @@
     "test:e2e": "npx playwright test",
     "test:e2e:bpm": "npx playwright test --project=bpm-detection",
     "fix-ssl": "npm audit fix --force"
+  },
+  "jest": {
+    "moduleNameMapper": {
+      "^react-router-dom$": "<rootDir>/node_modules/react-router-dom/dist/index.js",
+      "^react-router$": "<rootDir>/node_modules/react-router/dist/development/index.js",
+      "^react-router/dom$": "<rootDir>/node_modules/react-router/dist/development/dom-export.js"
+    }
   },
   "eslintConfig": {
     "extends": [

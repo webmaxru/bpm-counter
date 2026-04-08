@@ -11,15 +11,12 @@ let appInsights = null;
 /**
  * Initialize the Application Insights SDK (idempotent)
  * @param {string} connectionString - Application Insights connection string
- * @param {Object} browserHistory - React Router history object from withRouter HOC
+ * @param {Object} [browserHistory] - React Router history object (optional)
  * @return {Object} appInsights instance
  */
 export const initialize = (connectionString, browserHistory) => {
   if (appInsights) return appInsights;
 
-  if (!browserHistory) {
-    throw new Error('Could not initialize Telemetry Service');
-  }
   if (!connectionString) {
     throw new Error(
       'Connection string not provided in ./src/telemetry-provider.jsx'
@@ -37,9 +34,7 @@ export const initialize = (connectionString, browserHistory) => {
       samplingPercentage: 100,                            // P2 #18: explicit, easy to tune
       extensions: [reactPlugin, clickPlugin],
       extensionConfig: {
-        [reactPlugin.identifier]: {
-          history: browserHistory,
-        },
+        [reactPlugin.identifier]: browserHistory ? { history: browserHistory } : {},
         [clickPlugin.identifier]: {
           autoCapture: false,                              // P2 #16: manual click_ad preferred
           dataTags: { useDefaultContentNameOrId: true },   // P2 #17

@@ -8,7 +8,7 @@ import Login from './Login.js';
 import Upload from './Upload.js';
 import log from 'loglevel';
 import { isMobile } from 'react-device-detect';
-import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
 import { Workbox } from 'workbox-window';
 import { ToastContainer, toast } from 'react-toastify';
@@ -121,32 +121,25 @@ function App() {
               onError={() => <h1>Something went wrong</h1>}
               appInsights={reactPlugin}
             >
-              <Switch>
-                <Route path="/about">
-                  <About />
-                </Route>
-                <Route path="/account">
-                  <Account />
-                </Route>
-                <Route path="/admin">
-                  <Admin />
-                </Route>
-                <Route path="/login">
-                  <Login />
-                </Route>
-                <Route path="/upload">
-                  <Upload isDebug={isDebug} log={log} />
-                </Route>
-                <Route path="/">
-                  <Home
-                    isDebug={isDebug}
-                    log={log}
-                    isMobile={isMobile}
-                    isForcedViz={isForcedViz}
-                    testBPM={testBPM}
-                  ></Home>
-                </Route>
-              </Switch>
+              <Routes>
+                <Route path="/about" element={<About />} />
+                <Route path="/account" element={<Account />} />
+                <Route path="/admin" element={<Admin />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/upload" element={<Upload isDebug={isDebug} log={log} />} />
+                <Route
+                  path="/"
+                  element={
+                    <Home
+                      isDebug={isDebug}
+                      log={log}
+                      isMobile={isMobile}
+                      isForcedViz={isForcedViz}
+                      testBPM={testBPM}
+                    />
+                  }
+                />
+              </Routes>
             </AppInsightsErrorBoundary>
 
             <nav className="nav"></nav>

@@ -12,16 +12,12 @@ jest.mock('react-ga4', () => ({
   send: jest.fn(),
 }));
 
-// Mock react-hint factory — returns a class component with toggleHint
-jest.mock('react-hint', () => {
+// Mock react-tooltip
+jest.mock('react-tooltip', () => {
   const React = require('react');
-  return () =>
-    class MockReactHint extends React.Component {
-      toggleHint = jest.fn();
-      render() {
-        return React.createElement('div', { 'data-testid': 'react-hint' });
-      }
-    };
+  return {
+    Tooltip: (props) => React.createElement('div', { 'data-testid': 'react-tooltip' }),
+  };
 });
 
 const defaultProps = {
