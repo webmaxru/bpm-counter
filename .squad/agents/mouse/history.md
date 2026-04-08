@@ -9,6 +9,34 @@
 
 ## Learnings
 
+### API feedback function unit tests written (2026-04-08)
+
+**Created files:**
+- `api/feedback/index.test.js` — 34 unit tests covering validation, success path, client principal, App Insights resilience, Cosmos DB error handling, telemetry correlation, and data integrity
+
+**Modified files:**
+- `api/package.json` — added `jest` as devDependency, updated test script to `jest --verbose`
+
+**Mock strategy for Azure Functions API tests:**
+- `applicationinsights` — mock `setup()`, `start()`, `defaultClient` with `trackEvent`/`trackException` fns
+- `@azure/cosmos` — mock `CosmosClient` → `databases.createIfNotExists()` → `containers.createIfNotExists()` → `items.create()` chain; use `{ virtual: true }` since package may not yet be installed
+- Use `jest.resetModules()` + `jest.isolateModules()` + `jest.doMock()` per test to avoid module-cache poisoning from module-scope side effects (`appInsights.setup()`, `CosmosClient` init)
+- Helper functions: `createMockContext()`, `createMockReq(body, headers)`, `base64Encode(obj)`, `loadHandler(appInsightsOverride)`, `loadHandlerWithSetupCrash()`
+- `loadHandlerWithSetupCrash()` — separate loader that makes `appInsights.setup()` throw, verifying the handler's try/catch survives import-time failures
+
+**Critical gotchas discovered:**
+1. **`jest.resetModules()` before `jest.isolateModules()` is defensive best practice.** Without it, stale module-scope state from a prior `isolateModules` could leak into the registry used by the next call.
+2. **`{ virtual: true }` needed for `jest.doMock('@azure/cosmos')`.** If `@azure/cosmos` isn't installed in `node_modules`, Jest will throw "Cannot find module" even for mocks without the `virtual` flag.
+3. **Falsy-valid edge cases catch real bugs.** Tests for `bpm: 0` and `isCorrect: false` ensure the fix doesn't use truthy checks (`if (!bpm)`) which would incorrectly reject valid values.
+4. **Invalid base64 doesn't always throw.** `Buffer.from('!!!', 'base64')` succeeds silently with garbage output. Must test both garbage base64 AND valid base64 of invalid JSON separately.
+5. **Don't assert `context.done()`.** The fixed async function should use `return`, not `context.done()`. Assert early-return effects instead: status code, no Cosmos write, no trackEvent.
+6. **Comprehensive early-return test is essential.** A single test asserting ALL four side effects (400 status, trackException called, no Cosmos write, no trackEvent) catches regressions that individual tests might miss.
+7. **App Insights import-time crash is a separate scenario from null client.** `setup()` throwing at module load requires its own `loadHandlerWithSetupCrash()` loader. The handler's try/catch must survive this, leaving `client = null`.
+
+**Test results:** 34/34 pass against Tank's fixed implementation.
+
+**Test results against Tank's fixed code:** 31/31 pass. All validation, success path, client principal, App Insights resilience, Cosmos error handling, telemetry correlation, and data integrity tests green. Added 2 extra Cosmos tests (write failure logging, no-connection-string skip) beyond the original 29 after reviewing Tank's implementation.
+
 ### API validation test coverage needed (2026-04-08)
 
 **From Tank's Azure Functions audit:** The `api/feedback/` endpoint has critical validation bugs that need e2e test coverage:

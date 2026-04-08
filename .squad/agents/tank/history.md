@@ -19,3 +19,16 @@
 - `api/feedback/` endpoint is anonymous with no rate limiting — abuse/cost risk (writes to CosmosDB + telemetry).
 - CosmosDB binding uses deprecated properties: `collectionName` (→ `containerName`), `connectionStringSetting` (→ `connection`).
 - Key files: `api/host.json`, `api/feedback/function.json`, `api/feedback/index.js`, `api/package.json`, `src/staticwebapp.config.json`, `swa-cli.config.json`.
+
+### Azure Functions Audit Fix Implementation (2026-08-04)
+- Replaced CosmosDB output binding with `@azure/cosmos` SDK v4 for SWA compatibility. Lazy-init pattern caches a promise (not the container) to prevent race conditions on concurrent cold starts.
+- Database: `bpmtech-db`, Container: `feedback`, Partition key: `/id`.
+- Cosmos connection string: checks `COSMOSDB_CONNECTION_STRING` first, falls back to `bpmcounterdbaccount_DOCUMENTDB` for backward compatibility.
+- App Insights guarded: checks both `APPLICATIONINSIGHTS_CONNECTION_STRING` and `APPINSIGHTS_INSTRUMENTATIONKEY` env vars before calling `setup()`. All `client` calls use optional chaining (`client?.trackEvent()`).
+- Validation returns 400 (not 404), with proper body type checks (`typeof === 'object'`, `!Array.isArray`), and early `return` (no more `context.done()`).
+- Cosmos write failures return HTTP 500 — data loss is not silently hidden behind "Thank you!" response.
+- Extension bundle updated to `[4.*, 5.0.0)`.
+- Security headers added: `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`.
+- `api/proxies.json` deleted (deprecated feature, was empty).
+- `api/local.settings.sample.json` created for developer onboarding.
+- Code quality: `Date.now()` (removed `/1`), `substring()` (replaced `substr()`), single document ID generation, `const` instead of `var`, removed `JSON.stringify()` on document.

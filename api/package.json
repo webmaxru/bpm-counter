@@ -4,9 +4,13 @@
   "description": "",
   "scripts": {
     "start": "func start",
-    "test": "echo \"No tests yet...\""
+    "test": "jest --verbose"
   },
   "dependencies": {
+    "@azure/cosmos": "^4.2.0",
     "applicationinsights": "^2.3.5"
+  },
+  "devDependencies": {
+    "jest": "^30.3.0"
   }
 }

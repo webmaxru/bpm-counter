@@ -56,7 +56,9 @@
       }
     },
     "globalHeaders": {
-      "X-Powered-By": "Maxim Salnikov and Azure Static Web Apps"
+      "X-Powered-By": "Maxim Salnikov and Azure Static Web Apps",
+      "X-Content-Type-Options": "nosniff",
+      "X-Frame-Options": "DENY"
     },
     "mimeTypes": {
       ".json": "text/json",
