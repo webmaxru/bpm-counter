@@ -3,7 +3,7 @@
 ## Project Context
 - **Project:** BPM Counter — a web app that detects BPM in music from microphone input
 - **Stack:** CRA 5 (React 17), Azure Functions (backend), Azure Static Web Apps (deployment)
-- **Current state:** Full unit test foundation in place. 6 test suites, 29 tests. E2E expanded.
+- **Current state:** Full unit test foundation in place. 9 test suites, 65 tests (64 pass, 1 skipped). E2E expanded.
 - **E2E:** Playwright config at `playwright.config.js`, specs in `e2e/` directory
 - **User:** Maxim Salnikov
 
@@ -103,3 +103,52 @@
 - `./telemetry-provider` → passthrough Fragment wrapper (skips `after` callback, so appInsights stays null)
 - `react-device-detect` → `{ isMobile: false }`
 - `navigator.mediaDevices.getUserMedia` → needs `beforeEach` re-apply due to resetMocks
+
+### App Insights telemetry tests for 20 audit findings (2026-04-09)
+
+**Created files:**
+- `src/TelemetryService.test.js` — 15 tests: exports (reactPlugin, initialize, getAppInsights), initialization (connection string, loadAppInsights, getAppInsights before/after), SDK config (maxBatchInterval=15000, correlationHeaderExcludedDomains, autoCapture=false, dataTags, samplingPercentage, telemetry initializer)
+- `src/telemetry-provider.test.js` — 6 tests: render children, init when connectionString+history present, skip init without connectionString, P0#4 crash fix (after() without init), after() with initialization, argument validation throws
+- `src/reportWebVitals.test.js` — 3 tests (1 skipped): dynamic import mock limitation, guard when no callback, guard when non-function
+
+**Modified files:**
+- `src/App.test.js` — added 5 tests: trackPageView NOT called (P0#2), renders without crash when telemetry unavailable, SW REPLAY_COMPLETED event tracking (P1#11), SW REQUEST_FAILED event tracking (P1#11)
+- `src/Upload.test.js` — added 3 tests: Feedback receives appInsights (P0#3), detect schema {mode,bpm,threshold} (P1#6), trackException on decode error (P1#7)
+- `src/AdLink.test.js` — added 3 tests: no console.log calls (P2#14), click trackEvent with ad+text properties, no crash when appInsights is null
+
+**Audit findings covered by tests:**
+| Finding | Severity | Test File | Status |
+|---------|----------|-----------|--------|
+| P0#1 reactPlugin identity | P0 | TelemetryService.test.js | ✅ |
+| P0#2 no manual trackPageView | P0 | App.test.js | ✅ |
+| P0#3 Feedback gets appInsights | P0 | Upload.test.js | ✅ |
+| P0#4 after() crash guard | P0 | telemetry-provider.test.js | ✅ |
+| P1#5 maxBatchInterval=15000 | P1 | TelemetryService.test.js | ✅ |
+| P1#6 detect schema | P1 | Upload.test.js | ✅ |
+| P1#7 trackException on error | P1 | Upload.test.js | ✅ |
+| P1#9 withAITracking removed | P1 | telemetry-provider.test.js | ✅ (impl verified) |
+| P1#10 reportWebVitals callback | P1 | reportWebVitals.test.js | ⚠️ skipped (import() mock limitation) |
+| P1#11 SW event tracking | P1 | App.test.js | ✅ |
+| P1#12 correlationHeaderExcludedDomains | P1 | TelemetryService.test.js | ✅ |
+| P2#14 no console.log | P2 | AdLink.test.js | ✅ |
+| P2#16 autoCapture=false | P2 | TelemetryService.test.js | ✅ |
+| P2#17 dataTags | P2 | TelemetryService.test.js | ✅ |
+| P2#18 samplingPercentage | P2 | TelemetryService.test.js | ✅ |
+| P2#20 telemetry initializer | P2 | TelemetryService.test.js | ✅ |
+
+**Critical gotchas discovered:**
+1. **jest.isolateModules + jest.doMock = BROKEN.** `jest.doMock` registers mocks in the current registry; `jest.isolateModules` creates a NEW isolated registry that does NOT see doMock registrations. Fix: use `jest.mock` (hoisted) + `jest.resetModules()` + `require()` per test for singleton module isolation.
+2. **CRA 5 resetMocks resets jest.mock factory mock functions.** Mock functions created inside `jest.mock()` factories get their implementations cleared between tests. Fix: re-apply `mockImplementation`/`mockReturnValue` in `beforeEach`.
+3. **Dynamic import() bypasses jest.mock in CRA 5.** `import('web-vitals')` inside reportWebVitals.js doesn't resolve through jest's mock registry. Despite `@babel/plugin-proposal-dynamic-import` being present, the transform doesn't intercept the mock. Tracked as known limitation; test skipped.
+4. **jest.mock hoisting + const = TDZ error.** `const mockX = jest.fn(); jest.mock('y', () => mockX)` causes TDZ ReferenceError because jest.mock is hoisted above the const declaration. Fix: define everything inline in the jest.mock factory, get references via `require()`.
+5. **TelemetryContext.Provider required for component telemetry tests.** AdLink and Upload use `useContext(TelemetryContext)`, not props. Wrap renders with `<TelemetryContext.Provider value={mockAppInsights}>`.
+6. **SW tests need navigator.serviceWorker injection.** jsdom lacks `navigator.serviceWorker`. Use `Object.defineProperty(navigator, 'serviceWorker', { value: {}, configurable: true })` and capture Workbox `addEventListener` handlers.
+7. **Math.random must be mocked for deterministic AdLink text.** AdLink selects display text via `Math.random()`. Mock with `jest.spyOn(Math, 'random').mockReturnValue(0)` for deterministic assertions.
+
+**Mocking patterns added:**
+- `@microsoft/applicationinsights-web` → `{ ApplicationInsights: jest.fn(() => ({ loadAppInsights, addTelemetryInitializer, ... })) }` + re-apply in beforeEach
+- `@microsoft/applicationinsights-clickanalytics-js` → `{ ClickAnalyticsPlugin: jest.fn(() => ({ identifier: 'ClickAnalyticsPlugin' })) }`
+- `./TelemetryService` (for telemetry-provider.test.js) → `{ initialize: jest.fn(), getAppInsights: jest.fn() }`
+- `./TelemetryContext` → `{ TelemetryContext: require('react').createContext(null) }` (for component tests)
+
+**Test results:** 9 suites, 64 passed, 1 skipped, 0 failed.
