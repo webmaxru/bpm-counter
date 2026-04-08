@@ -1,6 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { withAITracking } from '@microsoft/applicationinsights-react-js';
-import { ai } from './TelemetryService';
+import { initialize, getAppInsights } from './TelemetryService';
 import { withRouter } from 'react-router-dom';
 
 /**
@@ -14,19 +13,19 @@ class TelemetryProvider extends Component {
   };
 
   componentDidMount() {
-    const { history } = this.props;
+    const { history, connectionString, after } = this.props;
     const { initialized } = this.state;
-    const AppInsightsConnectionString= this.props.connectionString; // PUT YOUR KEY HERE
-    if (
-      !Boolean(initialized) &&
-      Boolean(AppInsightsConnectionString) &&
-      Boolean(history)
-    ) {
-      ai.initialize(AppInsightsConnectionString, history);
+
+    if (!initialized && connectionString && history) {
+      initialize(connectionString, history);
       this.setState({ initialized: true });
     }
 
-    this.props.after();
+    // P0 #4: Only call after() if initialization succeeded
+    const appInsightsInstance = getAppInsights();
+    if (after && appInsightsInstance) {
+      after();
+    }
   }
 
   render() {
@@ -35,4 +34,5 @@ class TelemetryProvider extends Component {
   }
 }
 
-export default withRouter(withAITracking(ai.reactPlugin, TelemetryProvider));
+// P1 #9: Removed withAITracking — engagement tracking moves to page components
+export default withRouter(TelemetryProvider);

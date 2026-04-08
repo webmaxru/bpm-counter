@@ -13,8 +13,10 @@ import React, { useEffect, useState } from 'react';
 import { Workbox } from 'workbox-window';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { getAppInsights } from './TelemetryService';
+import { getAppInsights, reactPlugin } from './TelemetryService';
 import TelemetryProvider from './telemetry-provider';
+import { TelemetryContext } from './TelemetryContext';
+import { AppInsightsErrorBoundary } from '@microsoft/applicationinsights-react-js';
 
 function App() {
   const query = new URLSearchParams(window.location.search);
@@ -55,15 +57,24 @@ function App() {
         if (!event.data) {
           return;
         }
+        // P1 #11: Track SW offline events to App Insights
         if (event.data.type === 'REPLAY_COMPLETED') {
           toast.success(
             'Your feedback was sent after the connection is restored'
           );
+          getAppInsights()?.trackEvent({
+            name: 'sw_replay_completed',
+            properties: { type: 'REPLAY_COMPLETED' },
+          });
         }
         if (event.data.type === 'REQUEST_FAILED') {
           toast.warning(
             'Your feedback will be sent after the connection is restored'
           );
+          getAppInsights()?.trackEvent({
+            name: 'sw_request_failed',
+            properties: { type: 'REQUEST_FAILED' },
+          });
         }
       });
 
@@ -85,66 +96,71 @@ function App() {
       <TelemetryProvider
         connectionString={process.env.REACT_APP_APPINSIGHTS_CONNECTION_STRING}
         after={() => {
-          let appInsightsInstance = getAppInsights();
-          appInsightsInstance.trackPageView();
-          setAppInsights(appInsightsInstance);
+          // P0 #2: Removed manual trackPageView() — React plugin auto-tracks via history
+          setAppInsights(getAppInsights());
         }}
       >
-        <header>
-          <h1>
-            <Link to="/">BPM Techno &mdash; Real-Time BPM Counter</Link>
-          </h1>
-          <Link to="/about" className="about">
-            &#63;
-          </Link>
-        </header>
-        <div className="body">
-          <Switch>
-            <Route path="/about">
-              <About appInsights={appInsights} />
-            </Route>
-            <Route path="/account">
-              <Account />
-            </Route>
-            <Route path="/admin">
-              <Admin />
-            </Route>
-            <Route path="/login">
-              <Login />
-            </Route>
-            <Route path="/upload">
-              <Upload isDebug={isDebug} log={log} appInsights={appInsights} />
-            </Route>
-            <Route path="/">
-              <Home
-                isDebug={isDebug}
-                log={log}
-                isMobile={isMobile}
-                isForcedViz={isForcedViz}
-                testBPM={testBPM}
-                appInsights={appInsights}
-              ></Home>
-            </Route>
-          </Switch>
+        <TelemetryContext.Provider value={appInsights}>
+          <header>
+            <h1>
+              <Link to="/">BPM Techno &mdash; Real-Time BPM Counter</Link>
+            </h1>
+            <Link to="/about" className="about">
+              &#63;
+            </Link>
+          </header>
+          <div className="body">
+            <AppInsightsErrorBoundary
+              onError={() => <h1>Something went wrong</h1>}
+              appInsights={reactPlugin}
+            >
+              <Switch>
+                <Route path="/about">
+                  <About />
+                </Route>
+                <Route path="/account">
+                  <Account />
+                </Route>
+                <Route path="/admin">
+                  <Admin />
+                </Route>
+                <Route path="/login">
+                  <Login />
+                </Route>
+                <Route path="/upload">
+                  <Upload isDebug={isDebug} log={log} />
+                </Route>
+                <Route path="/">
+                  <Home
+                    isDebug={isDebug}
+                    log={log}
+                    isMobile={isMobile}
+                    isForcedViz={isForcedViz}
+                    testBPM={testBPM}
+                  ></Home>
+                </Route>
+              </Switch>
+            </AppInsightsErrorBoundary>
 
-          <nav className="nav"></nav>
-          <aside className="ads"></aside>
-        </div>
-        <footer>
-          <div id="AudioMotionAnalyzer"></div>
+            <nav className="nav"></nav>
+            <aside className="ads"></aside>
+          </div>
+          <footer>
+            <div id="AudioMotionAnalyzer"></div>
 
-          {!isDebug ? (
-            <p>
-              Made in 🇳🇴&nbsp; by&nbsp;
-              <a href="https://twitter.com/webmaxru/">Maxim Salnikov</a> |&nbsp;
-              <a href="https://github.com/webmaxru/bpm-counter">GitHub</a>
-            </p>
-          ) : (
-            <p>Debugging mode</p>
-          )}
-        </footer>
+            {!isDebug ? (
+              <p>
+                Made in 🇳🇴&nbsp; by&nbsp;
+                <a href="https://twitter.com/webmaxru/">Maxim Salnikov</a> |&nbsp;
+                <a href="https://github.com/webmaxru/bpm-counter">GitHub</a>
+              </p>
+            ) : (
+              <p>Debugging mode</p>
+            )}
+          </footer>
 
-        <ToastContainer />
+          <ToastContainer />
+        </TelemetryContext.Provider>
       </TelemetryProvider>
     </Router>
   );

@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@microsoft/applicationinsights-clickanalytics-js": "^2.8.8",
-    "@microsoft/applicationinsights-react-js": "^3.4.0",
-    "@microsoft/applicationinsights-web": "^2.8.8",
+    "@microsoft/applicationinsights-clickanalytics-js": "^3.4.1",
+    "@microsoft/applicationinsights-react-js": "^17.3.6",
+    "@microsoft/applicationinsights-web": "^3.4.1",
     "audiomotion-analyzer": "^3.5.0",
     "bpm-detective": "^2.0.5",
     "loglevel": "^1.7.1",

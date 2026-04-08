@@ -1,10 +1,9 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import ReactGA from 'react-ga4';
+import { TelemetryContext } from './TelemetryContext';
 
 function AdLink(props) {
-  const appInsights = props.appInsights;
-
-  console.log(appInsights);
+  const appInsights = useContext(TelemetryContext);
   let ad = props.ad;
 
   const getRandomInt = (max) => {

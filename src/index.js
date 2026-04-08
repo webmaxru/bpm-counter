@@ -4,6 +4,7 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import ReactGA from 'react-ga4';
+import { getAppInsights } from './TelemetryService';
 
 ReactGA.initialize(process.env.REACT_APP_GA4_MEASUREMENT_ID);
 ReactGA.send('pageview');
@@ -15,10 +16,11 @@ ReactDOM.render(
   document.getElementById('root')
 );
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+// P1 #10: Forward Core Web Vitals to App Insights
+reportWebVitals((metric) => {
+  const appInsights = getAppInsights();
+  appInsights?.trackMetric({ name: metric.name, average: metric.value });
+});
 
 /*
 document.addEventListener('DOMContentLoaded', function () {

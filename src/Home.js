@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import './Home.css';
 import Feedback from './Feedback.js';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { createRealtimeBpmAnalyzer } from 'realtime-bpm-analyzer';
 import AudioMotionAnalyzer from 'audiomotion-analyzer';
 import { ToastContainer, toast } from 'react-toastify';
@@ -11,6 +11,9 @@ import 'react-hint/css/index.css';
 import './custom-hint.css';
 import ReactGA from 'react-ga4';
 import AdLink from './AdLink.js';
+import { withAITracking } from '@microsoft/applicationinsights-react-js';
+import { reactPlugin } from './TelemetryService';
+import { TelemetryContext } from './TelemetryContext';
 
 const ReactHint = ReactHintFactory(React);
 
@@ -20,7 +23,7 @@ function Home(props) {
   const isMobile = props.isMobile;
   const isForcedViz = props.isForcedViz;
   const testBPM = props.testBPM;
-  const appInsights = props.appInsights;
+  const appInsights = useContext(TelemetryContext);
 
   let context;
   let input;
@@ -36,8 +39,9 @@ function Home(props) {
     appInsights?.trackEvent({
       name: 'detect',
       properties: {
-        content_type: 'mode',
-        item_id: 'realtime',
+        mode: 'realtime',
+        bpm: null,
+        threshold: null,
       },
     });
   }, [appInsights]);
@@ -100,6 +104,8 @@ function Home(props) {
         setIsShowingInit(false);
       } catch (err) {
         log.error(`${err.name}: ${err.message}`);
+        // P1 #7: Track mic/audio errors to App Insights
+        appInsights?.trackException({ exception: err });
       }
     } else {
       toast.error('No luck with accessing audio in your browser...');
@@ -156,6 +162,7 @@ function Home(props) {
           bpm: data.bpm[0].tempo,
           threshold: data.threshold,
         });
+        // P1 #6: Consistent event schema across detect events
         appInsights?.trackEvent({
           name: 'detect',
           properties: {
@@ -194,7 +201,7 @@ function Home(props) {
           <p>App does not send any audio stream data to the servers.</p>
 
           <p>
-            <AdLink ad="item-music-prod" appInsights={appInsights} />
+            <AdLink ad="item-music-prod" />
           </p>
         </div>
       ) : (
@@ -213,7 +220,7 @@ function Home(props) {
           ) : null}
 
           <p>
-            <AdLink ad="item-sample-pack" appInsights={appInsights} />
+            <AdLink ad="item-sample-pack" />
           </p>
 
           <button onClick={stopListening} className="btn-stop">
@@ -225,7 +232,6 @@ function Home(props) {
               bpm={primaryBPM}
               log={log}
               type="mic"
-              appInsights={appInsights}
             ></Feedback>
           ) : null}
 
@@ -272,4 +278,5 @@ function Home(props) {
   );
 }
 
-export default Home;
+// P1 #9: Per-route engagement tracking instead of whole-app
+export default withAITracking(reactPlugin, Home);

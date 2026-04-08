@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { SeverityLevel } from '@microsoft/applicationinsights-web';
+import { TelemetryContext } from './TelemetryContext';
 
-function About(props) {
+function About() {
   const [clientPrincipal, setClientPrincipal] = useState(null);
 
-  let appInsights = props.appInsights;
+  const appInsights = useContext(TelemetryContext);
 
   function trackException() {
     appInsights?.trackException({

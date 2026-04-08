@@ -5,10 +5,14 @@ import ReactHintFactory from 'react-hint';
 import 'react-hint/css/index.css';
 import './custom-hint.css';
 import ReactGA from 'react-ga4';
+import { TelemetryContext } from './TelemetryContext';
 
 const ReactHint = ReactHintFactory(React);
 
 class Feedback extends React.Component {
+  // P2 #19: Use Context instead of prop drilling
+  static contextType = TelemetryContext;
+
   constructor(props) {
     super(props);
 
@@ -46,7 +50,7 @@ class Feedback extends React.Component {
         content_type: 'feedback',
         item_id: isCorrect,
       });
-      this.props.appInsights?.trackEvent({
+      this.context?.trackEvent({
         name: 'share',
         properties: {
           method: 'API',
@@ -57,11 +61,13 @@ class Feedback extends React.Component {
 
       if (!response.ok) {
         this.props.log.error(`HTTP error. Status: ${response.status}`);
-        throw new Error();
+        throw new Error(`HTTP error. Status: ${response.status}`);
       }
     } catch (err) {
       toast.error('Oops, no luck with sending this time');
       this.props.log.error(`${err.name}: ${err.message}`);
+      // P1 #7: Track API errors to App Insights
+      this.context?.trackException({ exception: err });
     }
   }
 

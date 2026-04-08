@@ -1,13 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import detect from 'bpm-detective';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Feedback from './Feedback.js';
 import ReactGA from 'react-ga4';
+import { withAITracking } from '@microsoft/applicationinsights-react-js';
+import { reactPlugin } from './TelemetryService';
+import { TelemetryContext } from './TelemetryContext';
 
 function Upload(props) {
   let log = props.log;
-  const appInsights = props.appInsights;
+  const appInsights = useContext(TelemetryContext);
 
   const query = new URLSearchParams(window.location.search);
 
@@ -45,17 +48,21 @@ function Upload(props) {
           threshold: null,
         });
 
+        // P1 #6: Consistent event schema — matches Home.js detect events
         appInsights?.trackEvent({
           name: 'detect',
           properties: {
-            content_type: 'mode',
-            item_id: 'url',
+            mode: 'url',
+            bpm: bpm,
+            threshold: null,
           },
         });
       })
       .catch((err) => {
         toast.error(`${err}`);
         console.error(err);
+        // P1 #7: Track decode/fetch errors to App Insights
+        appInsights?.trackException({ exception: err });
       });
   };
 
@@ -108,4 +115,5 @@ function Upload(props) {
   );
 }
 
-export default Upload;
+// P1 #9: Per-route engagement tracking
+export default withAITracking(reactPlugin, Upload);
