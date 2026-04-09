@@ -85,7 +85,7 @@ export const initialize = (connectionString, browserHistory) => {
   appInsights.loadAppInsights();
 
   // One-time warning when telemetry is discarded (e.g. invalid workspace, 400 errors)
-  appInsights.addNotificationListener({
+  appInsights.core.addNotificationListener({
     eventsDiscarded: (events, reason) => {
       if (!sendFailureWarned) {
         sendFailureWarned = true;

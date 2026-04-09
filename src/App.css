@@ -5,6 +5,8 @@
   padding: 2em;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
+  max-width: 100%;
 }
 
 .nav {
@@ -30,6 +32,10 @@ footer {
 #AudioMotionAnalyzer {
   width: 100%;
   margin: 0 auto;
+}
+
+#AudioMotionAnalyzer canvas {
+  width: 100% !important;
 }
 
 footer p {
