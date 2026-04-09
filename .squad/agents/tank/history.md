@@ -32,3 +32,15 @@
 - `api/proxies.json` deleted (deprecated feature, was empty).
 - `api/local.settings.sample.json` created for developer onboarding.
 - Code quality: `Date.now()` (removed `/1`), `substring()` (replaced `substr()`), single document ID generation, `const` instead of `var`, removed `JSON.stringify()` on document.
+
+### Azure Cost Optimization Cleanup (2026-08-09)
+- Deleted orphaned SRE App Insights (`bpm-counter-sre-be8c69bc-9bd6-app-insights`) — was linked to a deleted workspace.
+- Deleted 2 orphaned smart detector alert rules: `Failure Anomalies - bpm-counter-sre-*` and `Failure Anomalies - bpm-counter-ai` (referenced non-existent App Insights resources).
+- Deleted 2 orphaned managed identities: `bpm-counter-sre-kyrz2xu6z25je` (eastus2) and `bpm-agent-2utobr7bi6t6a` (swedencentral, confirmed zero role assignments).
+- Deleted 2 orphaned metric alerts (`index page-bpm-counter-ai`, `static-bpm-counter-ai`) — both referenced non-existent `bpm-counter-ai` App Insights and its web tests.
+- Set 1GB daily data cap on active `bpm-counter` App Insights as a cost safety net.
+- Reduced Log Analytics workspace `bpm-counter-workspace` retention from 90 → 30 days.
+- Resource group went from ~14+ resources down to 8 legitimate resources: CosmosDB, App Insights, SWA, Log Analytics workspace, 2 dashboards, 1 action group, 1 active smart detector rule.
+- JMESPath queries with `contains()` in `--query` fail on Windows PowerShell due to bracket parsing — use `--query "[?name=='exact']"` or list-then-filter in PowerShell variables instead.
+- `az monitor app-insights component delete` does NOT accept `--yes` flag (unlike many other `az` delete commands).
+- `az monitor smart-detector alert-rule delete` command hangs indefinitely — use `az resource delete --ids <full-resource-id>` as a reliable alternative.
