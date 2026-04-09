@@ -183,4 +183,68 @@ describe('TelemetryProvider', () => {
     // No trackPageView should be called since AI is null
     // (No error thrown either — optional chaining handles it)
   });
+
+  // Graceful degradation: initialize() throwing doesn't crash the app
+  it('renders children even when initialize() throws', () => {
+    TelemetryService.initialize.mockImplementation(() => {
+      throw new Error('Bad connection string');
+    });
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+    expect(() => {
+      render(
+        <TelemetryProvider
+          connectionString="InstrumentationKey=bad"
+          after={jest.fn()}
+        >
+          <div data-testid="child">Hello</div>
+        </TelemetryProvider>
+      );
+    }).not.toThrow();
+
+    expect(screen.getByTestId('child')).toBeInTheDocument();
+    warnSpy.mockRestore();
+  });
+
+  it('logs warning when initialize() throws', () => {
+    TelemetryService.initialize.mockImplementation(() => {
+      throw new Error('Bad connection string');
+    });
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+    render(
+      <TelemetryProvider
+        connectionString="InstrumentationKey=bad"
+        after={jest.fn()}
+      >
+        <div>child</div>
+      </TelemetryProvider>
+    );
+
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Failed to initialize App Insights'),
+      'Bad connection string'
+    );
+    warnSpy.mockRestore();
+  });
+
+  it('does not call after() when initialize() throws', () => {
+    TelemetryService.initialize.mockImplementation(() => {
+      throw new Error('Bad connection string');
+    });
+    const afterFn = jest.fn();
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+    render(
+      <TelemetryProvider
+        connectionString="InstrumentationKey=bad"
+        after={afterFn}
+      >
+        <div>child</div>
+      </TelemetryProvider>
+    );
+
+    expect(afterFn).not.toHaveBeenCalled();
+    console.warn.mockRestore();
+  });
 });

@@ -7,6 +7,50 @@ import { isMobile } from 'react-device-detect';
 export const reactPlugin = new ReactPlugin();
 
 let appInsights = null;
+let sendFailureWarned = false;
+
+/**
+ * Parse and validate an App Insights connection string.
+ * Normalizes endpoint URLs by stripping trailing slashes to prevent double-slash
+ * issues (e.g. `https://endpoint.azure.com//v2/track`).
+ * @param {string} connectionString - Raw connection string
+ * @return {string} Normalized connection string
+ * @throws {Error} If the connection string is missing or lacks InstrumentationKey
+ */
+export const parseConnectionString = (connectionString) => {
+  if (!connectionString) {
+    throw new Error(
+      'App Insights connection string is not configured. ' +
+      'Set REACT_APP_APPINSIGHTS_CONNECTION_STRING in your environment.'
+    );
+  }
+
+  const parts = connectionString.split(';').filter(Boolean);
+  const parsed = {};
+  for (const part of parts) {
+    const eqIdx = part.indexOf('=');
+    if (eqIdx > 0) {
+      parsed[part.substring(0, eqIdx)] = part.substring(eqIdx + 1);
+    }
+  }
+
+  if (!parsed.InstrumentationKey) {
+    throw new Error(
+      'Connection string is missing InstrumentationKey. ' +
+      'Expected format: InstrumentationKey=<guid>;IngestionEndpoint=<url>'
+    );
+  }
+
+  // Normalize endpoint URLs — strip trailing slashes to avoid //v2/track
+  const normalized = parts.map((part) => {
+    if (part.startsWith('IngestionEndpoint=') || part.startsWith('LiveEndpoint=')) {
+      return part.replace(/\/+$/, '');
+    }
+    return part;
+  });
+
+  return normalized.join(';');
+};
 
 /**
  * Initialize the Application Insights SDK (idempotent)
@@ -17,17 +61,12 @@ let appInsights = null;
 export const initialize = (connectionString, browserHistory) => {
   if (appInsights) return appInsights;
 
-  if (!connectionString) {
-    throw new Error(
-      'Connection string not provided in ./src/telemetry-provider.jsx'
-    );
-  }
-
+  const normalizedConnString = parseConnectionString(connectionString);
   const clickPlugin = new ClickAnalyticsPlugin();
 
   appInsights = new ApplicationInsights({
     config: {
-      connectionString: connectionString,
+      connectionString: normalizedConnString,
       maxBatchInterval: 15000,                            // P1 #5: was 0 (immediate send)
       disableFetchTracking: false,
       correlationHeaderExcludedDomains: ['*.amazon.com'], // P1 #12: exclude ad link domains
@@ -44,6 +83,20 @@ export const initialize = (connectionString, browserHistory) => {
   });
 
   appInsights.loadAppInsights();
+
+  // One-time warning when telemetry is discarded (e.g. invalid workspace, 400 errors)
+  appInsights.addNotificationListener({
+    eventsDiscarded: (events, reason) => {
+      if (!sendFailureWarned) {
+        sendFailureWarned = true;
+        console.warn(
+          '[App Insights] Telemetry events are being discarded (reason: %d). ' +
+          'Check that your App Insights resource and workspace are valid in the Azure portal.',
+          reason
+        );
+      }
+    },
+  });
 
   // P2 #20, #21: Enrich all telemetry with custom dimensions
   appInsights.addTelemetryInitializer((item) => {

@@ -15,12 +15,16 @@ function TelemetryProvider({ connectionString, after, children }) {
   // Initialize App Insights (once)
   useEffect(() => {
     if (!initialized.current && connectionString) {
-      initialize(connectionString);
-      initialized.current = true;
+      try {
+        initialize(connectionString);
+        initialized.current = true;
 
-      const appInsightsInstance = getAppInsights();
-      if (afterRef.current && appInsightsInstance) {
-        afterRef.current();
+        const appInsightsInstance = getAppInsights();
+        if (afterRef.current && appInsightsInstance) {
+          afterRef.current();
+        }
+      } catch (err) {
+        console.warn('[TelemetryProvider] Failed to initialize App Insights:', err.message);
       }
     }
   }, [connectionString]);

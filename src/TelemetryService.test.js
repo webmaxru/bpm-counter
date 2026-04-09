@@ -11,6 +11,7 @@
 
 // Mutable container for captured config (const with mock prefix for babel hoisting)
 const mockCapturedConfig = { current: null };
+const mockNotificationListeners = { current: [] };
 const mockAppInsightsInstance = {
   loadAppInsights: jest.fn(),
   trackPageView: jest.fn(),
@@ -18,6 +19,9 @@ const mockAppInsightsInstance = {
   trackException: jest.fn(),
   trackMetric: jest.fn(),
   addTelemetryInitializer: jest.fn(),
+  addNotificationListener: jest.fn((listener) => {
+    mockNotificationListeners.current.push(listener);
+  }),
   config: {},
 };
 
@@ -52,6 +56,7 @@ describe('TelemetryService', () => {
   beforeEach(() => {
     jest.resetModules();
     mockCapturedConfig.current = null;
+    mockNotificationListeners.current = [];
 
     // CRA resetMocks clears mock implementations - re-apply the factory
     const {
@@ -61,6 +66,9 @@ describe('TelemetryService', () => {
       mockCapturedConfig.current = args.config;
       mockAppInsightsInstance.config = args.config;
       return mockAppInsightsInstance;
+    });
+    mockAppInsightsInstance.addNotificationListener.mockImplementation((listener) => {
+      mockNotificationListeners.current.push(listener);
     });
   });
 
@@ -90,6 +98,69 @@ describe('TelemetryService', () => {
       const { getAppInsights } = loadModule();
       expect(getAppInsights()).toBeNull();
     });
+
+    it('parseConnectionString is an exported function', () => {
+      const { parseConnectionString } = loadModule();
+      expect(typeof parseConnectionString).toBe('function');
+    });
+  });
+
+  describe('parseConnectionString()', () => {
+    it('accepts a valid connection string with all parts', () => {
+      const { parseConnectionString } = loadModule();
+      const cs = 'InstrumentationKey=abc-123;IngestionEndpoint=https://example.com/;LiveEndpoint=https://live.example.com/';
+      const result = parseConnectionString(cs);
+      expect(result).toContain('InstrumentationKey=abc-123');
+    });
+
+    it('strips trailing slashes from IngestionEndpoint', () => {
+      const { parseConnectionString } = loadModule();
+      const cs = 'InstrumentationKey=abc-123;IngestionEndpoint=https://example.com/';
+      const result = parseConnectionString(cs);
+      expect(result).toContain('IngestionEndpoint=https://example.com');
+      expect(result).not.toContain('IngestionEndpoint=https://example.com/');
+    });
+
+    it('strips trailing slashes from LiveEndpoint', () => {
+      const { parseConnectionString } = loadModule();
+      const cs = 'InstrumentationKey=abc-123;LiveEndpoint=https://live.example.com/';
+      const result = parseConnectionString(cs);
+      expect(result).toContain('LiveEndpoint=https://live.example.com');
+      expect(result).not.toContain('LiveEndpoint=https://live.example.com/');
+    });
+
+    it('leaves endpoint URLs without trailing slash unchanged', () => {
+      const { parseConnectionString } = loadModule();
+      const cs = 'InstrumentationKey=abc-123;IngestionEndpoint=https://example.com';
+      const result = parseConnectionString(cs);
+      expect(result).toBe(cs);
+    });
+
+    it('accepts a connection string with only InstrumentationKey', () => {
+      const { parseConnectionString } = loadModule();
+      const cs = 'InstrumentationKey=abc-123';
+      expect(() => parseConnectionString(cs)).not.toThrow();
+    });
+
+    it('throws when connection string is empty', () => {
+      const { parseConnectionString } = loadModule();
+      expect(() => parseConnectionString('')).toThrow(/not configured/);
+    });
+
+    it('throws when connection string is null', () => {
+      const { parseConnectionString } = loadModule();
+      expect(() => parseConnectionString(null)).toThrow(/not configured/);
+    });
+
+    it('throws when connection string is undefined', () => {
+      const { parseConnectionString } = loadModule();
+      expect(() => parseConnectionString(undefined)).toThrow(/not configured/);
+    });
+
+    it('throws when connection string is missing InstrumentationKey', () => {
+      const { parseConnectionString } = loadModule();
+      expect(() => parseConnectionString('IngestionEndpoint=https://example.com')).toThrow(/missing InstrumentationKey/);
+    });
   });
 
   describe('initialize()', () => {
@@ -105,6 +176,14 @@ describe('TelemetryService', () => {
       expect(mockCapturedConfig.current.connectionString).toBe(testConnString);
     });
 
+    it('normalizes connection string endpoint URLs', () => {
+      const { initialize } = loadModule();
+      const connWithSlash = 'InstrumentationKey=abc-123;IngestionEndpoint=https://example.com/;LiveEndpoint=https://live.example.com/';
+      initialize(connWithSlash, mockHistory);
+      expect(mockCapturedConfig.current.connectionString).not.toContain('https://example.com/;');
+      expect(mockCapturedConfig.current.connectionString).toContain('IngestionEndpoint=https://example.com;');
+    });
+
     it('calls loadAppInsights() after creating instance', () => {
       const { initialize } = loadModule();
       initialize(testConnString, mockHistory);
@@ -118,7 +197,7 @@ describe('TelemetryService', () => {
       } = require('@microsoft/applicationinsights-web');
 
       const first = initialize(testConnString, mockHistory);
-      const second = initialize('other-conn', mockHistory);
+      const second = initialize('InstrumentationKey=other-key', mockHistory);
 
       expect(first).toBe(second);
       expect(ApplicationInsights).toHaveBeenCalledTimes(1);
@@ -141,8 +220,13 @@ describe('TelemetryService', () => {
 
     it('throws when connectionString is missing', () => {
       const { initialize } = loadModule();
-      expect(() => initialize(null, mockHistory)).toThrow();
-      expect(() => initialize('', mockHistory)).toThrow();
+      expect(() => initialize(null, mockHistory)).toThrow(/not configured/);
+      expect(() => initialize('', mockHistory)).toThrow(/not configured/);
+    });
+
+    it('throws when connectionString lacks InstrumentationKey', () => {
+      const { initialize } = loadModule();
+      expect(() => initialize('IngestionEndpoint=https://example.com', mockHistory)).toThrow(/missing InstrumentationKey/);
     });
 
     it('getAppInsights() returns the SDK instance after initialization', () => {
@@ -159,6 +243,52 @@ describe('TelemetryService', () => {
       const { reactPlugin } = loadModule();
       expect(reactPlugin).not.toBeNull();
       expect(reactPlugin).toHaveProperty('identifier', 'ReactPlugin');
+    });
+  });
+
+  describe('notification listener', () => {
+    it('registers a notification listener after loadAppInsights()', () => {
+      const { initialize } = loadModule();
+      initialize(testConnString, mockHistory);
+      expect(mockAppInsightsInstance.addNotificationListener).toHaveBeenCalledTimes(1);
+    });
+
+    it('listener has eventsDiscarded callback', () => {
+      const { initialize } = loadModule();
+      initialize(testConnString, mockHistory);
+      const listener = mockNotificationListeners.current[0];
+      expect(listener).toBeDefined();
+      expect(typeof listener.eventsDiscarded).toBe('function');
+    });
+
+    it('eventsDiscarded logs a warning on first call', () => {
+      const { initialize } = loadModule();
+      const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+      initialize(testConnString, mockHistory);
+
+      const listener = mockNotificationListeners.current[0];
+      listener.eventsDiscarded([{}, {}], 2);
+
+      expect(warnSpy).toHaveBeenCalledTimes(1);
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Telemetry events are being discarded'),
+        2
+      );
+      warnSpy.mockRestore();
+    });
+
+    it('eventsDiscarded warns only once (subsequent calls are silent)', () => {
+      const { initialize } = loadModule();
+      const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+      initialize(testConnString, mockHistory);
+
+      const listener = mockNotificationListeners.current[0];
+      listener.eventsDiscarded([{}], 1);
+      listener.eventsDiscarded([{}], 2);
+      listener.eventsDiscarded([{}], 3);
+
+      expect(warnSpy).toHaveBeenCalledTimes(1);
+      warnSpy.mockRestore();
     });
   });
 
