@@ -7,15 +7,13 @@ import { TelemetryContext } from './TelemetryContext';
 log.setLevel('silent');
 
 // Mock react-ga4
-jest.mock('react-ga4', () => ({
-  event: jest.fn(),
-  initialize: jest.fn(),
-  send: jest.fn(),
+vi.mock('react-ga4', () => ({
+  default: { event: vi.fn(), initialize: vi.fn(), send: vi.fn() },
 }));
 
 // Mock react-tooltip
-jest.mock('react-tooltip', () => {
-  const React = require('react');
+vi.mock('react-tooltip', async () => {
+  const React = await vi.importActual('react');
   return {
     Tooltip: (props) => React.createElement('div', { 'data-testid': 'react-tooltip' }),
   };
@@ -29,7 +27,7 @@ const defaultProps = {
 
 describe('Feedback', () => {
   beforeEach(() => {
-    global.fetch = jest.fn(() =>
+    global.fetch = vi.fn(() =>
       Promise.resolve({ ok: true })
     );
   });
@@ -94,7 +92,7 @@ describe('Feedback', () => {
   });
 
   it('tracks feedback event via TelemetryContext on successful send', async () => {
-    const mockAppInsights = { trackEvent: jest.fn(), trackException: jest.fn() };
+    const mockAppInsights = { trackEvent: vi.fn(), trackException: vi.fn() };
 
     render(
       <TelemetryContext.Provider value={mockAppInsights}>
@@ -117,8 +115,8 @@ describe('Feedback', () => {
   });
 
   it('tracks exception via TelemetryContext when fetch throws', async () => {
-    global.fetch = jest.fn(() => Promise.reject(new Error('Network error')));
-    const mockAppInsights = { trackEvent: jest.fn(), trackException: jest.fn() };
+    global.fetch = vi.fn(() => Promise.reject(new Error('Network error')));
+    const mockAppInsights = { trackEvent: vi.fn(), trackException: vi.fn() };
 
     render(
       <TelemetryContext.Provider value={mockAppInsights}>
@@ -136,11 +134,11 @@ describe('Feedback', () => {
   });
 
   it('tracks exception when HTTP response is not ok', async () => {
-    global.fetch = jest.fn(() =>
+    global.fetch = vi.fn(() =>
       Promise.resolve({ ok: false, status: 500 })
     );
-    const mockLog = { error: jest.fn(), info: jest.fn(), warn: jest.fn() };
-    const mockAppInsights = { trackEvent: jest.fn(), trackException: jest.fn() };
+    const mockLog = { error: vi.fn(), info: vi.fn(), warn: vi.fn() };
+    const mockAppInsights = { trackEvent: vi.fn(), trackException: vi.fn() };
 
     render(
       <TelemetryContext.Provider value={mockAppInsights}>

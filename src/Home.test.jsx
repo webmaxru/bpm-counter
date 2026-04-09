@@ -7,49 +7,49 @@ import { TelemetryContext } from './TelemetryContext';
 log.setLevel('silent');
 
 // Mock react-ga4
-jest.mock('react-ga4', () => ({
-  event: jest.fn(),
-  initialize: jest.fn(),
-  send: jest.fn(),
+vi.mock('react-ga4', () => ({
+  default: { event: vi.fn(), initialize: vi.fn(), send: vi.fn() },
 }));
 
 // Capture analyzer event handlers so tests can trigger BPM events
-// Variables prefixed with `mock` are allowed inside jest.mock() factories
+// Variables prefixed with `mock` are allowed inside vi.mock() factories
 let mockAnalyzerHandlers = {};
-jest.mock('realtime-bpm-analyzer', () => ({
-  createRealtimeBpmAnalyzer: jest.fn().mockImplementation(() => {
+vi.mock('realtime-bpm-analyzer', () => ({
+  createRealtimeBpmAnalyzer: vi.fn().mockImplementation(() => {
     mockAnalyzerHandlers = {};
     return Promise.resolve({
-      node: { connect: jest.fn() },
-      on: jest.fn((event, handler) => {
+      node: { connect: vi.fn() },
+      on: vi.fn((event, handler) => {
         mockAnalyzerHandlers[event] = handler;
       }),
-      reset: jest.fn(),
+      reset: vi.fn(),
     });
   }),
 }));
 
 // Mock audiomotion-analyzer
-jest.mock('audiomotion-analyzer', () =>
-  jest.fn().mockImplementation(() => ({
-    registerGradient: jest.fn(),
-    setOptions: jest.fn(),
-    setLedParams: jest.fn(),
+vi.mock('audiomotion-analyzer', () => ({
+  default: vi.fn().mockImplementation(function() { return {
+    registerGradient: vi.fn(),
+    setOptions: vi.fn(),
+    setLedParams: vi.fn(),
     audioCtx: {
-      createMediaStreamSource: jest.fn(() => ({ connect: jest.fn() })),
+      createMediaStreamSource: vi.fn(() => ({ connect: vi.fn() })),
     },
-    connectInput: jest.fn(),
+    connectInput: vi.fn(),
     volume: 0,
-  }))
-);
+  }; }),
+}));
 
 // Mock react-tooltip
-jest.mock('react-tooltip', () => {
-  const React = require('react');
+vi.mock('react-tooltip', async () => {
+  const React = await vi.importActual('react');
   return {
     Tooltip: (props) => React.createElement('div', { 'data-testid': 'react-tooltip', 'data-tooltip-id': props.id }),
   };
 });
+
+import { createRealtimeBpmAnalyzer } from 'realtime-bpm-analyzer';
 
 const defaultProps = {
   log,
@@ -63,17 +63,16 @@ const defaultProps = {
 describe('Home', () => {
   beforeEach(() => {
     mockAnalyzerHandlers = {};
-    // CRA resetMocks clears jest.fn() implementations between tests.
+    // mockReset clears vi.fn() implementations between tests.
     // Re-apply the analyzer mock (same pattern as getUserMedia in setupTests.js).
-    const { createRealtimeBpmAnalyzer } = require('realtime-bpm-analyzer');
     createRealtimeBpmAnalyzer.mockImplementation(() => {
       mockAnalyzerHandlers = {};
       return Promise.resolve({
-        node: { connect: jest.fn() },
-        on: jest.fn((event, handler) => {
+        node: { connect: vi.fn() },
+        on: vi.fn((event, handler) => {
           mockAnalyzerHandlers[event] = handler;
         }),
-        reset: jest.fn(),
+        reset: vi.fn(),
       });
     });
   });
@@ -150,9 +149,9 @@ describe('Home', () => {
   });
 
   it('handles getUserMedia rejection gracefully', async () => {
-    const mockLog = { error: jest.fn(), info: jest.fn(), warn: jest.fn() };
-    const mockTrackException = jest.fn();
-    const mockAppInsights = { trackEvent: jest.fn(), trackException: mockTrackException };
+    const mockLog = { error: vi.fn(), info: vi.fn(), warn: vi.fn() };
+    const mockTrackException = vi.fn();
+    const mockAppInsights = { trackEvent: vi.fn(), trackException: mockTrackException };
 
     navigator.mediaDevices.getUserMedia.mockRejectedValueOnce(
       new Error('Permission denied')
@@ -178,7 +177,7 @@ describe('Home', () => {
   });
 
   it('tracks detect event via TelemetryContext on mount', async () => {
-    const mockAppInsights = { trackEvent: jest.fn(), trackException: jest.fn() };
+    const mockAppInsights = { trackEvent: vi.fn(), trackException: vi.fn() };
 
     render(
       <TelemetryContext.Provider value={mockAppInsights}>

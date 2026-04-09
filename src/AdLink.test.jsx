@@ -4,24 +4,22 @@ import AdLink from './AdLink';
 import { TelemetryContext } from './TelemetryContext';
 
 // Mock react-ga4
-jest.mock('react-ga4', () => ({
-  event: jest.fn(),
-  initialize: jest.fn(),
-  send: jest.fn(),
+vi.mock('react-ga4', () => ({
+  default: { event: vi.fn(), initialize: vi.fn(), send: vi.fn() },
 }));
 
 const mockAppInsights = {
-  trackEvent: jest.fn(),
+  trackEvent: vi.fn(),
 };
 
 beforeEach(() => {
   // Fix Math.random for deterministic ad text selection
-  jest.spyOn(Math, 'random').mockReturnValue(0);
+  vi.spyOn(Math, 'random').mockReturnValue(0);
   mockAppInsights.trackEvent.mockClear();
 });
 
 afterEach(() => {
-  jest.restoreAllMocks();
+  vi.restoreAllMocks();
 });
 
 describe('AdLink', () => {
@@ -68,7 +66,7 @@ describe('AdLink — telemetry', () => {
   // Validates P2 #14 fix: AdLink should NOT call console.log
   // Pre-fix: line 7 has console.log(appInsights)
   it('does NOT call console.log', () => {
-    const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+    const consoleSpy = vi.spyOn(console, 'log').mockImplementation();
 
     render(
       <TelemetryContext.Provider value={mockAppInsights}>

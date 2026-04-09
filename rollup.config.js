@@ -1,6 +1,6 @@
-import resolve from 'rollup-plugin-node-resolve'
-import replace from 'rollup-plugin-replace'
-import { terser } from 'rollup-plugin-terser'
+import resolve from '@rollup/plugin-node-resolve'
+import replace from '@rollup/plugin-replace'
+import terser from '@rollup/plugin-terser'
 
 export default {
   input: 'build/sw.js',
@@ -11,7 +11,8 @@ export default {
   plugins: [
     resolve(),
     replace({
-      'process.env.NODE_ENV': JSON.stringify('production')
+      'process.env.NODE_ENV': JSON.stringify('production'),
+      preventAssignment: true
     }),
     terser()
   ]

@@ -15,13 +15,13 @@ describe('Account', () => {
   });
 
   it('shows "Loading..." initially before fetch completes', () => {
-    global.fetch = jest.fn(() => new Promise(() => {})); // never resolves
+    global.fetch = vi.fn(() => new Promise(() => {})); // never resolves
     render(<Account />);
     expect(screen.getByText('Loading...')).toBeInTheDocument();
   });
 
   it('shows user info when authenticated', async () => {
-    global.fetch = jest.fn(() =>
+    global.fetch = vi.fn(() =>
       Promise.resolve({
         json: () => Promise.resolve({ clientPrincipal: mockPrincipal }),
       })
@@ -39,7 +39,7 @@ describe('Account', () => {
   });
 
   it('shows "Not logged in" with login link when no clientPrincipal', async () => {
-    global.fetch = jest.fn(() =>
+    global.fetch = vi.fn(() =>
       Promise.resolve({
         json: () => Promise.resolve({}),
       })
@@ -58,7 +58,7 @@ describe('Account', () => {
   });
 
   it('shows logout and purge links when authenticated', async () => {
-    global.fetch = jest.fn(() =>
+    global.fetch = vi.fn(() =>
       Promise.resolve({
         json: () => Promise.resolve({ clientPrincipal: mockPrincipal }),
       })
@@ -79,9 +79,9 @@ describe('Account', () => {
   });
 
   it('warns on console when fetch fails on localhost', async () => {
-    global.fetch = jest.fn(() => Promise.reject(new Error('Network error')));
+    global.fetch = vi.fn(() => Promise.reject(new Error('Network error')));
 
-    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
     // Simulate localhost
     Object.defineProperty(window, 'location', {
@@ -103,9 +103,9 @@ describe('Account', () => {
   });
 
   it('logs error when fetch fails on non-localhost', async () => {
-    global.fetch = jest.fn(() => Promise.reject(new Error('Server error')));
+    global.fetch = vi.fn(() => Promise.reject(new Error('Server error')));
 
-    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     Object.defineProperty(window, 'location', {
       value: { ...window.location, hostname: 'bpmtechno.com' },
@@ -127,7 +127,7 @@ describe('Account', () => {
   });
 
   it('renders the "Account" heading', async () => {
-    global.fetch = jest.fn(() =>
+    global.fetch = vi.fn(() =>
       Promise.resolve({
         json: () => Promise.resolve({}),
       })

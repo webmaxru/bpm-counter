@@ -6,7 +6,7 @@ import reportWebVitals from './reportWebVitals';
 import ReactGA from 'react-ga4';
 import { getAppInsights } from './TelemetryService';
 
-ReactGA.initialize(process.env.REACT_APP_GA4_MEASUREMENT_ID);
+ReactGA.initialize(import.meta.env.VITE_GA4_MEASUREMENT_ID);
 ReactGA.send('pageview');
 
 const root = createRoot(document.getElementById('root'));

@@ -1,11 +1,11 @@
 /* eslint-disable no-unused-vars */
 import './App.css';
-import Home from './Home.js';
-import About from './About.js';
-import Account from './Account.js';
-import Admin from './Admin.js';
-import Login from './Login.js';
-import Upload from './Upload.js';
+import Home from './Home.jsx';
+import About from './About.jsx';
+import Account from './Account.jsx';
+import Admin from './Admin.jsx';
+import Login from './Login.jsx';
+import Upload from './Upload.jsx';
 import log from 'loglevel';
 import { isMobile } from 'react-device-detect';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
@@ -101,7 +101,7 @@ function App() {
   return (
     <Router>
       <TelemetryProvider
-        connectionString={process.env.REACT_APP_APPINSIGHTS_CONNECTION_STRING}
+        connectionString={import.meta.env.VITE_APPINSIGHTS_CONNECTION_STRING}
         after={() => {
           // P0 #2: Removed manual trackPageView() — React plugin auto-tracks via history
           setAppInsights(getAppInsights());

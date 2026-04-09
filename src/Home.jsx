@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import './Home.css';
-import Feedback from './Feedback.js';
+import Feedback from './Feedback.jsx';
 import React, { useContext, useEffect, useState } from 'react';
 import { createRealtimeBpmAnalyzer } from 'realtime-bpm-analyzer';
 import AudioMotionAnalyzer from 'audiomotion-analyzer';
@@ -10,7 +10,7 @@ import { Tooltip } from 'react-tooltip';
 import 'react-tooltip/dist/react-tooltip.css';
 import './custom-hint.css';
 import ReactGA from 'react-ga4';
-import AdLink from './AdLink.js';
+import AdLink from './AdLink.jsx';
 import { withAITracking } from '@microsoft/applicationinsights-react-js';
 import { reactPlugin } from './TelemetryService';
 import { TelemetryContext } from './TelemetryContext';

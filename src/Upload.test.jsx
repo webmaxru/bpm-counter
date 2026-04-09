@@ -7,44 +7,42 @@ import { TelemetryContext } from './TelemetryContext';
 log.setLevel('silent');
 
 // Mock react-ga4
-jest.mock('react-ga4', () => ({
-  event: jest.fn(),
-  initialize: jest.fn(),
-  send: jest.fn(),
+vi.mock('react-ga4', () => ({
+  default: { event: vi.fn(), initialize: vi.fn(), send: vi.fn() },
 }));
 
 // Mock bpm-detective
-jest.mock('bpm-detective', () => jest.fn(() => 120));
+vi.mock('bpm-detective', () => ({ default: vi.fn(() => 120) }));
 
 // Mock applicationinsights-react-js (withAITracking used in Upload export)
-jest.mock('@microsoft/applicationinsights-react-js', () => ({
-  withAITracking: jest.fn((_plugin, component) => component),
-  ReactPlugin: jest.fn().mockImplementation(() => ({
+vi.mock('@microsoft/applicationinsights-react-js', () => ({
+  withAITracking: vi.fn((_plugin, component) => component),
+  ReactPlugin: vi.fn().mockImplementation(function() { return {
     identifier: 'ReactPlugin',
-  })),
+  }; }),
 }));
 
 // Mock TelemetryService (Upload imports reactPlugin)
-jest.mock('./TelemetryService', () => ({
+vi.mock('./TelemetryService', () => ({
   reactPlugin: { identifier: 'ReactPlugin' },
-  getAppInsights: jest.fn(() => null),
-  initialize: jest.fn(),
+  getAppInsights: vi.fn(() => null),
+  initialize: vi.fn(),
 }));
 
 // Mock react-tooltip (used by Feedback, which Upload renders)
-jest.mock('react-tooltip', () => {
-  const React = require('react');
+vi.mock('react-tooltip', async () => {
+  const React = await vi.importActual('react');
   return {
     Tooltip: (props) => React.createElement('div', { 'data-testid': 'react-tooltip' }),
   };
 });
 
-const detect = require('bpm-detective');
+import detect from 'bpm-detective';
 
 const mockAppInsights = {
-  trackEvent: jest.fn(),
-  trackException: jest.fn(),
-  trackPageView: jest.fn(),
+  trackEvent: vi.fn(),
+  trackException: vi.fn(),
+  trackPageView: vi.fn(),
 };
 
 const defaultProps = {
@@ -100,11 +98,11 @@ describe('Upload', () => {
 describe('Upload — withAITracking HOC', () => {
   // Validates P0 #1 fix: withAITracking receives a non-null reactPlugin at import time
   // Pre-fix: reactPlugin was null because createTelemetryService() captured it before init
-  it('wraps Upload with withAITracking using a non-null reactPlugin', () => {
+  it('wraps Upload with withAITracking using a non-null reactPlugin', async () => {
     // Fresh module load captures the import-time withAITracking call
-    jest.resetModules();
-    require('./Upload');
-    const { withAITracking } = require('@microsoft/applicationinsights-react-js');
+    vi.resetModules();
+    await import('./Upload');
+    const { withAITracking } = await import('@microsoft/applicationinsights-react-js');
 
     expect(withAITracking).toHaveBeenCalledTimes(1);
     const plugin = withAITracking.mock.calls[0][0];
@@ -116,7 +114,7 @@ describe('Upload — withAITracking HOC', () => {
 describe('Upload — telemetry integration', () => {
   // Helper: mock fetch to return an ArrayBuffer, triggering BPM detection
   const mockSuccessfulFetch = () => {
-    global.fetch = jest.fn(() =>
+    global.fetch = vi.fn(() =>
       Promise.resolve({
         ok: true,
         arrayBuffer: () => Promise.resolve(new ArrayBuffer(1024)),
@@ -205,12 +203,12 @@ describe('Upload — telemetry integration', () => {
   // Validates P1 #7 fix: fetch errors should call trackException
   it('calls trackException when fetch fails', async () => {
     const fetchError = new Error('Network request failed');
-    global.fetch = jest.fn(() =>
+    global.fetch = vi.fn(() =>
       Promise.reject(fetchError)
     );
 
     // Suppress expected console.error from the catch block
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation();
 
     render(
       <TelemetryContext.Provider value={mockAppInsights}>
@@ -243,11 +241,11 @@ describe('Upload — telemetry integration', () => {
 
     const decodeError = new Error('Unable to decode audio data');
     const OriginalAudioContext = window.AudioContext;
-    window.AudioContext = jest.fn(() => ({
-      decodeAudioData: jest.fn((_buffer, _resolve, reject) => reject(decodeError)),
-    }));
+    window.AudioContext = vi.fn(function() { return {
+      decodeAudioData: vi.fn((_buffer, _resolve, reject) => reject(decodeError)),
+    }; });
 
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation();
 
     render(
       <TelemetryContext.Provider value={mockAppInsights}>

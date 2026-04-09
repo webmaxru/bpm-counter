@@ -21,7 +21,7 @@ export const parseConnectionString = (connectionString) => {
   if (!connectionString) {
     throw new Error(
       'App Insights connection string is not configured. ' +
-      'Set REACT_APP_APPINSIGHTS_CONNECTION_STRING in your environment.'
+      'Set VITE_APPINSIGHTS_CONNECTION_STRING in your environment.'
     );
   }
 

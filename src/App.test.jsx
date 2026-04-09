@@ -5,71 +5,69 @@ import App from './App';
 
 // --- Shared mock objects (prefix with "mock" so Jest hoists them) ---
 const mockTelemetryAppInsights = {
-  trackPageView: jest.fn(),
-  trackEvent: jest.fn(),
-  trackException: jest.fn(),
-  trackMetric: jest.fn(),
+  trackPageView: vi.fn(),
+  trackEvent: vi.fn(),
+  trackException: vi.fn(),
+  trackMetric: vi.fn(),
 };
 
 // Capture Workbox event handlers for SW message tests
 const mockWbEventHandlers = {};
 
 // Mock workbox-window with handler capture
-jest.mock('workbox-window', () => ({
-  Workbox: jest.fn().mockImplementation(() => ({
-    addEventListener: jest.fn((event, handler) => {
+vi.mock('workbox-window', () => ({
+  Workbox: vi.fn().mockImplementation(function() { return {
+    addEventListener: vi.fn((event, handler) => {
       if (!mockWbEventHandlers[event]) mockWbEventHandlers[event] = [];
       mockWbEventHandlers[event].push(handler);
     }),
-    register: jest.fn().mockResolvedValue({}),
-    messageSkipWaiting: jest.fn(),
-  })),
+    register: vi.fn().mockResolvedValue({}),
+    messageSkipWaiting: vi.fn(),
+  }; }),
 }));
 
 // Mock react-ga4
-jest.mock('react-ga4', () => ({
-  event: jest.fn(),
-  initialize: jest.fn(),
-  send: jest.fn(),
+vi.mock('react-ga4', () => ({
+  default: { event: vi.fn(), initialize: vi.fn(), send: vi.fn() },
 }));
 
 // Mock react-toastify to capture toast calls
-jest.mock('react-toastify', () => {
-  const React = require('react');
+vi.mock('react-toastify', async () => {
+  const React = await vi.importActual('react');
   return {
-    toast: Object.assign(jest.fn(), {
-      success: jest.fn(),
-      warning: jest.fn(),
-      info: jest.fn(),
-      error: jest.fn(),
+    toast: Object.assign(vi.fn(), {
+      success: vi.fn(),
+      warning: vi.fn(),
+      info: vi.fn(),
+      error: vi.fn(),
     }),
     ToastContainer: () => React.createElement('div'),
   };
 });
 
 // Mock applicationinsights-react-js (AppInsightsErrorBoundary, withAITracking)
-jest.mock('@microsoft/applicationinsights-react-js', () => {
-  const React = require('react');
+vi.mock('@microsoft/applicationinsights-react-js', async () => {
+  const React = await vi.importActual('react');
   return {
     withAITracking: (_plugin, component) => component,
     AppInsightsErrorBoundary: ({ children }) =>
       React.createElement(React.Fragment, null, children),
-    ReactPlugin: jest.fn().mockImplementation(() => ({
+    ReactPlugin: vi.fn().mockImplementation(function() { return {
       identifier: 'ReactPlugin',
-    })),
+    }; }),
   };
 });
 
 // Mock TelemetryService — getAppInsights returns a usable mock
-jest.mock('./TelemetryService', () => ({
-  getAppInsights: jest.fn(() => mockTelemetryAppInsights),
-  initialize: jest.fn(),
-  reactPlugin: { getCookieMgr: () => ({ set: jest.fn() }) },
+vi.mock('./TelemetryService', () => ({
+  getAppInsights: vi.fn(() => mockTelemetryAppInsights),
+  initialize: vi.fn(),
+  reactPlugin: { getCookieMgr: () => ({ set: vi.fn() }) },
 }));
 
 // Mock telemetry-provider: calls after() in useEffect (like real component)
-jest.mock('./telemetry-provider', () => {
-  const React = require('react');
+vi.mock('./telemetry-provider', async () => {
+  const React = await vi.importActual('react');
   return {
     __esModule: true,
     default: function MockTelemetryProvider({ children, after }) {
@@ -83,60 +81,60 @@ jest.mock('./telemetry-provider', () => {
 });
 
 // Mock realtime-bpm-analyzer (used by Home)
-jest.mock('realtime-bpm-analyzer', () => ({
-  createRealtimeBpmAnalyzer: jest.fn().mockResolvedValue({
-    node: { connect: jest.fn() },
-    on: jest.fn(),
-    reset: jest.fn(),
+vi.mock('realtime-bpm-analyzer', () => ({
+  createRealtimeBpmAnalyzer: vi.fn().mockResolvedValue({
+    node: { connect: vi.fn() },
+    on: vi.fn(),
+    reset: vi.fn(),
   }),
 }));
 
 // Mock audiomotion-analyzer (used by Home)
-jest.mock('audiomotion-analyzer', () =>
-  jest.fn().mockImplementation(() => ({
-    registerGradient: jest.fn(),
-    setOptions: jest.fn(),
-    setLedParams: jest.fn(),
+vi.mock('audiomotion-analyzer', () => ({
+  default: vi.fn().mockImplementation(function() { return {
+    registerGradient: vi.fn(),
+    setOptions: vi.fn(),
+    setLedParams: vi.fn(),
     audioCtx: {
-      createMediaStreamSource: jest.fn(() => ({ connect: jest.fn() })),
+      createMediaStreamSource: vi.fn(() => ({ connect: vi.fn() })),
     },
-    connectInput: jest.fn(),
+    connectInput: vi.fn(),
     volume: 0,
-  }))
-);
+  }; }),
+}));
 
 // Mock react-tooltip (used by Home and Feedback)
-jest.mock('react-tooltip', () => {
-  const React = require('react');
+vi.mock('react-tooltip', async () => {
+  const React = await vi.importActual('react');
   return {
     Tooltip: (props) => React.createElement('div', { 'data-testid': 'react-tooltip' }),
   };
 });
 
 // Mock bpm-detective (used by Upload)
-jest.mock('bpm-detective', () => jest.fn(() => 120));
+vi.mock('bpm-detective', () => ({ default: vi.fn(() => 120) }));
 
 // Mock react-device-detect
-jest.mock('react-device-detect', () => ({
+vi.mock('react-device-detect', () => ({
   isMobile: false,
 }));
 
-// Re-import mocked module for beforeEach re-application
-const TelemetryService = require('./TelemetryService');
-const workboxWindow = require('workbox-window');
-const { toast } = require('react-toastify');
+// Re-import mocked modules for beforeEach re-application
+import * as TelemetryService from './TelemetryService';
+import * as workboxWindow from 'workbox-window';
+import { toast } from 'react-toastify';
 
 beforeEach(() => {
   // Re-apply mock implementations cleared by CRA's resetMocks
   TelemetryService.getAppInsights.mockReturnValue(mockTelemetryAppInsights);
-  workboxWindow.Workbox.mockImplementation(() => ({
-    addEventListener: jest.fn((event, handler) => {
+  workboxWindow.Workbox.mockImplementation(function() { return {
+    addEventListener: vi.fn((event, handler) => {
       if (!mockWbEventHandlers[event]) mockWbEventHandlers[event] = [];
       mockWbEventHandlers[event].push(handler);
     }),
-    register: jest.fn().mockResolvedValue({}),
-    messageSkipWaiting: jest.fn(),
-  }));
+    register: vi.fn().mockResolvedValue({}),
+    messageSkipWaiting: vi.fn(),
+  }; });
 
   // Clear captured handlers
   for (const key in mockWbEventHandlers) delete mockWbEventHandlers[key];
@@ -222,7 +220,7 @@ describe('App — service worker telemetry', () => {
 
   beforeEach(() => {
     Object.defineProperty(navigator, 'serviceWorker', {
-      value: { addEventListener: jest.fn() },
+      value: { addEventListener: vi.fn() },
       configurable: true,
       writable: true,
     });

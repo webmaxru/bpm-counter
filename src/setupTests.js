@@ -1,11 +1,7 @@
-// jest-dom adds custom jest matchers for asserting on DOM nodes.
-// allows you to do things like:
-// expect(element).toHaveTextContent(/react/i)
-// learn more: https://github.com/testing-library/jest-dom
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 
 // Polyfill TextEncoder/TextDecoder for jsdom (required by react-router v7)
-const { TextEncoder, TextDecoder } = require('util');
+import { TextEncoder, TextDecoder } from 'util';
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder;
 
@@ -16,28 +12,28 @@ class MockAudioContext {
     this.state = 'running';
   }
   createMediaStreamSource() {
-    return { connect: jest.fn(), disconnect: jest.fn() };
+    return { connect: vi.fn(), disconnect: vi.fn() };
   }
   createScriptProcessor() {
     return {
-      connect: jest.fn(),
-      disconnect: jest.fn(),
+      connect: vi.fn(),
+      disconnect: vi.fn(),
       onaudioprocess: null,
     };
   }
   createAnalyser() {
     return {
-      connect: jest.fn(),
-      disconnect: jest.fn(),
+      connect: vi.fn(),
+      disconnect: vi.fn(),
       fftSize: 2048,
       frequencyBinCount: 1024,
-      getByteFrequencyData: jest.fn(),
-      getByteTimeDomainData: jest.fn(),
+      getByteFrequencyData: vi.fn(),
+      getByteTimeDomainData: vi.fn(),
     };
   }
   createGain() {
     return {
-      connect: jest.fn(),
+      connect: vi.fn(),
       gain: { value: 1 },
     };
   }
@@ -63,9 +59,9 @@ window.AudioContext = MockAudioContext;
 window.webkitAudioContext = MockAudioContext;
 
 // Mock MediaDevices
-// Use a beforeEach pattern because CRA resetMocks clears jest.fn() impls
-const mockGetUserMedia = jest.fn().mockResolvedValue({
-  getTracks: () => [{ stop: jest.fn() }],
+// Use a beforeEach pattern because mockReset clears vi.fn() impls
+const mockGetUserMedia = vi.fn().mockResolvedValue({
+  getTracks: () => [{ stop: vi.fn() }],
 });
 Object.defineProperty(navigator, 'mediaDevices', {
   value: {
@@ -74,10 +70,10 @@ Object.defineProperty(navigator, 'mediaDevices', {
   writable: true,
 });
 
-// Re-apply getUserMedia mock before each test (CRA resets jest.fn() impls)
+// Re-apply getUserMedia mock before each test (mockReset clears vi.fn() impls)
 beforeEach(() => {
   mockGetUserMedia.mockResolvedValue({
-    getTracks: () => [{ stop: jest.fn() }],
+    getTracks: () => [{ stop: vi.fn() }],
   });
 });
 

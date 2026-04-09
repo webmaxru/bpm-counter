@@ -7,22 +7,22 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 
-jest.mock('react-router-dom', () => ({
-  useLocation: jest.fn(() => ({ pathname: '/', search: '', hash: '' })),
+vi.mock('react-router-dom', () => ({
+  useLocation: vi.fn(() => ({ pathname: '/', search: '', hash: '' })),
 }));
 
-jest.mock('./TelemetryService', () => ({
-  initialize: jest.fn(),
+vi.mock('./TelemetryService', () => ({
+  initialize: vi.fn(),
   reactPlugin: { identifier: 'ReactPlugin' },
-  getAppInsights: jest.fn(() => null),
+  getAppInsights: vi.fn(() => null),
 }));
 
-// Import AFTER mocks (jest.mock is hoisted)
+// Import AFTER mocks (vi.mock is hoisted)
 import TelemetryProvider from './telemetry-provider';
 
-// Get mock references after module resolution
-const TelemetryService = require('./TelemetryService');
-const { useLocation: mockUseLocation } = require('react-router-dom');
+// Get mock references (imports get mocked versions due to vi.mock hoisting)
+import * as TelemetryService from './TelemetryService';
+import { useLocation as mockUseLocation } from 'react-router-dom';
 
 describe('TelemetryProvider', () => {
   beforeEach(() => {
@@ -33,11 +33,11 @@ describe('TelemetryProvider', () => {
   });
 
   it('renders children when connection string is provided', () => {
-    TelemetryService.getAppInsights.mockReturnValue({ trackPageView: jest.fn() });
+    TelemetryService.getAppInsights.mockReturnValue({ trackPageView: vi.fn() });
     render(
       <TelemetryProvider
         connectionString="InstrumentationKey=test"
-        after={jest.fn()}
+        after={vi.fn()}
       >
         <div data-testid="child">Hello</div>
       </TelemetryProvider>
@@ -51,7 +51,7 @@ describe('TelemetryProvider', () => {
       render(
         <TelemetryProvider
           connectionString=""
-          after={jest.fn()}
+          after={vi.fn()}
         >
           <div data-testid="child">Hello</div>
         </TelemetryProvider>
@@ -61,11 +61,11 @@ describe('TelemetryProvider', () => {
   });
 
   it('calls initialize() with connection string only (no history)', () => {
-    TelemetryService.getAppInsights.mockReturnValue({ trackPageView: jest.fn() });
+    TelemetryService.getAppInsights.mockReturnValue({ trackPageView: vi.fn() });
     render(
       <TelemetryProvider
         connectionString="InstrumentationKey=test"
-        after={jest.fn()}
+        after={vi.fn()}
       >
         <div>child</div>
       </TelemetryProvider>
@@ -79,7 +79,7 @@ describe('TelemetryProvider', () => {
     render(
       <TelemetryProvider
         connectionString=""
-        after={jest.fn()}
+        after={vi.fn()}
       >
         <div>child</div>
       </TelemetryProvider>
@@ -89,7 +89,7 @@ describe('TelemetryProvider', () => {
 
   // Validates P0 #4 fix: after() must not crash when init is skipped
   it('does not crash when after() is called without initialization', () => {
-    const afterFn = jest.fn();
+    const afterFn = vi.fn();
     expect(() => {
       render(
         <TelemetryProvider
@@ -106,8 +106,8 @@ describe('TelemetryProvider', () => {
 
   // Validates P0 #4 fix: after() IS called when init succeeds
   it('calls after() when initialization succeeds', () => {
-    const afterFn = jest.fn();
-    TelemetryService.getAppInsights.mockReturnValue({ trackPageView: jest.fn() });
+    const afterFn = vi.fn();
+    TelemetryService.getAppInsights.mockReturnValue({ trackPageView: vi.fn() });
     render(
       <TelemetryProvider
         connectionString="InstrumentationKey=test"
@@ -120,13 +120,13 @@ describe('TelemetryProvider', () => {
   });
 
   it('tracks page view on location change', () => {
-    const mockAI = { trackPageView: jest.fn() };
+    const mockAI = { trackPageView: vi.fn() };
     TelemetryService.getAppInsights.mockReturnValue(mockAI);
 
     const { rerender } = render(
       <TelemetryProvider
         connectionString="InstrumentationKey=test"
-        after={jest.fn()}
+        after={vi.fn()}
       >
         <div>child</div>
       </TelemetryProvider>
@@ -137,7 +137,7 @@ describe('TelemetryProvider', () => {
     rerender(
       <TelemetryProvider
         connectionString="InstrumentationKey=test"
-        after={jest.fn()}
+        after={vi.fn()}
       >
         <div>child</div>
       </TelemetryProvider>
@@ -149,14 +149,14 @@ describe('TelemetryProvider', () => {
   });
 
   it('includes search and hash in page view URI', () => {
-    const mockAI = { trackPageView: jest.fn() };
+    const mockAI = { trackPageView: vi.fn() };
     TelemetryService.getAppInsights.mockReturnValue(mockAI);
     mockUseLocation.mockReturnValue({ pathname: '/', search: '?q=test', hash: '#section' });
 
     render(
       <TelemetryProvider
         connectionString="InstrumentationKey=test"
-        after={jest.fn()}
+        after={vi.fn()}
       >
         <div>child</div>
       </TelemetryProvider>
@@ -174,7 +174,7 @@ describe('TelemetryProvider', () => {
     render(
       <TelemetryProvider
         connectionString=""
-        after={jest.fn()}
+        after={vi.fn()}
       >
         <div>child</div>
       </TelemetryProvider>
@@ -189,13 +189,13 @@ describe('TelemetryProvider', () => {
     TelemetryService.initialize.mockImplementation(() => {
       throw new Error('Bad connection string');
     });
-    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
     expect(() => {
       render(
         <TelemetryProvider
           connectionString="InstrumentationKey=bad"
-          after={jest.fn()}
+          after={vi.fn()}
         >
           <div data-testid="child">Hello</div>
         </TelemetryProvider>
@@ -210,12 +210,12 @@ describe('TelemetryProvider', () => {
     TelemetryService.initialize.mockImplementation(() => {
       throw new Error('Bad connection string');
     });
-    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
     render(
       <TelemetryProvider
         connectionString="InstrumentationKey=bad"
-        after={jest.fn()}
+        after={vi.fn()}
       >
         <div>child</div>
       </TelemetryProvider>
@@ -232,8 +232,8 @@ describe('TelemetryProvider', () => {
     TelemetryService.initialize.mockImplementation(() => {
       throw new Error('Bad connection string');
     });
-    const afterFn = jest.fn();
-    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    const afterFn = vi.fn();
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
 
     render(
       <TelemetryProvider

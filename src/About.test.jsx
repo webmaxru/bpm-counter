@@ -3,10 +3,8 @@ import { render, screen } from '@testing-library/react';
 import About from './About';
 
 // Mock react-ga4 (imported by sub-components if any)
-jest.mock('react-ga4', () => ({
-  event: jest.fn(),
-  initialize: jest.fn(),
-  send: jest.fn(),
+vi.mock('react-ga4', () => ({
+  default: { event: vi.fn(), initialize: vi.fn(), send: vi.fn() },
 }));
 
 describe('About', () => {

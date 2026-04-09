@@ -2,7 +2,7 @@ import React, { useState, useContext, useEffect } from 'react';
 import detect from 'bpm-detective';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import Feedback from './Feedback.js';
+import Feedback from './Feedback.jsx';
 import ReactGA from 'react-ga4';
 import { withAITracking } from '@microsoft/applicationinsights-react-js';
 import { reactPlugin } from './TelemetryService';
