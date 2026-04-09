@@ -30,6 +30,7 @@ yarn.lock
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+/e2e/snapshots/
 
 # playwright-cli
 .playwright-cli/
