@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import Feedback from './Feedback';
 import log from 'loglevel';
+import { TelemetryContext } from './TelemetryContext';
 
 log.setLevel('silent');
 
@@ -24,7 +25,6 @@ const defaultProps = {
   bpm: '120',
   log,
   type: 'mic',
-  appInsights: null,
 };
 
 describe('Feedback', () => {
@@ -90,6 +90,88 @@ describe('Feedback', () => {
       bpm: '120',
       type: 'mic',
       isCorrect: false,
+    });
+  });
+
+  it('tracks feedback event via TelemetryContext on successful send', async () => {
+    const mockAppInsights = { trackEvent: jest.fn(), trackException: jest.fn() };
+
+    render(
+      <TelemetryContext.Provider value={mockAppInsights}>
+        <Feedback {...defaultProps} />
+      </TelemetryContext.Provider>
+    );
+
+    fireEvent.click(screen.getByText('👍🏽'));
+
+    await waitFor(() => {
+      expect(mockAppInsights.trackEvent).toHaveBeenCalledWith({
+        name: 'share',
+        properties: {
+          method: 'API',
+          content_type: 'feedback',
+          item_id: true,
+        },
+      });
+    });
+  });
+
+  it('tracks exception via TelemetryContext when fetch throws', async () => {
+    global.fetch = jest.fn(() => Promise.reject(new Error('Network error')));
+    const mockAppInsights = { trackEvent: jest.fn(), trackException: jest.fn() };
+
+    render(
+      <TelemetryContext.Provider value={mockAppInsights}>
+        <Feedback {...defaultProps} />
+      </TelemetryContext.Provider>
+    );
+
+    fireEvent.click(screen.getByText('👍🏽'));
+
+    await waitFor(() => {
+      expect(mockAppInsights.trackException).toHaveBeenCalledWith({
+        exception: expect.any(Error),
+      });
+    });
+  });
+
+  it('tracks exception when HTTP response is not ok', async () => {
+    global.fetch = jest.fn(() =>
+      Promise.resolve({ ok: false, status: 500 })
+    );
+    const mockLog = { error: jest.fn(), info: jest.fn(), warn: jest.fn() };
+    const mockAppInsights = { trackEvent: jest.fn(), trackException: jest.fn() };
+
+    render(
+      <TelemetryContext.Provider value={mockAppInsights}>
+        <Feedback {...defaultProps} log={mockLog} />
+      </TelemetryContext.Provider>
+    );
+
+    fireEvent.click(screen.getByText('👍🏽'));
+
+    await waitFor(() => {
+      expect(mockAppInsights.trackException).toHaveBeenCalledWith({
+        exception: expect.any(Error),
+      });
+    });
+
+    expect(mockLog.error).toHaveBeenCalledWith(
+      expect.stringContaining('HTTP error')
+    );
+  });
+
+  it('does not crash when TelemetryContext is null', async () => {
+    render(
+      <TelemetryContext.Provider value={null}>
+        <Feedback {...defaultProps} />
+      </TelemetryContext.Provider>
+    );
+
+    fireEvent.click(screen.getByText('👍🏽'));
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalled();
     });
   });
 });
