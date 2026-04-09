@@ -84,6 +84,7 @@
   },
   "scope_extensions": [
     {
+      "type": "origin",
       "origin": "https://bpm-out.push.foo"
     }
   ],
@@ -112,6 +113,7 @@
   "share_target": {
     "action": "/upload",
     "method": "GET",
+    "enctype": "application/x-www-form-urlencoded",
     "params": {
       "title": "title",
       "text": "text",
