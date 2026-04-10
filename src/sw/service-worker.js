@@ -3,7 +3,7 @@
 import { precacheAndRoute, createHandlerBoundToURL } from 'workbox-precaching';
 import { NavigationRoute, registerRoute } from 'workbox-routing';
 import { setCacheNameDetails, clientsClaim } from 'workbox-core';
-import { NetworkFirst } from 'workbox-strategies';
+import { NetworkOnly } from 'workbox-strategies';
 import { googleFontsCache } from 'workbox-recipes';
 import { BackgroundSyncPlugin } from 'workbox-background-sync';
 import * as googleAnalytics from 'workbox-google-analytics';
@@ -141,7 +141,7 @@ const bgSyncPlugin = new BackgroundSyncPlugin('feedbackQueue', {
 // Registering a route for retries
 registerRoute(
   ({ url }) => url.pathname.startsWith('/api/feedback'),
-  new NetworkFirst({
+  new NetworkOnly({
     plugins: [bgSyncPlugin, messageAboutFailPlugin],
   }),
   'POST'
