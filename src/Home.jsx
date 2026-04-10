@@ -114,6 +114,7 @@ function Home(props) {
   const [threshold, setThreshold] = useState(0);
   const [primaryBPM, setPrimaryBPM] = useState(testBPM || ``);
   const [secondaryBPM, setSecondaryBPM] = useState(``);
+  const [interimBPM, setInterimBPM] = useState(``);
   const [isListening, setIsListening] = useState(false);
 
   const [isShowingInit, setIsShowingInit] = useState(true);
@@ -144,6 +145,15 @@ function Home(props) {
 
     bpmAnalyzer.on('bpm', (data) => {
       if (data.bpm && data.bpm.length) {
+        setInterimBPM(`${data.bpm[0].tempo}`);
+
+        log.info(data.bpm);
+        log.info(`Threshold, ${data.threshold}`);
+      }
+    });
+
+    bpmAnalyzer.on('bpmStable', (data) => {
+      if (data.bpm && data.bpm.length) {
         setIsResultReady(true);
         setThreshold(Math.round(data.threshold * 100) / 100);
 
@@ -152,8 +162,7 @@ function Home(props) {
           setSecondaryBPM(`${data.bpm[1].tempo}`);
         }
 
-        log.info(data.bpm);
-        log.info(`Threshold, ${data.threshold}`);
+        setInterimBPM(``);
 
         ReactGA.event('detect', {
           mode: 'realtime',
@@ -170,9 +179,7 @@ function Home(props) {
           },
         });
       }
-    });
 
-    bpmAnalyzer.on('bpmStable', () => {
       bpmAnalyzer.reset();
     });
 
@@ -208,7 +215,13 @@ function Home(props) {
           <h2 style={{ opacity: threshold + 0.4 }}>
             {isResultReady ? primaryBPM : null}
           </h2>
-          <h3>{isResultReady ? 'BPM' : 'Listening...'}</h3>
+          <h3>{isResultReady ? 'BPM' : 'Listening. Wait...'}</h3>
+
+          {!isResultReady && interimBPM ? (
+            <p style={{ color: '#d98c5f', fontSize: '1.2em', opacity: 0.5, margin: 0 }}>
+              {interimBPM}
+            </p>
+          ) : null}
 
           {!isResultReady && primaryBPM ? (
             <h4>

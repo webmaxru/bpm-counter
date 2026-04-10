@@ -116,19 +116,19 @@ describe('Home', () => {
     ).toBeInTheDocument();
   });
 
-  it('shows "Listening..." after clicking Start before BPM detected', async () => {
+  it('shows "Listening. Wait..." after clicking Start before BPM detected', async () => {
     render(<Home {...defaultProps} />);
 
     fireEvent.click(screen.getByRole('button', { name: /Start listening/i }));
 
     await waitFor(() => {
-      expect(screen.getByText('Listening...')).toBeInTheDocument();
+      expect(screen.getByText('Listening. Wait...')).toBeInTheDocument();
     });
 
     expect(screen.getByRole('button', { name: /Start over/i })).toBeInTheDocument();
   });
 
-  it('displays detected BPM when analyzer fires bpm event', async () => {
+  it('displays interim BPM while waiting for stable result', async () => {
     render(<Home {...defaultProps} />);
 
     fireEvent.click(screen.getByRole('button', { name: /Start listening/i }));
@@ -139,6 +139,27 @@ describe('Home', () => {
 
     act(() => {
       mockAnalyzerHandlers.bpm({
+        bpm: [{ tempo: 125 }],
+        threshold: 0.4,
+      });
+    });
+
+    expect(screen.getByText('125')).toBeInTheDocument();
+    expect(screen.getByText('Listening. Wait...')).toBeInTheDocument();
+    expect(screen.queryByText('BPM')).not.toBeInTheDocument();
+  });
+
+  it('displays detected BPM when analyzer fires bpmStable event', async () => {
+    render(<Home {...defaultProps} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /Start listening/i }));
+
+    await waitFor(() => {
+      expect(mockAnalyzerHandlers.bpmStable).toBeDefined();
+    });
+
+    act(() => {
+      mockAnalyzerHandlers.bpmStable({
         bpm: [{ tempo: 128 }, { tempo: 64 }],
         threshold: 0.85,
       });
