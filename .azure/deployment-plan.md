@@ -178,6 +178,21 @@ All validation checks passed. The release is approved for the existing CI/CD dep
 | Diff quality | `git diff --check` passed |
 | Static RBAC review | Not applicable; no infrastructure, identity, or role changes |
 
+### Frameless Spectrum Integration Validation
+
+**Validation executed:** 2026-08-01T09:59:27+02:00
+
+| Check | Result |
+|---|---|
+| Targeted Playwright | 7 passed across layout and fake microphone BPM detection |
+| `npm run build` | Succeeded with 15 prerendered routes and 26 service-worker precache entries |
+| Impeccable layout detector | Passed with no findings |
+| Generated CSS | Frameless analyzer wrapper and parent-corner canvas clipping present |
+| GitHub Actions | Deployment workflow active and required token secret present |
+| Branch safety | Local `main` synchronized with `origin/main` before the release commit |
+| Diff quality | `git diff --check` passed |
+| Static RBAC review | Not applicable; no infrastructure, identity, or role changes |
+
 ## 8. Security and Identity
 
 - Keep the Static Web Apps deployment token in GitHub Actions secrets; do not expose or rotate it during this release.
@@ -391,3 +406,27 @@ Sources: Azure Prepare references for Static Web Apps deployment, routing, regio
 - Production build: succeeded with 15 prerendered routes and 26 service-worker precache entries.
 - Impeccable layout detector: no findings.
 - Diff quality: `git diff --check` passed.
+
+## 23. Frameless Spectrum Integration Release
+
+**Approval:** The user's explicit request to remove the analyzer's own frame is approval for this CSS-only production update.
+
+### Scope
+
+- Remove the analyzer wrapper's margin, padding, border, radius, and background.
+- Let the visualizer span the full inner width at the bottom of `.home-tool`.
+- Retain only the canvas clipping needed to follow the parent card's bottom corners.
+- Preserve analyzer mounting, visibility rules, BPM detection, and responsive behavior.
+
+### Release Acceptance
+
+- `.spectrum-analyzer` computes to zero border and padding with a transparent background.
+- `#AudioMotionAnalyzer` remains inside `.home-tool`, not the footer.
+- The analyzer canvas remains visible during supported live analysis sessions.
+- No horizontal overflow or BPM detection regression is introduced.
+
+## 24. Frameless Spectrum Preparation Evidence
+
+- Targeted Playwright layout and BPM detection tests: 7 passed.
+- Production build: succeeded with 15 prerendered routes and 26 service-worker precache entries.
+- Impeccable layout detector: no findings.

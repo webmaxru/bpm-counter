@@ -42,17 +42,26 @@ test.describe('Page layout', () => {
     expect(footerBox.width).toBeCloseTo(viewportWidth, -1);
   });
 
-  test('spectrum analyzer is mounted inside the live tool card', async ({ page }) => {
+  test('spectrum analyzer is an unframed part of the live tool card', async ({ page }) => {
     const visualizer = page.locator('.home-tool #AudioMotionAnalyzer');
-    const visualizerFrame = page.locator('.home-tool .spectrum-analyzer');
+    const visualizerWrapper = page.locator('.home-tool .spectrum-analyzer');
 
     await expect(visualizer).toBeAttached();
-    await expect(visualizerFrame).toHaveClass(/spectrum-analyzer--hidden/);
+    await expect(visualizerWrapper).toHaveClass(/spectrum-analyzer--hidden/);
 
-    const borderRadius = await visualizerFrame.evaluate(
-      (element) => getComputedStyle(element).borderRadius
-    );
-    expect(borderRadius).not.toBe('0px');
+    const frameStyles = await visualizerWrapper.evaluate((element) => {
+      const styles = getComputedStyle(element);
+      return {
+        borderWidth: styles.borderWidth,
+        padding: styles.padding,
+        backgroundColor: styles.backgroundColor,
+      };
+    });
+    expect(frameStyles).toEqual({
+      borderWidth: '0px',
+      padding: '0px',
+      backgroundColor: 'rgba(0, 0, 0, 0)',
+    });
   });
 
   test('layout snapshot matches baseline', async ({ page }) => {
