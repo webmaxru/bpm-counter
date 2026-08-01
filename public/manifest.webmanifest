@@ -5,8 +5,8 @@
   "start_url": "/?utm_source=homescreen",
   "display": "standalone",
   "display_override": ["window-control-overlay", "minimal-ui"],
-  "theme_color": "#0d4c73",
-  "background_color": "#0d4c73",
+  "theme_color": "#071c2b",
+  "background_color": "#071c2b",
   "orientation": "portrait",
   "scope": "/",
   "categories": ["entertainment", "music"],
@@ -30,6 +30,12 @@
       "src": "/images/icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png"
+    },
+    {
+      "src": "/images/icons/icon-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
   "shortcuts": [

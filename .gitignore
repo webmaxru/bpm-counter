@@ -18,6 +18,22 @@
 .env.test.local
 .env.production.local
 
+# Bubblewrap / Android build state and signing material
+android/.gradle/
+android/.bubblewrap/
+android/app/build/
+android/build/
+android/local.properties
+android/keystore/
+android/*.apk
+android/*.aab
+android/assetlinks.json
+android/service-account*.json
+*.jks
+*.keystore
+key.properties
+.env.android
+
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

@@ -1,0 +1,64 @@
+{
+  "packageId": "no.bpmtech.twa",
+  "host": "bpmtech.no",
+  "name": "BPM Techno - BPM Tools for DJs",
+  "launcherName": "BPM Techno",
+  "display": "standalone",
+  "displayOverride": [
+    "minimal-ui"
+  ],
+  "themeColor": "#071c2b",
+  "themeColorDark": "#071c2b",
+  "navigationColor": "#071c2b",
+  "navigationColorDark": "#071c2b",
+  "navigationDividerColor": "#071c2b",
+  "navigationDividerColorDark": "#071c2b",
+  "backgroundColor": "#071c2b",
+  "enableNotifications": false,
+  "startUrl": "/?utm_source=android",
+  "iconUrl": "https://bpmtech.no/images/icons/icon-512x512.png",
+  "maskableIconUrl": "https://bpmtech.no/images/icons/icon-maskable-512x512.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "./keystore/bpm-techno-upload.jks",
+    "alias": "bpm-techno-upload"
+  },
+  "appVersionCode": 1,
+  "appVersion": "1.0.0",
+  "shortcuts": [
+    {
+      "name": "Analyze Audio URL",
+      "shortName": "Audio URL",
+      "url": "/upload?utm_source=android_shortcut",
+      "chosenIconUrl": "https://bpmtech.no/images/shortcuts/upload.png"
+    },
+    {
+      "name": "Tap Tempo",
+      "shortName": "Tap Tempo",
+      "url": "/tools/tap-tempo?utm_source=android_shortcut",
+      "chosenIconUrl": "https://bpmtech.no/images/icons/icon-192x192.png"
+    },
+    {
+      "name": "BPM to Milliseconds",
+      "shortName": "BPM to ms",
+      "url": "/tools/bpm-to-ms?utm_source=android_shortcut",
+      "chosenIconUrl": "https://bpmtech.no/images/icons/icon-192x192.png"
+    }
+  ],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://bpmtech.no/manifest.webmanifest",
+  "fallbackType": "customtabs",
+  "features": {},
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://bpmtech.no/",
+  "minSdkVersion": 23,
+  "orientation": "portrait",
+  "fingerprints": [],
+  "additionalTrustedOrigins": [],
+  "retainedBundles": []
+}
