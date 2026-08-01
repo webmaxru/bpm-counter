@@ -57,7 +57,7 @@ test.describe('BPM detection via fake audio capture', () => {
       });
 
       try {
-        await page.goto(BASE_URL + '/');
+        await page.goto(BASE_URL + '/?viz=true');
 
         if (expectedBpm === 130) {
           await page.evaluate(() => {
@@ -77,6 +77,12 @@ test.describe('BPM detection via fake audio capture', () => {
         await expect(
           page.getByText('Listening. Wait...', { exact: true })
         ).toBeVisible({ timeout: 15000 });
+        await expect(page.locator('.spectrum-analyzer')).not.toHaveClass(
+          /spectrum-analyzer--hidden/
+        );
+        await expect(
+          page.locator('.spectrum-analyzer #AudioMotionAnalyzer canvas')
+        ).toBeVisible();
 
         // Continuous analysis may emit an early outlier before converging.
         await expect

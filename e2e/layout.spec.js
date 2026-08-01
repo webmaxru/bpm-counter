@@ -42,15 +42,17 @@ test.describe('Page layout', () => {
     expect(footerBox.width).toBeCloseTo(viewportWidth, -1);
   });
 
-  test('#AudioMotionAnalyzer container spans the full viewport width', async ({ page }) => {
-    const viewportWidth = page.viewportSize().width;
-    const vizContainer = page.locator('#AudioMotionAnalyzer');
+  test('spectrum analyzer is mounted inside the live tool card', async ({ page }) => {
+    const visualizer = page.locator('.home-tool #AudioMotionAnalyzer');
+    const visualizerFrame = page.locator('.home-tool .spectrum-analyzer');
 
-    await expect(vizContainer).toBeAttached();
+    await expect(visualizer).toBeAttached();
+    await expect(visualizerFrame).toHaveClass(/spectrum-analyzer--hidden/);
 
-    const box = await vizContainer.boundingBox();
-    expect(box.width).toBeCloseTo(viewportWidth, -1);
-    expect(box.x).toBeCloseTo(0, -1);
+    const borderRadius = await visualizerFrame.evaluate(
+      (element) => getComputedStyle(element).borderRadius
+    );
+    expect(borderRadius).not.toBe('0px');
   });
 
   test('layout snapshot matches baseline', async ({ page }) => {

@@ -304,8 +304,9 @@ function Home(props) {
   return (
     <main className="content home-content">
       <Seo page={homePublishingPage} />
-      {isShowingInit ? (
-        <section className="home-tool" aria-labelledby="live-tool-title">
+      <div className="home-tool">
+        {isShowingInit ? (
+        <section className="home-tool__content" aria-labelledby="live-tool-title">
           <div className="home-tool__heading">
             <p className="home-tool__status">
               <span aria-hidden="true"></span>
@@ -340,7 +341,7 @@ function Home(props) {
           />
         </section>
       ) : (
-        <section className="home-tool home-tool--result" aria-live="polite">
+        <section className="home-tool__content home-tool--result" aria-live="polite">
           <p className="home-tool__status">
             <span aria-hidden="true"></span>
             {isResultReady ? 'Tempo locked' : 'Analyzing the beat'}
@@ -411,7 +412,19 @@ function Home(props) {
             ) : null}
           </div>
         </section>
-      )}
+        )}
+
+        <div
+          className={`spectrum-analyzer${
+            isShowingInit || (isMobile && !isForcedViz)
+              ? ' spectrum-analyzer--hidden'
+              : ''
+          }`}
+          aria-label="Live audio spectrum"
+        >
+          <div id="AudioMotionAnalyzer"></div>
+        </div>
+      </div>
 
       {!isMobile ? (
         <Tooltip id="home-hint" place="top" className="custom-hint" />

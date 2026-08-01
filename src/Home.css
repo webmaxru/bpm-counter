@@ -4,13 +4,18 @@ text-align: center;
 
 .home-tool {
 position: relative;
-padding: clamp(1.5rem, 5vw, 3.5rem);
 overflow: hidden;
 border: 1px solid var(--color-line);
 border-radius: var(--radius-lg);
 background:
   radial-gradient(circle at 50% 0%, rgba(105, 222, 213, 0.1), transparent 22rem),
   var(--color-ink-soft);
+}
+
+.home-tool__content {
+position: relative;
+z-index: 1;
+padding: clamp(1.5rem, 5vw, 3.5rem);
 }
 
 .home-tool::after {
@@ -131,7 +136,7 @@ content: '';
 }
 
 .home-tool--result {
-min-height: 30rem;
+min-height: 24rem;
 }
 
 .bpm-display {
@@ -229,6 +234,38 @@ font-size: 0.8rem;
 .feedback__actions button {
   border-color: var(--color-line-strong);
   background: transparent;
+}
+
+.spectrum-analyzer {
+position: relative;
+z-index: 1;
+margin: 0 clamp(1rem, 4vw, 3.5rem) clamp(1rem, 4vw, 3.5rem);
+padding: 0.4rem;
+overflow: hidden;
+border: 1px solid var(--color-line-strong);
+border-radius: var(--radius-md);
+background: var(--color-surface);
+}
+
+.spectrum-analyzer--hidden {
+height: 0;
+margin: 0;
+padding: 0;
+visibility: hidden;
+}
+
+#AudioMotionAnalyzer {
+width: 100%;
+min-height: clamp(8rem, 22vw, 14rem);
+overflow: hidden;
+border-radius: calc(var(--radius-md) - 0.25rem);
+background: var(--color-ink);
+}
+
+#AudioMotionAnalyzer canvas {
+display: block;
+width: 100% !important;
+border-radius: inherit;
 }
 
 @media (min-width: 42rem) {

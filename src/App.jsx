@@ -217,8 +217,6 @@ function App() {
             </aside>
           </div>
           <footer className="site-footer">
-            <div id="AudioMotionAnalyzer"></div>
-
             {!isDebug ? (
               <div className="site-footer__inner">
                 <p className="site-footer__credit">

@@ -117,15 +117,6 @@
   display: none;
 }
 
-#AudioMotionAnalyzer {
-  width: 100%;
-  margin: 0 auto;
-}
-
-#AudioMotionAnalyzer canvas {
-  width: 100% !important;
-}
-
 .site-footer {
   width: 100%;
   margin-top: auto;

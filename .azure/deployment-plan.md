@@ -160,6 +160,24 @@ All validation checks passed. The release is approved for the existing CI/CD dep
 | Diff quality | `git diff --check` passed |
 | Static RBAC review | Not applicable; no infrastructure, identity, or role changes |
 
+### In-Card Spectrum Analyzer Validation
+
+**Validation executed:** 2026-08-01T09:22:53+02:00
+
+| Check | Result |
+|---|---|
+| `npm test -- --run` | 126 passed, 1 skipped |
+| `npm run test:e2e` | 20 passed, including analyzer canvas visibility during 130 BPM and 140 BPM fake microphone sessions |
+| `npm run build` | Succeeded with 15 prerendered routes and 26 service-worker precache entries |
+| Impeccable layout detector | Passed with no findings |
+| Generated artifact audit | 15 HTML documents, 15 sitemap URLs, service worker present, analyzer bundle code present |
+| Azure target | Existing `bpm-counter` Free-tier Static Web App in West US 2 |
+| Custom domains | `bpmtech.no` and `www.bpmtech.no` both `Ready` |
+| GitHub Actions | Deployment workflow active and required token secret present |
+| Branch safety | Local `main` synchronized with `origin/main` before the release commit |
+| Diff quality | `git diff --check` passed |
+| Static RBAC review | Not applicable; no infrastructure, identity, or role changes |
+
 ## 8. Security and Identity
 
 - Keep the Static Web Apps deployment token in GitHub Actions secrets; do not expose or rotate it during this release.
@@ -345,3 +363,31 @@ Sources: Azure Prepare references for Static Web Apps deployment, routing, regio
 - Production build: succeeded with 15 prerendered routes and 26 service-worker precache entries.
 - Desktop and mobile browser inspection completed for the home and About surfaces.
 - Existing Azure target confirmed as `bpm-counter` in West US 2 on the Free SKU.
+
+## 21. In-Card Spectrum Analyzer Release
+
+**Approval:** The user's explicit request to move the spectrum analyzer into the "Analyzing the beat" section and redeploy is approval for this UI-only production update.
+
+### Scope
+
+- Keep the `AudioMotionAnalyzer` mount stable inside the home tool so Web Audio initialization remains reliable.
+- Remove the analyzer container from the site footer.
+- Reveal the analyzer at the bottom of the live analysis state on supported desktop/tablet sessions and when `?viz=true` forces visualization.
+- Frame the analyzer canvas with a responsive rounded rectangle matching the existing DJ instrument design.
+- Preserve the mobile visualization performance guard unless visualization is explicitly forced.
+
+### Release Acceptance
+
+- The analyzer canvas is a descendant of `.home-tool` and not the footer.
+- The analyzer is hidden before listening and visible after analysis starts on supported sessions.
+- The analyzer frame has rounded corners and does not create horizontal overflow.
+- BPM detection, audio cleanup, publishing routes, SEO, affiliate units, and footer behavior remain unchanged.
+- Unit tests, all Playwright tests, and the production build pass.
+
+## 22. Spectrum Analyzer Preparation Evidence
+
+- Unit tests: 126 passed, 1 skipped.
+- Playwright: 20 passed, including canvas visibility inside the analyzer frame for 130 BPM and 140 BPM fake microphone sessions.
+- Production build: succeeded with 15 prerendered routes and 26 service-worker precache entries.
+- Impeccable layout detector: no findings.
+- Diff quality: `git diff --check` passed.
