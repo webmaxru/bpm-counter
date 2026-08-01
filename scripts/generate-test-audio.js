@@ -37,7 +37,7 @@ const HAT_AMP = 0.20;            // much quieter than kick
 
 // ── WAV helpers ─────────────────────────────────────────────────────
 
-function writeWavHeader(buffer, numSamples) {
+function writeWavHeader(buffer, numSamples, sampleRate) {
   const bytesPerSample = BIT_DEPTH / 8;
   const dataSize = numSamples * NUM_CHANNELS * bytesPerSample;
   const fileSize = 36 + dataSize;
@@ -52,8 +52,8 @@ function writeWavHeader(buffer, numSamples) {
   buffer.writeUInt32LE(16, 16);                                          // sub-chunk size
   buffer.writeUInt16LE(1, 20);                                           // PCM
   buffer.writeUInt16LE(NUM_CHANNELS, 22);
-  buffer.writeUInt32LE(SAMPLE_RATE, 24);
-  buffer.writeUInt32LE(SAMPLE_RATE * NUM_CHANNELS * bytesPerSample, 28); // byte rate
+  buffer.writeUInt32LE(sampleRate, 24);
+  buffer.writeUInt32LE(sampleRate * NUM_CHANNELS * bytesPerSample, 28); // byte rate
   buffer.writeUInt16LE(NUM_CHANNELS * bytesPerSample, 32);               // block align
   buffer.writeUInt16LE(BIT_DEPTH, 34);
 
@@ -69,11 +69,11 @@ function writeWavHeader(buffer, numSamples) {
  * Technique: sine wave with exponential frequency sweep (150 → 45 Hz)
  * and exponential amplitude decay.
  */
-function renderKick(samples, offset) {
-  const len = Math.min(Math.floor(KICK_DURATION * SAMPLE_RATE), samples.length - offset);
+function renderKick(samples, offset, sampleRate) {
+  const len = Math.min(Math.floor(KICK_DURATION * sampleRate), samples.length - offset);
   let phase = 0;
   for (let i = 0; i < len; i++) {
-    const t = i / SAMPLE_RATE;
+    const t = i / sampleRate;
     const progress = t / KICK_DURATION; // 0 → 1
 
     // Exponential frequency sweep
@@ -82,7 +82,7 @@ function renderKick(samples, offset) {
     // Exponential amplitude decay (fast attack, smooth tail)
     const amp = KICK_AMP * Math.exp(-progress * 5);
 
-    phase += (2 * Math.PI * freq) / SAMPLE_RATE;
+    phase += (2 * Math.PI * freq) / sampleRate;
     samples[offset + i] += amp * Math.sin(phase);
   }
 }
@@ -90,38 +90,56 @@ function renderKick(samples, offset) {
 /**
  * Synthesise a short hi-hat (filtered noise burst) into `samples`.
  */
-function renderHiHat(samples, offset) {
-  const len = Math.min(Math.floor(HAT_DURATION * SAMPLE_RATE), samples.length - offset);
+function renderHiHat(samples, offset, sampleRate, random) {
+  const len = Math.min(Math.floor(HAT_DURATION * sampleRate), samples.length - offset);
   for (let i = 0; i < len; i++) {
-    const t = i / SAMPLE_RATE;
+    const t = i / sampleRate;
     const progress = t / HAT_DURATION;
     const amp = HAT_AMP * Math.exp(-progress * 12);
     // Band-limited noise: average two random values for slightly less harsh sound
-    const noise = (Math.random() * 2 - 1 + Math.random() * 2 - 1) * 0.5;
+    const noise = (random() * 2 - 1 + random() * 2 - 1) * 0.5;
     samples[offset + i] += amp * noise;
   }
 }
 
 // ── Main generation ─────────────────────────────────────────────────
 
-function generateTrack(bpm) {
-  const totalSamples = SAMPLE_RATE * DURATION_SEC;
+function createDeterministicRandom(seed) {
+  let state = seed >>> 0;
+
+  return () => {
+    state = (state * 1664525 + 1013904223) >>> 0;
+    return state / 0x100000000;
+  };
+}
+
+export function generateTrack(
+  bpm,
+  {
+    sampleRate = SAMPLE_RATE,
+    durationSec = DURATION_SEC,
+  } = {}
+) {
+  const totalSamples = sampleRate * durationSec;
   const samples = new Float64Array(totalSamples); // floating-point mix buffer
+  const random = createDeterministicRandom(
+    Math.round(bpm * 1000) + sampleRate
+  );
 
   const beatInterval = 60 / bpm;                              // seconds per beat
   const halfBeat = beatInterval / 2;                           // 8th-note interval
-  const totalBeats = Math.floor(DURATION_SEC / beatInterval);
+  const totalBeats = Math.floor(durationSec / beatInterval);
 
   // Render kick on every beat, hi-hat on every off-beat 8th note
   for (let beat = 0; beat < totalBeats; beat++) {
     const beatTime = beat * beatInterval;
-    const kickOffset = Math.floor(beatTime * SAMPLE_RATE);
-    renderKick(samples, kickOffset);
+    const kickOffset = Math.floor(beatTime * sampleRate);
+    renderKick(samples, kickOffset, sampleRate);
 
     const hatTime = beatTime + halfBeat;
-    const hatOffset = Math.floor(hatTime * SAMPLE_RATE);
+    const hatOffset = Math.floor(hatTime * sampleRate);
     if (hatOffset < totalSamples) {
-      renderHiHat(samples, hatOffset);
+      renderHiHat(samples, hatOffset, sampleRate, random);
     }
   }
 
@@ -129,7 +147,7 @@ function generateTrack(bpm) {
   const bytesPerSample = BIT_DEPTH / 8;
   const headerSize = 44;
   const buf = Buffer.alloc(headerSize + totalSamples * bytesPerSample);
-  writeWavHeader(buf, totalSamples);
+  writeWavHeader(buf, totalSamples, sampleRate);
 
   for (let i = 0; i < totalSamples; i++) {
     let val = Math.max(-1, Math.min(1, samples[i]));
@@ -161,4 +179,6 @@ function main() {
   console.log('\nDone. Play through speakers and run the mic-based BPM detector to validate.');
 }
 
-main();
+if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
+  main();
+}

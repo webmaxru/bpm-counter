@@ -3,6 +3,7 @@ import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import Home from './Home';
 import log from 'loglevel';
 import { TelemetryContext } from './TelemetryContext';
+import { MemoryRouter } from 'react-router-dom';
 
 log.setLevel('silent');
 
@@ -14,16 +15,20 @@ vi.mock('react-ga4', () => ({
 // Capture analyzer event handlers so tests can trigger BPM events
 // Variables prefixed with `mock` are allowed inside vi.mock() factories
 let mockAnalyzerHandlers = {};
+let mockAnalyzer = null;
 vi.mock('realtime-bpm-analyzer', () => ({
   createRealtimeBpmAnalyzer: vi.fn().mockImplementation(() => {
     mockAnalyzerHandlers = {};
-    return Promise.resolve({
+    mockAnalyzer = {
       node: { connect: vi.fn() },
       on: vi.fn((event, handler) => {
         mockAnalyzerHandlers[event] = handler;
       }),
       reset: vi.fn(),
-    });
+      stop: vi.fn(),
+      disconnect: vi.fn(),
+    };
+    return Promise.resolve(mockAnalyzer);
   }),
 }));
 
@@ -60,6 +65,10 @@ const defaultProps = {
   isDebug: false,
 };
 
+const renderWithRouter = (ui) => {
+  return render(<MemoryRouter>{ui}</MemoryRouter>);
+};
+
 describe('Home', () => {
   beforeEach(() => {
     mockAnalyzerHandlers = {};
@@ -67,37 +76,43 @@ describe('Home', () => {
     // Re-apply the analyzer mock (same pattern as getUserMedia in setupTests.js).
     createRealtimeBpmAnalyzer.mockImplementation(() => {
       mockAnalyzerHandlers = {};
-      return Promise.resolve({
+      mockAnalyzer = {
         node: { connect: vi.fn() },
         on: vi.fn((event, handler) => {
           mockAnalyzerHandlers[event] = handler;
         }),
         reset: vi.fn(),
-      });
+        stop: vi.fn(),
+        disconnect: vi.fn(),
+      };
+      return Promise.resolve(mockAnalyzer);
     });
   });
 
   it('renders "Start listening" button initially', () => {
-    render(<Home {...defaultProps} />);
+    renderWithRouter(<Home {...defaultProps} />);
     expect(
       screen.getByRole('button', { name: /Start listening/i })
     ).toBeInTheDocument();
   });
 
   it('shows mic access info text', () => {
-    render(<Home {...defaultProps} />);
+    renderWithRouter(<Home {...defaultProps} />);
     expect(
       screen.getByText(/provide access to your microphone/i)
     ).toBeInTheDocument();
     expect(
       screen.getByText(/does not send any audio stream data/i)
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: /Browse studio headphones/i })
+    ).toBeInTheDocument();
   });
 
   it('clicking "Start listening" calls getUserMedia', async () => {
     navigator.mediaDevices.getUserMedia.mockClear();
 
-    render(<Home {...defaultProps} />);
+    renderWithRouter(<Home {...defaultProps} />);
 
     fireEvent.click(screen.getByRole('button', { name: /Start listening/i }));
 
@@ -108,8 +123,39 @@ describe('Home', () => {
     });
   });
 
+  it('ignores a second start while microphone setup is pending', async () => {
+    let resolveStream;
+    navigator.mediaDevices.getUserMedia.mockReturnValueOnce(
+      new Promise((resolve) => {
+        resolveStream = resolve;
+      })
+    );
+
+    renderWithRouter(<Home {...defaultProps} />);
+    const startButton = screen.getByRole('button', {
+      name: /Start listening/i,
+    });
+
+    act(() => {
+      startButton.click();
+      startButton.click();
+    });
+
+    expect(navigator.mediaDevices.getUserMedia).toHaveBeenCalledOnce();
+
+    await act(async () => {
+      resolveStream({
+        getTracks: () => [{ stop: vi.fn() }],
+      });
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Listening. Wait...')).toBeInTheDocument();
+    });
+  });
+
   it('pre-populates BPM state when testBPM prop is provided', () => {
-    render(<Home {...defaultProps} testBPM="120" />);
+    renderWithRouter(<Home {...defaultProps} testBPM="120" />);
 
     expect(
       screen.getByRole('button', { name: /Start listening/i })
@@ -117,7 +163,7 @@ describe('Home', () => {
   });
 
   it('shows "Listening. Wait..." after clicking Start before BPM detected', async () => {
-    render(<Home {...defaultProps} />);
+    renderWithRouter(<Home {...defaultProps} />);
 
     fireEvent.click(screen.getByRole('button', { name: /Start listening/i }));
 
@@ -126,10 +172,13 @@ describe('Home', () => {
     });
 
     expect(screen.getByRole('button', { name: /Start over/i })).toBeInTheDocument();
+    expect(
+      screen.queryByRole('link', { name: /Browse DJ controllers/i })
+    ).not.toBeInTheDocument();
   });
 
   it('displays interim BPM while waiting for stable result', async () => {
-    render(<Home {...defaultProps} />);
+    renderWithRouter(<Home {...defaultProps} />);
 
     fireEvent.click(screen.getByRole('button', { name: /Start listening/i }));
 
@@ -150,7 +199,7 @@ describe('Home', () => {
   });
 
   it('displays detected BPM when analyzer fires bpmStable event', async () => {
-    render(<Home {...defaultProps} />);
+    renderWithRouter(<Home {...defaultProps} />);
 
     fireEvent.click(screen.getByRole('button', { name: /Start listening/i }));
 
@@ -167,6 +216,9 @@ describe('Home', () => {
 
     expect(screen.getByText('128')).toBeInTheDocument();
     expect(screen.getByText('BPM')).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: /Browse DJ controllers/i })
+    ).toBeInTheDocument();
   });
 
   it('handles getUserMedia rejection gracefully', async () => {
@@ -178,7 +230,7 @@ describe('Home', () => {
       new Error('Permission denied')
     );
 
-    render(
+    renderWithRouter(
       <TelemetryContext.Provider value={mockAppInsights}>
         <Home {...defaultProps} log={mockLog} />
       </TelemetryContext.Provider>
@@ -197,10 +249,30 @@ describe('Home', () => {
     });
   });
 
+  it('stops microphone capture and the analyzer on unmount', async () => {
+    const stopTrack = vi.fn();
+    navigator.mediaDevices.getUserMedia.mockResolvedValueOnce({
+      getTracks: () => [{ stop: stopTrack }],
+    });
+
+    const { unmount } = renderWithRouter(<Home {...defaultProps} />);
+    fireEvent.click(screen.getByRole('button', { name: /Start listening/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Listening. Wait...')).toBeInTheDocument();
+    });
+
+    unmount();
+
+    expect(stopTrack).toHaveBeenCalledOnce();
+    expect(mockAnalyzer.stop).toHaveBeenCalledOnce();
+    expect(mockAnalyzer.disconnect).toHaveBeenCalledOnce();
+  });
+
   it('tracks detect event via TelemetryContext on mount', async () => {
     const mockAppInsights = { trackEvent: vi.fn(), trackException: vi.fn() };
 
-    render(
+    renderWithRouter(
       <TelemetryContext.Provider value={mockAppInsights}>
         <Home {...defaultProps} />
       </TelemetryContext.Provider>
@@ -215,12 +287,12 @@ describe('Home', () => {
   });
 
   it('does not render tooltip on mobile', () => {
-    render(<Home {...defaultProps} isMobile={true} />);
+    renderWithRouter(<Home {...defaultProps} isMobile={true} />);
     expect(screen.queryByTestId('react-tooltip')).not.toBeInTheDocument();
   });
 
   it('renders tooltip on desktop', () => {
-    render(<Home {...defaultProps} isMobile={false} />);
+    renderWithRouter(<Home {...defaultProps} isMobile={false} />);
     expect(screen.getByTestId('react-tooltip')).toBeInTheDocument();
   });
 });

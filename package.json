@@ -22,7 +22,7 @@
   },
   "scripts": {
     "start": "vite",
-    "build": "vite build && npm run build-sw",
+    "build": "vite build && node scripts/generate-static-pages.js && npm run build-sw",
     "test": "vitest run",
     "test:watch": "vitest",
     "preview": "vite preview",

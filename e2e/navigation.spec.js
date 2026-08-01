@@ -1,4 +1,4 @@
-const { test, expect } = require('@playwright/test');
+import { test, expect } from '@playwright/test';
 
 test('navigate from home to about via ? link', async ({ page }) => {
   await page.goto('/');
@@ -7,13 +7,19 @@ test('navigate from home to about via ? link', async ({ page }) => {
 
   await expect(page).toHaveURL(/\/about/);
   await expect(page.getByText(/3-in-1 project/i)).toBeVisible();
-  await expect(page.getByText('Maxim Salnikov')).toBeVisible();
+  await expect(
+    page
+      .getByRole('link', { name: 'Maxim Salnikov', exact: true })
+      .first()
+  ).toBeVisible();
 });
 
 test('navigate from upload page back to real-time detection', async ({ page }) => {
   await page.goto('/upload');
 
-  await page.getByRole('link', { name: /real-time BPM detection/i }).click();
+  await page
+    .getByRole('link', { name: 'real-time BPM counter', exact: true })
+    .click();
 
   await expect(page).toHaveURL(/\/$/);
   await expect(page.getByRole('button', { name: /Start listening/i })).toBeVisible();

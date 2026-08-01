@@ -1,6 +1,11 @@
 import React, { useEffect, useRef, Fragment } from 'react';
 import { initialize, getAppInsights } from './TelemetryService';
 import { useLocation } from 'react-router-dom';
+import ReactGA from 'react-ga4';
+import {
+  getTelemetryPath,
+  getTelemetryUrl,
+} from './telemetryPrivacy';
 
 /**
  * TelemetryProvider — initializes App Insights and tracks page views via React Router location.
@@ -29,13 +34,24 @@ function TelemetryProvider({ connectionString, after, children }) {
     }
   }, [connectionString]);
 
-  // Track page views on navigation
+  // Track page views without query strings, which may contain an audio URL.
   useEffect(() => {
+    const path = getTelemetryPath(location);
+    const url = getTelemetryUrl(location, window.location.origin);
+
+    ReactGA.set({ page: path, page_location: url });
+    ReactGA.send({
+      hitType: 'pageview',
+      page: path,
+      location: url,
+      title: document.title,
+    });
+
     if (initialized.current) {
       const ai = getAppInsights();
-      ai?.trackPageView({ uri: location.pathname + location.search + location.hash });
+      ai?.trackPageView({ uri: path });
     }
-  }, [location]);
+  }, [location.pathname]);
 
   return <Fragment>{children}</Fragment>;
 }

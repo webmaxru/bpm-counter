@@ -7,6 +7,13 @@ import { NetworkOnly } from 'workbox-strategies';
 import { googleFontsCache } from 'workbox-recipes';
 import { BackgroundSyncPlugin } from 'workbox-background-sync';
 import * as googleAnalytics from 'workbox-google-analytics';
+import {
+  APP_SHELL_ROUTES,
+  getStaticDocumentPath,
+  getStaticNavigationPattern,
+  STATIC_PUBLISHING_ALIASES,
+  STATIC_PUBLISHING_ROUTES,
+} from '../content/publicRoutes.js';
 
 async function messageClient(event, messageType) {
   if (!event.clientId) return;
@@ -55,14 +62,6 @@ self.addEventListener('install', async (event) => {
         },
         {
           condition: {
-            urlPattern: { pathname: '/privacy.html' },
-          },
-          source: {
-            cacheName: 'wb6-precache',
-          },
-        },
-        {
-          condition: {
             urlPattern: { pathname: '/favicon.ico' },
           },
           source: 'race-network-and-fetch-handler',
@@ -85,20 +84,29 @@ precacheAndRoute(self.__WB_MANIFEST);
 
 // NAVIGATION ROUTING
 
+STATIC_PUBLISHING_ROUTES.filter((route) => route !== '/').forEach((route) => {
+  registerRoute(
+    new NavigationRoute(createHandlerBoundToURL(getStaticDocumentPath(route)), {
+      allowlist: [getStaticNavigationPattern(route)],
+    })
+  );
+});
+
+STATIC_PUBLISHING_ALIASES.forEach(({ route, targetRoute }) => {
+  registerRoute(
+    new NavigationRoute(
+      createHandlerBoundToURL(getStaticDocumentPath(targetRoute)),
+      {
+        allowlist: [getStaticNavigationPattern(route)],
+      }
+    )
+  );
+});
+
 // This assumes /index.html has been precached.
 const navHandler = createHandlerBoundToURL('/index.html');
 const navigationRoute = new NavigationRoute(navHandler, {
-  denylist: [
-    new RegExp('/account'),
-    new RegExp('/admin'),
-    new RegExp('/login'),
-    new RegExp('/logout'),
-    new RegExp('/.auth'),
-    new RegExp('/aboutme'),
-    new RegExp('/400.html'),
-    new RegExp('/404.html'),
-    new RegExp('/privacy.html'),
-  ], // Also might be specified explicitly via allowlist
+  allowlist: APP_SHELL_ROUTES.map(getStaticNavigationPattern),
 });
 registerRoute(navigationRoute);
 

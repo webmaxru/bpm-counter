@@ -1,4 +1,4 @@
-const { test, expect } = require('@playwright/test');
+import { test, expect } from '@playwright/test';
 
 test.describe('Page layout', () => {
   test.beforeEach(async ({ page }) => {
@@ -58,5 +58,19 @@ test.describe('Page layout', () => {
       fullPage: false,
       maxDiffPixelRatio: 0.02,
     });
+  });
+
+  test('tablet layout does not overflow horizontally', async ({ page }) => {
+    await page.setViewportSize({ width: 768, height: 1024 });
+    await page.reload();
+
+    const dimensions = await page.evaluate(() => ({
+      viewportWidth: window.innerWidth,
+      documentWidth: document.documentElement.scrollWidth,
+    }));
+
+    expect(dimensions.documentWidth).toBeLessThanOrEqual(
+      dimensions.viewportWidth
+    );
   });
 });

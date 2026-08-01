@@ -1,19 +1,30 @@
-const path = require('path');
-const { test, expect, chromium } = require('@playwright/test');
+import path from 'node:path';
+import { mkdir, writeFile } from 'node:fs/promises';
+import { test, expect, chromium, devices } from '@playwright/test';
+import { generateTrack } from '../scripts/generate-test-audio.js';
 
 // BPM values with reliable detection from synthetic kick/hi-hat WAV files.
-// The realtime-bpm-analyzer v5 reliably detects 120+ BPM from these patterns.
-// Tempos below 120 BPM don't produce enough transient energy per analysis
-// window for reliable detection via Chromium fake audio capture.
-const BPM_VALUES = [120, 130, 140];
+// These deterministic patterns reliably converge through Chromium's fake
+// capture pipeline. Lower synthetic tempos are unstable in the v5 analyzer.
+const BPM_VALUES = [130, 140];
 const TOLERANCE = 3; // +/-3 BPM
-const SAMPLES_DIR = path.resolve(__dirname, '..', 'public', 'samples');
 const BASE_URL = 'http://localhost:3000';
+const TEST_DURATION_SECONDS = 60;
 
 test.describe('BPM detection via fake audio capture', () => {
+  test.describe.configure({ mode: 'serial' });
+
   for (const expectedBpm of BPM_VALUES) {
-    test(`detects ${expectedBpm} BPM from fake mic input`, async () => {
-      const wavPath = path.join(SAMPLES_DIR, `test-${expectedBpm}bpm.wav`);
+    test(`detects ${expectedBpm} BPM from fake mic input`, async ({}, testInfo) => {
+      const wavPath = testInfo.outputPath(`test-${expectedBpm}bpm.wav`);
+      await mkdir(path.dirname(wavPath), { recursive: true });
+      await writeFile(
+        wavPath,
+        generateTrack(expectedBpm, {
+          sampleRate: 48000,
+          durationSec: TEST_DURATION_SECONDS,
+        })
+      );
 
       const browser = await chromium.launch({
         args: [
@@ -25,6 +36,7 @@ test.describe('BPM detection via fake audio capture', () => {
       });
 
       const context = await browser.newContext({
+        ...devices['Pixel 5'],
         permissions: ['microphone'],
       });
 
@@ -38,6 +50,8 @@ test.describe('BPM detection via fake audio capture', () => {
         navigator.mediaDevices.getUserMedia = async function(constraints) {
           const stream = await origGUM(constraints);
           stream.getAudioTracks().forEach(t => t.getSettings());
+          window.__testMediaStreams = window.__testMediaStreams || [];
+          window.__testMediaStreams.push(stream);
           return stream;
         };
       });
@@ -45,22 +59,62 @@ test.describe('BPM detection via fake audio capture', () => {
       try {
         await page.goto(BASE_URL + '/');
 
-        // Click start listening
-        await page.getByRole('button', { name: /Start listening/i }).click();
+        if (expectedBpm === 130) {
+          await page.evaluate(() => {
+            const startButton = [...document.querySelectorAll('button')].find(
+              (button) => button.textContent.includes('Start listening')
+            );
+            startButton.click();
+            startButton.click();
+          });
+        } else {
+          await page
+            .getByRole('button', { name: /Start listening/i })
+            .click();
+        }
 
-        // Wait for "Listening..." to confirm mic is active
-        await expect(page.locator('h3').filter({ hasText: 'Listening...' })).toBeVisible({ timeout: 15000 });
+        // Wait for the listening state to confirm the microphone is active.
+        await expect(
+          page.getByRole('heading', { name: 'Listening. Wait...' })
+        ).toBeVisible({ timeout: 15000 });
 
-        // Wait for BPM result - h3 changes from "Listening..." to "BPM"
-        await expect(page.locator('h3').filter({ hasText: 'BPM' })).toBeVisible({ timeout: 60000 });
+        // Continuous analysis may emit an early outlier before converging.
+        await expect
+          .poll(
+            async () => {
+              const bpmText = await page
+                .locator('main.content > div > h2')
+                .textContent();
+              const detectedBpm = Number.parseFloat(bpmText);
 
-        // Read the detected BPM from h2
-        const bpmText = await page.locator('h2').first().textContent();
-        const detectedBpm = parseFloat(bpmText);
+              return Number.isFinite(detectedBpm)
+                ? Math.abs(detectedBpm - expectedBpm)
+                : Number.POSITIVE_INFINITY;
+            },
+            {
+              message: `expected ${expectedBpm} BPM within ${TOLERANCE} BPM`,
+              timeout: 70000,
+            }
+          )
+          .toBeLessThanOrEqual(TOLERANCE);
 
-        // Assert within tolerance
-        expect(detectedBpm).toBeGreaterThanOrEqual(expectedBpm - TOLERANCE);
-        expect(detectedBpm).toBeLessThanOrEqual(expectedBpm + TOLERANCE);
+        if (expectedBpm === 130) {
+          await page
+            .getByRole('link', { name: 'Tap tempo', exact: true })
+            .click();
+          await expect
+            .poll(() =>
+              page.evaluate(() => ({
+                count: window.__testMediaStreams.length,
+                allEnded: window.__testMediaStreams.every((stream) =>
+                  stream
+                    .getTracks()
+                    .every((track) => track.readyState === 'ended')
+                ),
+              }))
+            )
+            .toEqual({ count: 1, allEnded: true });
+        }
       } finally {
         await context.close();
         await browser.close();

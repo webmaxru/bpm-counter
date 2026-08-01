@@ -7,6 +7,13 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 
+vi.mock('react-ga4', () => ({
+  default: {
+    send: vi.fn(),
+    set: vi.fn(),
+  },
+}));
+
 vi.mock('react-router-dom', () => ({
   useLocation: vi.fn(() => ({ pathname: '/', search: '', hash: '' })),
 }));
@@ -22,6 +29,7 @@ import TelemetryProvider from './telemetry-provider';
 
 // Get mock references (imports get mocked versions due to vi.mock hoisting)
 import * as TelemetryService from './TelemetryService';
+import ReactGA from 'react-ga4';
 import { useLocation as mockUseLocation } from 'react-router-dom';
 
 describe('TelemetryProvider', () => {
@@ -29,6 +37,8 @@ describe('TelemetryProvider', () => {
     TelemetryService.initialize.mockClear();
     TelemetryService.getAppInsights.mockClear();
     TelemetryService.getAppInsights.mockReturnValue(null);
+    ReactGA.send.mockClear();
+    ReactGA.set.mockClear();
     mockUseLocation.mockReturnValue({ pathname: '/', search: '', hash: '' });
   });
 
@@ -148,10 +158,14 @@ describe('TelemetryProvider', () => {
     );
   });
 
-  it('includes search and hash in page view URI', () => {
+  it('excludes search and hash from page-view telemetry', () => {
     const mockAI = { trackPageView: vi.fn() };
     TelemetryService.getAppInsights.mockReturnValue(mockAI);
-    mockUseLocation.mockReturnValue({ pathname: '/', search: '?q=test', hash: '#section' });
+    mockUseLocation.mockReturnValue({
+      pathname: '/upload',
+      search: '?url=https%3A%2F%2Fexample.com%2Faudio.mp3%3Ftoken%3Dsecret',
+      hash: '#result',
+    });
 
     render(
       <TelemetryProvider
@@ -163,7 +177,18 @@ describe('TelemetryProvider', () => {
     );
 
     expect(mockAI.trackPageView).toHaveBeenCalledWith(
-      expect.objectContaining({ uri: '/?q=test#section' })
+      expect.objectContaining({ uri: '/upload' })
+    );
+    expect(ReactGA.set).toHaveBeenCalledWith({
+      page: '/upload',
+      page_location: 'http://localhost:3000/upload',
+    });
+    expect(ReactGA.send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        hitType: 'pageview',
+        page: '/upload',
+        location: 'http://localhost:3000/upload',
+      })
     );
   });
 

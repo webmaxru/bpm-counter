@@ -75,7 +75,7 @@ export const initialize = (connectionString, browserHistory) => {
       extensionConfig: {
         [reactPlugin.identifier]: browserHistory ? { history: browserHistory } : {},
         [clickPlugin.identifier]: {
-          autoCapture: false,                              // P2 #16: manual click_ad preferred
+          autoCapture: false,                              // Manual affiliate events provide stable campaign data
           dataTags: { useDefaultContentNameOrId: true },   // P2 #17
         },
       },

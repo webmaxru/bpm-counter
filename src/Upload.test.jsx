@@ -1,8 +1,10 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import Upload from './Upload';
+import { APP_INSIGHTS_BYPASS_FETCH } from './telemetryPrivacy';
 import log from 'loglevel';
 import { TelemetryContext } from './TelemetryContext';
+import { MemoryRouter } from 'react-router-dom';
 
 log.setLevel('silent');
 
@@ -50,6 +52,10 @@ const defaultProps = {
   isDebug: false,
 };
 
+const renderWithRouter = (ui) => {
+  return render(<MemoryRouter>{ui}</MemoryRouter>);
+};
+
 beforeEach(() => {
   detect.mockReturnValue(120);
   mockAppInsights.trackEvent.mockClear();
@@ -58,27 +64,29 @@ beforeEach(() => {
 
 describe('Upload', () => {
   it('renders URL input and "Fetch and calculate" button', () => {
-    render(<Upload {...defaultProps} />);
+    renderWithRouter(<Upload {...defaultProps} />);
     expect(screen.getByRole('textbox')).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: /Fetch and calculate/i })
     ).toBeInTheDocument();
   });
 
-  it('shows "use sample" link', () => {
-    render(<Upload {...defaultProps} />);
-    expect(screen.getByText('use sample')).toBeInTheDocument();
+  it('shows sample button', () => {
+    renderWithRouter(<Upload {...defaultProps} />);
+    expect(
+      screen.getByRole('button', { name: /Use the 120 BPM sample/i })
+    ).toBeInTheDocument();
   });
 
   it('shows link back to real-time detection', () => {
-    render(<Upload {...defaultProps} />);
+    renderWithRouter(<Upload {...defaultProps} />);
     expect(
-      screen.getByRole('link', { name: /real-time BPM detection/i })
+      screen.getByRole('link', { name: /real-time BPM counter/i })
     ).toBeInTheDocument();
   });
 
   it('filling URL input updates the value', () => {
-    render(<Upload {...defaultProps} />);
+    renderWithRouter(<Upload {...defaultProps} />);
     const input = screen.getByRole('textbox');
     fireEvent.change(input, {
       target: { value: 'https://example.com/song.mp3' },
@@ -86,9 +94,11 @@ describe('Upload', () => {
     expect(input).toHaveValue('https://example.com/song.mp3');
   });
 
-  it('clicking "use sample" fills the URL input', () => {
-    render(<Upload {...defaultProps} />);
-    fireEvent.click(screen.getByText('use sample'));
+  it('clicking the sample button fills the URL input', () => {
+    renderWithRouter(<Upload {...defaultProps} />);
+    fireEvent.click(
+      screen.getByRole('button', { name: /Use the 120 BPM sample/i })
+    );
     expect(screen.getByRole('textbox')).toHaveValue(
       '/samples/bpmtechno-120.mp3'
     );
@@ -127,13 +137,46 @@ describe('Upload — telemetry integration', () => {
     delete global.fetch;
   });
 
+  it('excludes the submitted audio URL from dependency telemetry', async () => {
+    mockSuccessfulFetch();
+
+    renderWithRouter(
+      <TelemetryContext.Provider value={mockAppInsights}>
+        <Upload {...defaultProps} />
+      </TelemetryContext.Provider>
+    );
+
+    fireEvent.change(
+      screen.getByRole('textbox', {
+        name: /Direct URL of an MP3 or WAV file/i,
+      }),
+      {
+        target: {
+          value: 'https://example.com/audio.mp3?token=secret',
+        },
+      }
+    );
+    fireEvent.click(
+      screen.getByRole('button', { name: /Fetch and calculate/i })
+    );
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith(
+        'https://example.com/audio.mp3?token=secret',
+        {
+          [APP_INSIGHTS_BYPASS_FETCH]: true,
+        }
+      );
+    });
+  });
+
   // Validates P0 #3 fix: Feedback component must receive appInsights prop
   // After BPM detection, clicking thumbs up should trigger trackEvent
   // on the appInsights instance (proving the prop was passed)
   it('Feedback receives appInsights and uses it for tracking', async () => {
     mockSuccessfulFetch();
 
-    render(
+    renderWithRouter(
       <TelemetryContext.Provider value={mockAppInsights}>
         <Upload {...defaultProps} />
       </TelemetryContext.Provider>
@@ -171,7 +214,7 @@ describe('Upload — telemetry integration', () => {
   it('detect trackEvent uses standardized schema {mode, bpm, threshold}', async () => {
     mockSuccessfulFetch();
 
-    render(
+    renderWithRouter(
       <TelemetryContext.Provider value={mockAppInsights}>
         <Upload {...defaultProps} />
       </TelemetryContext.Provider>
@@ -185,7 +228,9 @@ describe('Upload — telemetry integration', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('120');
+      expect(
+        screen.getByText('120', { selector: '.tool-panel__result' })
+      ).toBeInTheDocument();
     });
 
     // Post-fix: detect event uses { mode, bpm, threshold } schema
@@ -202,7 +247,9 @@ describe('Upload — telemetry integration', () => {
 
   // Validates P1 #7 fix: fetch errors should call trackException
   it('calls trackException when fetch fails', async () => {
-    const fetchError = new Error('Network request failed');
+    const fetchError = new Error(
+      'Failed to fetch https://example.com/bad.mp3?token=secret'
+    );
     global.fetch = vi.fn(() =>
       Promise.reject(fetchError)
     );
@@ -210,7 +257,7 @@ describe('Upload — telemetry integration', () => {
     // Suppress expected console.error from the catch block
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation();
 
-    render(
+    renderWithRouter(
       <TelemetryContext.Provider value={mockAppInsights}>
         <Upload {...defaultProps} />
       </TelemetryContext.Provider>
@@ -224,13 +271,18 @@ describe('Upload — telemetry integration', () => {
     );
 
     await waitFor(() => {
-      // Post-fix: catch block calls trackException
       expect(mockAppInsights.trackException).toHaveBeenCalledWith(
         expect.objectContaining({
-          exception: expect.any(Error),
+          exception: expect.objectContaining({
+            name: 'AudioFetchError',
+            message: 'Audio URL fetch failed.',
+          }),
         })
       );
     });
+    expect(
+      mockAppInsights.trackException.mock.calls[0][0].exception.message
+    ).not.toContain('secret');
 
     consoleSpy.mockRestore();
   });
@@ -247,7 +299,7 @@ describe('Upload — telemetry integration', () => {
 
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation();
 
-    render(
+    renderWithRouter(
       <TelemetryContext.Provider value={mockAppInsights}>
         <Upload {...defaultProps} />
       </TelemetryContext.Provider>
@@ -263,7 +315,10 @@ describe('Upload — telemetry integration', () => {
     await waitFor(() => {
       expect(mockAppInsights.trackException).toHaveBeenCalledWith(
         expect.objectContaining({
-          exception: decodeError,
+          exception: expect.objectContaining({
+            name: 'AudioDecodeError',
+            message: 'Audio decoding failed.',
+          }),
         })
       );
     });

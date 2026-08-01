@@ -1,12 +1,123 @@
 {
     "routes": [
       {
+        "route": "/",
+        "rewrite": "/index.html"
+      },
+      {
+        "route": "/upload",
+        "rewrite": "/upload/index.html"
+      },
+      {
+        "route": "/tools/tap-tempo",
+        "rewrite": "/tools/tap-tempo/index.html"
+      },
+      {
+        "route": "/tools/bpm-to-ms",
+        "rewrite": "/tools/bpm-to-ms/index.html"
+      },
+      {
+        "route": "/tools/bpm-converter",
+        "rewrite": "/tools/bpm-converter/index.html"
+      },
+      {
+        "route": "/guides/real-time-bpm-counter",
+        "rewrite": "/guides/real-time-bpm-counter/index.html"
+      },
+      {
+        "route": "/guides/how-bpm-detection-works",
+        "rewrite": "/guides/how-bpm-detection-works/index.html"
+      },
+      {
+        "route": "/guides/genre-bpm-ranges",
+        "rewrite": "/guides/genre-bpm-ranges/index.html"
+      },
+      {
+        "route": "/guides/beatmatching",
+        "rewrite": "/guides/beatmatching/index.html"
+      },
+      {
+        "route": "/guides/analyze-audio-url",
+        "rewrite": "/guides/analyze-audio-url/index.html"
+      },
+      {
+        "route": "/privacy",
+        "rewrite": "/privacy/index.html"
+      },
+      {
+        "route": "/terms",
+        "rewrite": "/terms/index.html"
+      },
+      {
+        "route": "/contact",
+        "rewrite": "/contact/index.html"
+      },
+      {
+        "route": "/affiliate-disclosure",
+        "rewrite": "/affiliate-disclosure/index.html"
+      },
+      {
+        "route": "/privacy.html",
+        "redirect": "/privacy",
+        "statusCode": 301
+      },
+      {
+        "route": "/about/",
+        "redirect": "/about",
+        "statusCode": 301
+      },
+      {
+        "route": "/about",
+        "rewrite": "/index.html",
+        "headers": {
+          "X-Robots-Tag": "noindex, nofollow"
+        }
+      },
+      {
+        "route": "/login/",
+        "redirect": "/login",
+        "statusCode": 301
+      },
+      {
+        "route": "/login",
+        "rewrite": "/index.html",
+        "headers": {
+          "X-Robots-Tag": "noindex, nofollow"
+        }
+      },
+      {
+        "route": "/account/",
+        "redirect": "/account",
+        "statusCode": 301
+      },
+      {
         "route": "/account",
-        "allowedRoles": ["authenticated"]
+        "allowedRoles": ["authenticated"],
+        "rewrite": "/index.html",
+        "headers": {
+          "X-Robots-Tag": "noindex, nofollow"
+        }
+      },
+      {
+        "route": "/admin/",
+        "redirect": "/admin",
+        "statusCode": 301
+      },
+      {
+        "route": "/admin",
+        "allowedRoles": ["administrator"],
+        "rewrite": "/index.html",
+        "headers": {
+          "X-Robots-Tag": "noindex, nofollow"
+        }
       },
       {
         "route": "/admin/*",
-        "allowedRoles": ["administrator"]
+        "allowedRoles": ["administrator"],
+        "rewrite": "/index.html",
+        "headers": {
+          "X-Robots-Tag": "noindex, nofollow"
+        }
       },
       {
         "route": "/images/*",
@@ -36,10 +147,6 @@
         "statusCode": 301
       }
     ],
-    "navigationFallback": {
-      "rewrite": "index.html",
-      "exclude": ["/images/*.{png,jpg,gif}", "/static/*"]
-    },
     "responseOverrides": {
       "400": {
         "rewrite": "/400.html"

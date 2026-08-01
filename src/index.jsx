@@ -5,9 +5,24 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import ReactGA from 'react-ga4';
 import { getAppInsights } from './TelemetryService';
+import {
+  getTelemetryPath,
+  getTelemetryUrl,
+} from './telemetryPrivacy';
 
-ReactGA.initialize(import.meta.env.VITE_GA4_MEASUREMENT_ID);
-ReactGA.send('pageview');
+const telemetryPath = getTelemetryPath(window.location);
+const telemetryUrl = getTelemetryUrl(
+  window.location,
+  window.location.origin
+);
+
+ReactGA.initialize(import.meta.env.VITE_GA4_MEASUREMENT_ID, {
+  gtagOptions: {
+    page_location: telemetryUrl,
+    page_path: telemetryPath,
+    send_page_view: false,
+  },
+});
 
 const root = createRoot(document.getElementById('root'));
 root.render(

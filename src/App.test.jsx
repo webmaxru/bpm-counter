@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, cleanup } from '@testing-library/react';
+import { render, screen, cleanup, waitFor } from '@testing-library/react';
 import { act } from 'react';
 import App from './App';
 
@@ -28,7 +28,12 @@ vi.mock('workbox-window', () => ({
 
 // Mock react-ga4
 vi.mock('react-ga4', () => ({
-  default: { event: vi.fn(), initialize: vi.fn(), send: vi.fn() },
+  default: {
+    event: vi.fn(),
+    initialize: vi.fn(),
+    send: vi.fn(),
+    set: vi.fn(),
+  },
 }));
 
 // Mock react-toastify to capture toast calls
@@ -153,7 +158,10 @@ describe('App', () => {
   it('displays the header with title', () => {
     render(<App />);
     expect(
-      screen.getByRole('link', { name: /Real-Time BPM Counter/i })
+      screen.getByRole('heading', {
+        level: 1,
+        name: /BPM Techno.*Real-Time BPM Counter/i,
+      })
     ).toBeInTheDocument();
   });
 
@@ -167,6 +175,9 @@ describe('App', () => {
   it('has footer with author credit', () => {
     render(<App />);
     expect(screen.getByText(/Maxim Salnikov/)).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: /Affiliate disclosure/i })
+    ).toHaveAttribute('href', '/affiliate-disclosure');
   });
 
   it('shows Home component on / route', () => {
@@ -180,6 +191,15 @@ describe('App', () => {
     window.history.pushState({}, '', '/about');
     render(<App />);
     expect(screen.getByText(/3-in-1 project/i)).toBeInTheDocument();
+    expect(document.title).toBe('About BPM Techno | Project and Credits');
+    expect(document.head.querySelector('link[rel="canonical"]')).toHaveAttribute(
+      'href',
+      'https://bpmtech.no/about'
+    );
+    expect(document.head.querySelector('meta[name="robots"]')).toHaveAttribute(
+      'content',
+      'noindex, nofollow'
+    );
   });
 
   it('shows Upload component on /upload route', () => {
@@ -188,6 +208,73 @@ describe('App', () => {
     expect(
       screen.getByRole('button', { name: /Fetch and calculate/i })
     ).toBeInTheDocument();
+  });
+
+  it('shows affiliate disclosure on /affiliate-disclosure route', () => {
+    window.history.pushState({}, '', '/affiliate-disclosure');
+    render(<App />);
+    expect(
+      screen.getByRole('heading', { name: /Affiliate disclosure/i })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/As an Amazon Associate I earn from qualifying purchases/i)
+    ).toBeInTheDocument();
+  });
+
+  it('shows the tap tempo tool on /tools/tap-tempo', () => {
+    window.history.pushState({}, '', '/tools/tap-tempo');
+    render(<App />);
+    expect(
+      screen.getByRole('heading', { name: /Tap tempo BPM counter/i })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /Tap beat/i })
+    ).toBeInTheDocument();
+  });
+
+  it('shows a publishing guide on /guides/beatmatching', () => {
+    window.history.pushState({}, '', '/guides/beatmatching');
+    render(<App />);
+    expect(
+      screen.getByRole('heading', { name: /Beatmatching guide for beginners/i })
+    ).toBeInTheDocument();
+    expect(screen.getByText(/Identify and correct drift/i)).toBeInTheDocument();
+  });
+
+  it('shows the accurate privacy page on /privacy', () => {
+    window.history.pushState({}, '', '/privacy');
+    render(<App />);
+    expect(
+      screen.getByRole('heading', { name: /Privacy policy/i })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/does not upload or store the microphone stream/i)
+    ).toBeInTheDocument();
+  });
+
+  it('redirects the legacy privacy URL to the canonical route', async () => {
+    window.history.pushState({}, '', '/privacy.html');
+    render(<App />);
+
+    await waitFor(() => {
+      expect(window.location.pathname).toBe('/privacy');
+    });
+    expect(
+      screen.getByRole('heading', { name: /Privacy policy/i })
+    ).toBeInTheDocument();
+  });
+
+  it('marks unknown guide routes as noindex', () => {
+    window.history.pushState({}, '', '/guides/not-a-real-guide');
+    render(<App />);
+
+    expect(
+      screen.getByRole('heading', { name: /Page not found/i })
+    ).toBeInTheDocument();
+    expect(document.head.querySelector('meta[name="robots"]')).toHaveAttribute(
+      'content',
+      'noindex, nofollow'
+    );
   });
 });
 
