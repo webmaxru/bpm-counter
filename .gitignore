@@ -27,6 +27,7 @@ android/local.properties
 android/keystore/
 android/*.apk
 android/*.aab
+android/*.idsig
 android/assetlinks.json
 android/service-account*.json
 *.jks

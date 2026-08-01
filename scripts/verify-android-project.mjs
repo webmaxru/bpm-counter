@@ -8,14 +8,22 @@ const repositoryRoot = path.resolve(
 );
 const androidDirectory = path.join(repositoryRoot, "android");
 const buildFile = path.join(androidDirectory, "app", "build.gradle");
+const manifestFile = path.join(androidDirectory, "twa-manifest.json");
 const buildSource = await readFile(buildFile, "utf8");
+const manifest = JSON.parse(await readFile(manifestFile, "utf8"));
+const assetLinks = JSON.parse(
+  await readFile(
+    path.join(repositoryRoot, "public", ".well-known", "assetlinks.json"),
+    "utf8",
+  ),
+);
 
 const requiredValues = [
-  ['applicationId "no.bpmtech.twa"', "package ID"],
+  [`applicationId "${manifest.packageId}"`, "package ID"],
   ["compileSdkVersion 36", "compile SDK 36"],
   ["targetSdkVersion 36", "target SDK 36"],
-  ["versionCode 1", "version code"],
-  ['versionName "1.0.0"', "version name"],
+  [`versionCode ${manifest.appVersionCode}`, "version code"],
+  [`versionName "${manifest.appVersion}"`, "version name"],
   [
     "https://bpmtech.no/manifest.webmanifest",
     "production web manifest URL",
@@ -30,6 +38,36 @@ for (const [expected, label] of requiredValues) {
 
 if (/localhost|127\.0\.0\.1/.test(buildSource)) {
   throw new Error("Android verification failed: local asset URL was committed.");
+}
+
+const expectedFingerprints = manifest.fingerprints.map(({ value }) => value);
+const assetLink = assetLinks.find(
+  ({ target }) =>
+    target?.namespace === "android_app" &&
+    target?.package_name === manifest.packageId,
+);
+
+if (!assetLink) {
+  throw new Error(
+    "Android verification failed: Digital Asset Links package is missing.",
+  );
+}
+
+if (
+  !assetLink.relation?.includes("delegate_permission/common.handle_all_urls")
+) {
+  throw new Error(
+    "Android verification failed: handle_all_urls relation is missing.",
+  );
+}
+
+const publishedFingerprints = assetLink.target.sha256_cert_fingerprints ?? [];
+for (const fingerprint of expectedFingerprints) {
+  if (!publishedFingerprints.includes(fingerprint)) {
+    throw new Error(
+      `Android verification failed: fingerprint ${fingerprint} is missing.`,
+    );
+  }
 }
 
 await Promise.all([
@@ -48,5 +86,6 @@ await Promise.all([
 ]);
 
 console.log(
-  "Android release verified: no.bpmtech.twa, API 36, APK and AAB present.",
+  `Android release verified: ${manifest.packageId} v${manifest.appVersion} ` +
+    `(code ${manifest.appVersionCode}), API 36, Digital Asset Links, APK and AAB.`,
 );

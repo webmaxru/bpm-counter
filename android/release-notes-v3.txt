@@ -1,0 +1,3 @@
+Updated BPM Techno with a rebuilt Android shell, refreshed DJ-focused interface,
+offline-ready BPM tools, improved navigation, publishing guides, and privacy
+clarifications. Audio analysis remains on the device.

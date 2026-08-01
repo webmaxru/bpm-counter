@@ -5,6 +5,10 @@ ID `no.bpmtech.twa`. Bubblewrap configuration lives in
 `android/twa-manifest.json`; the generated Gradle project is committed so
 Android Studio and command-line builds use the same source.
 
+This project updates the existing Google Play listing. Release 3 uses version
+code `3` and version name `3.0.0`. Paste `android/release-notes-v3.txt` into the
+English release notes field in Play Console.
+
 ## Prerequisites
 
 1. Install Node.js dependencies with `npm install`.
