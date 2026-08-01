@@ -17,6 +17,7 @@ const androidDirectory = path.join(repositoryRoot, "android");
 const manifestPath = path.join(androidDirectory, "twa-manifest.json");
 const assetOrigin = process.env.BUBBLEWRAP_ASSET_ORIGIN;
 const productionOrigin = "https://bpmtech.no";
+const requiredTargetSdkVersion = 36;
 
 await mkdir(androidDirectory, { recursive: true });
 
@@ -71,12 +72,20 @@ await generator.createTwaProject(
   new ConsoleLog("android:generate"),
 );
 
+const buildFile = path.join(androidDirectory, "app", "build.gradle");
+let buildSource = await readFile(buildFile, "utf8");
+
+buildSource = buildSource.replace(
+  /targetSdkVersion \d+/,
+  `targetSdkVersion ${requiredTargetSdkVersion}`,
+);
+
 if (assetOrigin) {
-  const buildFile = path.join(androidDirectory, "app", "build.gradle");
   const localOrigin = assetOrigin.replace(/\/$/, "");
-  const buildSource = await readFile(buildFile, "utf8");
-  await writeFile(buildFile, buildSource.replaceAll(localOrigin, productionOrigin));
+  buildSource = buildSource.replaceAll(localOrigin, productionOrigin);
 }
+
+await writeFile(buildFile, buildSource);
 
 const checksum = createHash("sha1")
   .update(await readFile(manifestPath))

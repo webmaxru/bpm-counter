@@ -96,6 +96,6 @@ fingerprint in the same configuration.
 For each Play release, increment both `appVersionCode` and `appVersion` in
 `android/twa-manifest.json`, run `npm run android:generate`, and build the
 signed AAB. Google Play requires new submissions to target Android 16 / API 36
-from August 31, 2026. Bubblewrap 1.24.1 currently generates
-`compileSdkVersion 36` and `targetSdkVersion 35`, which satisfies the current
-Play requirement. Upgrade Bubblewrap before the API 36 deadline.
+from August 31, 2026. The project generator overrides Bubblewrap 1.24.1's older
+default and produces both `compileSdkVersion 36` and `targetSdkVersion 36`.
+Run `npm run android:verify` after every release build.
