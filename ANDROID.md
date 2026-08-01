@@ -73,6 +73,22 @@ npm run android:build
 The Play-ready signed bundle is `android/app-release-bundle.aab`. Enroll the
 app in Google Play App Signing and use this key only as the upload key.
 
+### Existing Play listing: verify the upload key
+
+Before uploading release 3, compare the local key's SHA-256 fingerprint with
+**Play Console > Setup > App integrity > Upload key certificate**:
+
+```powershell
+$keytool = Get-ChildItem "$HOME\.bubblewrap\jdk" -Recurse -Filter keytool.exe | Select-Object -First 1
+& $keytool.FullName -list -v -keystore android\keystore\bpm-techno-upload.jks -alias bpm-techno-upload
+```
+
+Use the original upload keystore if the fingerprints match. If this newly
+created key does not match and the original key is unavailable, request an
+**upload key reset** in Play Console before uploading the AAB. Do not change
+the package ID. The upload-key fingerprint is not the fingerprint used in
+Digital Asset Links.
+
 ## Digital Asset Links
 
 The production association must use the SHA-256 certificate fingerprint shown
