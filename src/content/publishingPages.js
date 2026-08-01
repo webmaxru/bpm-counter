@@ -530,7 +530,7 @@ export const publishingPages = Object.freeze([
     structuredDataType: 'WebPage',
     title: 'Privacy Policy | BPM Techno',
     description:
-      'How BPM Techno handles microphone audio, remote audio URLs, feedback, analytics, authentication, and affiliate links.',
+      'How BPM Techno handles microphone audio, remote audio URLs, feedback, analytics, advertising, authentication, and affiliate links.',
     heading: 'Privacy policy',
     lede:
       'This policy explains the data used by BPM Techno and the boundaries between browser-local audio processing, application telemetry, and third-party services.',
@@ -555,6 +555,21 @@ export const publishingPages = Object.freeze([
           'BPM Techno uses Google Analytics 4 and Azure Application Insights to understand feature usage, performance, and errors. These services may process device, browser, page, network, and interaction information according to their own terms and privacy documentation.',
           'Analytics records the page route without query strings, and the direct audio-file request is excluded from automatic Application Insights dependency tracking. The analyzer URL is still visible to your browser, the audio host, and any infrastructure that handles the original page request.',
           'Do not include personal information in URLs submitted to the audio analyzer because URLs can appear in browser, hosting, or network logs.',
+        ],
+      },
+      {
+        heading: 'Advertising and consent',
+        paragraphs: [
+          'BPM Techno currently publishes an AdSense account verification tag and an ads.txt declaration, but it does not load Google display advertising code or serve Google ads.',
+          'If Google ads are enabled after approval, Google and its partners may use cookies, local storage, and device or browser information for ad delivery, measurement, fraud prevention, and personalization where consented.',
+          'Before Google ads are served to visitors in the European Economic Area, the United Kingdom, or Switzerland, BPM Techno will configure a Google-certified consent management platform integrated with the IAB Transparency and Consent Framework.',
+        ],
+        links: [
+          {
+            label:
+              'How Google uses information from sites or apps that use its services',
+            href: 'https://policies.google.com/technologies/partner-sites',
+          },
         ],
       },
       {

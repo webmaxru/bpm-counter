@@ -83,6 +83,18 @@ describe('publishing page content', () => {
     });
   });
 
+  it('documents the AdSense verification-only state and consent prerequisite', () => {
+    const privacyPage = publishingPages.find((page) => page.id === 'privacy');
+    const privacyText = getPageText(privacyPage);
+
+    expect(privacyText).toContain(
+      'does not load Google display advertising code'
+    );
+    expect(privacyText).toContain(
+      'Google-certified consent management platform'
+    );
+  });
+
   it('provides complete route metadata', () => {
     publishingPages.forEach((page) => {
       expect(page.title.length).toBeGreaterThan(20);
