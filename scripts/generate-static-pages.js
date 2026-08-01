@@ -203,6 +203,24 @@ function createSitemap() {
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`;
 }
 
+function validateStaticWebAppConfig(config) {
+  const normalizedRoutes = new Map();
+
+  for (const rule of config.routes ?? []) {
+    const normalizedRoute =
+      rule.route === '/' ? '/' : rule.route.replace(/\/+$/, '');
+    const duplicateRoute = normalizedRoutes.get(normalizedRoute);
+
+    if (duplicateRoute) {
+      throw new Error(
+        `Duplicate Static Web Apps route after trailing-slash normalization: ${duplicateRoute} and ${rule.route}`
+      );
+    }
+
+    normalizedRoutes.set(normalizedRoute, rule.route);
+  }
+}
+
 const templateHtml = await readFile(templatePath, 'utf8');
 
 for (const route of STATIC_PUBLISHING_ROUTES) {
@@ -223,8 +241,13 @@ await writeFile(
   createSitemap(),
   'utf8'
 );
+const staticWebAppConfigPath = path.resolve('src/staticwebapp.config.json');
+const staticWebAppConfig = JSON.parse(
+  await readFile(staticWebAppConfigPath, 'utf8')
+);
+validateStaticWebAppConfig(staticWebAppConfig);
 await copyFile(
-  path.resolve('src/staticwebapp.config.json'),
+  staticWebAppConfigPath,
   path.join(buildDirectory, 'staticwebapp.config.json')
 );
 
