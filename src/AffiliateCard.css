@@ -61,3 +61,36 @@
 .affiliate-card__disclosure a {
   color: inherit;
 }
+
+@media (max-width: 47.99rem) {
+  .affiliate-card {
+    margin-top: 1.25rem;
+    padding: 1rem;
+  }
+
+  .affiliate-card__label {
+    margin-bottom: 0.35rem;
+    font-size: 0.62rem;
+  }
+
+  .affiliate-card .affiliate-card__title {
+    font-size: 1.2rem;
+  }
+
+  .affiliate-card__description {
+    margin: 0.4rem 0 0.75rem;
+    font-size: 0.86rem;
+    line-height: 1.45;
+  }
+
+  .affiliate-card__link {
+    width: 100%;
+    justify-content: center;
+    font-size: 0.88rem;
+  }
+
+  .affiliate-card__disclosure {
+    margin-top: 0.65rem;
+    font-size: 0.62rem;
+  }
+}

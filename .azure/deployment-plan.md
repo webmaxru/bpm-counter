@@ -11,7 +11,7 @@
 - **Production branch:** `main`
 - **Production domains:** `https://bpmtech.no`, `https://www.bpmtech.no`
 - **Azure hostname:** `https://mango-mud-0136f961e.azurestaticapps.net`
-- **Change objective:** Install the Impeccable agent skill project-locally, polish the production interface around a DJ-booth instrument aesthetic, and redeploy without changing the existing Azure architecture.
+- **Change objective:** Polish the production home experience for mobile conversion: simplify the hero, strengthen the local-audio privacy proof, keep the affiliate action in the first viewport, correct active navigation states, unify toast styling, and redeploy without changing the existing Azure architecture.
 
 ## 2. Requirements
 
@@ -192,6 +192,30 @@ All validation checks passed. The release is approved for the existing CI/CD dep
 | Branch safety | Local `main` synchronized with `origin/main` before the release commit |
 | Diff quality | `git diff --check` passed |
 | Static RBAC review | Not applicable; no infrastructure, identity, or role changes |
+
+### Mobile Monetization Polish Validation
+
+**Validation executed:** 2026-08-01
+
+| Check | Result |
+|---|---|
+| Impeccable source detector | Passed with no findings across the changed React and CSS files |
+| 390×844 visual inspection | CTA and affiliate action are visible in the first viewport with no horizontal overflow |
+| 1280×800 visual inspection | Simplified hero, privacy proof, affiliate card, and desktop navigation remain balanced and readable |
+| `npm test -- --run` | 126 passed, 1 skipped |
+| `npm run test:e2e -- --workers=2` | 22 passed, including mobile first-viewport, desktop active-state, and fake microphone BPM tests |
+| `npm run build` | Succeeded with 15 prerendered routes and 26 service-worker precache entries |
+| API dependencies | `npm --prefix api ls --depth=0` passed |
+| Azure account | Enabled `Visual Studio Enterprise Subscription` with the planned subscription ID |
+| Azure target | Existing `bpm-counter` Free-tier Static Web App in West US 2 linked to `webmaxru/bpm-counter` branch `main` |
+| Custom domains | `bpmtech.no` and `www.bpmtech.no` both `Ready` |
+| Azure Policy | 0 assigned policies |
+| GitHub Actions | Deployment workflow active, required token secret present, and three latest push deployments successful |
+| Branch safety | Local `main` synchronized with `origin/main` before the release commit |
+| Diff quality | `git diff --check` passed |
+| Generated artifact audit | 15 sitemap URLs, 17 HTML documents including shell/error documents, 17 SWA routes, `ads.txt`, and service worker present |
+| Static RBAC review | Not applicable; no Bicep, Terraform, identity, or role changes |
+| Azure impact | No infrastructure, API, quota, or resource changes |
 
 ## 8. Security and Identity
 

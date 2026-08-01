@@ -99,10 +99,10 @@ describe('Home', () => {
   it('shows mic access info text', () => {
     renderWithRouter(<Home {...defaultProps} />);
     expect(
-      screen.getByText(/provide access to your microphone/i)
+      screen.getByText(/microphone permission is requested/i)
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/does not send any audio stream data/i)
+      screen.getByText(/no audio is sent to any server/i)
     ).toBeInTheDocument();
     expect(
       screen.getByRole('link', { name: /Browse studio headphones/i })

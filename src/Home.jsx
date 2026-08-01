@@ -308,14 +308,8 @@ function Home(props) {
         {isShowingInit ? (
         <section className="home-tool__content" aria-labelledby="live-tool-title">
           <div className="home-tool__heading">
-            <p className="home-tool__status">
-              <span aria-hidden="true"></span>
-              Ready for room audio
-            </p>
-            <h2 id="live-tool-title">Find the BPM in the room</h2>
-            <p>
-              Point your device toward the speakers and let the beat settle.
-            </p>
+            <h2 id="live-tool-title">Find the BPM</h2>
+            <p>Measure music playing around you.</p>
           </div>
           <button
             onClick={startListening}
@@ -330,10 +324,20 @@ function Home(props) {
             <span>Start listening</span>
           </button>
 
-          <div className="home-tool__notes">
-            <p>You will be asked to provide access to your microphone.</p>
-            <p>App does not send any audio stream data to the servers.</p>
+          <div className="home-tool__privacy">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 3 5 6v5c0 4.6 2.9 8.3 7 10 4.1-1.7 7-5.4 7-10V6l-7-3Z" />
+              <path d="m9 12 2 2 4-5" />
+            </svg>
+            <p>
+              <strong>No audio is sent to any server.</strong>
+              {' '}
+              <span>Analysis stays on this device.</span>
+            </p>
           </div>
+          <p className="home-tool__permission">
+            Microphone permission is requested when you start.
+          </p>
 
           <AffiliateCard
             campaignId="studio-headphones"

@@ -160,7 +160,7 @@ describe('App', () => {
     expect(
       screen.getByRole('heading', {
         level: 1,
-        name: /BPM Techno.*Real-Time BPM Counter/i,
+        name: /BPM Techno.*Free.*Offline.*BPM tools for DJs/i,
       })
     ).toBeInTheDocument();
   });

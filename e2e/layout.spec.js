@@ -84,4 +84,59 @@ test.describe('Page layout', () => {
       dimensions.viewportWidth
     );
   });
+
+  test('active desktop navigation stays readable on hover and focus', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.reload();
+
+    const activeLink = page.getByRole('link', {
+      name: 'Listen',
+      exact: true,
+    });
+
+    await activeLink.hover();
+    await expect(activeLink).toHaveCSS('color', 'rgb(255, 179, 107)');
+
+    await activeLink.focus();
+    await expect(activeLink).toHaveCSS('color', 'rgb(255, 179, 107)');
+  });
+
+  test('mobile first viewport keeps the CTA and affiliate offer visible', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.reload();
+
+    const startButton = page.getByRole('button', {
+      name: /Start listening/i,
+    });
+    const affiliateCard = page.locator('.affiliate-card');
+    const affiliateLink = affiliateCard.getByRole('link', {
+      name: /Browse studio headphones/i,
+    });
+
+    await expect(startButton).toBeVisible();
+    await expect(affiliateCard).toBeVisible();
+    await expect(affiliateLink).toBeVisible();
+
+    const dimensions = await page.evaluate(() => ({
+      viewportWidth: window.innerWidth,
+      viewportHeight: window.innerHeight,
+      documentWidth: document.documentElement.scrollWidth,
+    }));
+    const startButtonBox = await startButton.boundingBox();
+    const affiliateCardBox = await affiliateCard.boundingBox();
+    const affiliateLinkBox = await affiliateLink.boundingBox();
+
+    expect(dimensions.documentWidth).toBeLessThanOrEqual(
+      dimensions.viewportWidth
+    );
+    expect(startButtonBox.height).toBeGreaterThanOrEqual(64);
+    expect(affiliateCardBox.y).toBeLessThan(dimensions.viewportHeight);
+    expect(affiliateLinkBox.y + affiliateLinkBox.height).toBeLessThan(
+      dimensions.viewportHeight
+    );
+  });
 });

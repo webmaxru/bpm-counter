@@ -21,6 +21,7 @@ import React, { useEffect, useState } from 'react';
 import { Workbox } from 'workbox-window';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import './Toast.css';
 import { getAppInsights, reactPlugin } from './TelemetryService';
 import TelemetryProvider from './telemetry-provider';
 import { TelemetryContext } from './TelemetryContext';
@@ -54,9 +55,11 @@ function App() {
       };
 
       const Msg = () => (
-        <div>
-          Updated app is available&nbsp;&nbsp;
-          <button onClick={refreshPage}>Reload</button>
+        <div className="update-toast">
+          <span>Updated app is available</span>
+          <button className="update-toast__button" onClick={refreshPage}>
+            Reload
+          </button>
         </div>
       );
 
@@ -129,7 +132,7 @@ function App() {
                 <span className="site-brand__copy">
                   <span className="site-brand__name">BPM Techno</span>
                   <span className="site-brand__descriptor">
-                    Real-Time BPM Counter
+                    Free · Offline · BPM tools for DJs
                   </span>
                 </span>
               </Link>
@@ -236,7 +239,15 @@ function App() {
             )}
           </footer>
 
-          <ToastContainer />
+          <ToastContainer
+            position="bottom-center"
+            autoClose={4500}
+            newestOnTop
+            closeOnClick
+            pauseOnFocusLoss
+            pauseOnHover
+            theme="dark"
+          />
         </TelemetryContext.Provider>
       </TelemetryProvider>
     </Router>

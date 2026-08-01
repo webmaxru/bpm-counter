@@ -110,6 +110,8 @@
 }
 
 .site-nav__link--active:hover {
+  border-color: #ffc184;
+  background: #ffc184;
   color: var(--color-ink);
 }
 
@@ -236,6 +238,13 @@
     background: rgba(255, 255, 255, 0.035);
   }
 
+  .site-nav__link--active:hover,
+  .site-nav__link--active:focus-visible {
+    border-color: transparent;
+    background: rgba(255, 179, 107, 0.08);
+    color: var(--color-accent);
+  }
+
   .related-nav {
     position: sticky;
     top: 1.5rem;
@@ -260,5 +269,45 @@
     color: var(--color-text-muted);
     font-size: 0.82rem;
     line-height: 1.45;
+  }
+}
+
+@media (max-width: 47.99rem) {
+  .site-brand {
+    padding: 0.75rem 0;
+  }
+
+  .site-brand__link {
+    gap: 0.65rem;
+  }
+
+  .site-brand__mark {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  .site-brand__descriptor {
+    font-size: 0.66rem;
+    letter-spacing: 0.07em;
+  }
+
+  .body {
+    padding-top: 0.75rem;
+  }
+
+  .site-nav {
+    margin-bottom: 1rem;
+    padding-bottom: 0;
+    scrollbar-width: none;
+  }
+
+  .site-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .site-nav__link {
+    min-height: 2.6rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.86rem;
   }
 }
