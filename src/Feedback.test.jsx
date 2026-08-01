@@ -36,10 +36,10 @@ describe('Feedback', () => {
     global.fetch.mockRestore?.();
   });
 
-  it('renders thumbs up and thumbs down buttons', () => {
+  it('renders clear accuracy feedback buttons', () => {
     render(<Feedback {...defaultProps} />);
-    expect(screen.getByText('👍🏽')).toBeInTheDocument();
-    expect(screen.getByText('👎🏽')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Yes, accurate' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'No, off' })).toBeInTheDocument();
   });
 
   it('shows question about BPM correctness', () => {
@@ -50,7 +50,7 @@ describe('Feedback', () => {
   it('clicking thumbs up sends POST to /api/feedback with isCorrect=true', async () => {
     render(<Feedback {...defaultProps} />);
 
-    fireEvent.click(screen.getByText('👍🏽'));
+    fireEvent.click(screen.getByRole('button', { name: 'Yes, accurate' }));
 
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledWith(
@@ -72,7 +72,7 @@ describe('Feedback', () => {
   it('clicking thumbs down sends POST to /api/feedback with isCorrect=false', async () => {
     render(<Feedback {...defaultProps} />);
 
-    fireEvent.click(screen.getByText('👎🏽'));
+    fireEvent.click(screen.getByRole('button', { name: 'No, off' }));
 
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledWith(
@@ -100,7 +100,7 @@ describe('Feedback', () => {
       </TelemetryContext.Provider>
     );
 
-    fireEvent.click(screen.getByText('👍🏽'));
+    fireEvent.click(screen.getByRole('button', { name: 'Yes, accurate' }));
 
     await waitFor(() => {
       expect(mockAppInsights.trackEvent).toHaveBeenCalledWith({
@@ -124,7 +124,7 @@ describe('Feedback', () => {
       </TelemetryContext.Provider>
     );
 
-    fireEvent.click(screen.getByText('👍🏽'));
+    fireEvent.click(screen.getByRole('button', { name: 'Yes, accurate' }));
 
     await waitFor(() => {
       expect(mockAppInsights.trackException).toHaveBeenCalledWith({
@@ -146,7 +146,7 @@ describe('Feedback', () => {
       </TelemetryContext.Provider>
     );
 
-    fireEvent.click(screen.getByText('👍🏽'));
+    fireEvent.click(screen.getByRole('button', { name: 'Yes, accurate' }));
 
     await waitFor(() => {
       expect(mockAppInsights.trackException).toHaveBeenCalledWith({
@@ -166,7 +166,7 @@ describe('Feedback', () => {
       </TelemetryContext.Provider>
     );
 
-    fireEvent.click(screen.getByText('👍🏽'));
+    fireEvent.click(screen.getByRole('button', { name: 'Yes, accurate' }));
 
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalled();

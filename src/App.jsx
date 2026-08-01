@@ -116,9 +116,23 @@ function App() {
         }}
       >
         <TelemetryContext.Provider value={appInsights}>
-          <header>
-            <h1>
-              <Link to="/">BPM Techno &mdash; Real-Time BPM Counter</Link>
+          <header className="site-header">
+            <h1 className="site-brand">
+              <Link className="site-brand__link" to="/">
+                <svg
+                  className="site-brand__mark"
+                  viewBox="0 0 40 40"
+                  aria-hidden="true"
+                >
+                  <path d="M5 23v-6M11 29V11M17 25V15M23 34V6M29 27V13M35 22v-4" />
+                </svg>
+                <span className="site-brand__copy">
+                  <span className="site-brand__name">BPM Techno</span>
+                  <span className="site-brand__descriptor">
+                    Real-Time BPM Counter
+                  </span>
+                </span>
+              </Link>
             </h1>
           </header>
           <div className="body">
@@ -202,21 +216,25 @@ function App() {
               </Link>
             </aside>
           </div>
-          <footer>
+          <footer className="site-footer">
             <div id="AudioMotionAnalyzer"></div>
 
             {!isDebug ? (
-              <p>
-                Made in 🇳🇴&nbsp; by&nbsp;
-                <a href="https://twitter.com/webmaxru/">Maxim Salnikov</a> |&nbsp;
-                <Link to="/about">About</Link> |&nbsp;
-                <Link to="/privacy">Privacy</Link> |&nbsp;
-                <Link to="/terms">Terms</Link> |&nbsp;
-                <Link to="/contact">Contact</Link> |&nbsp;
-                <Link to="/affiliate-disclosure">Affiliate disclosure</Link>
-              </p>
+              <div className="site-footer__inner">
+                <p className="site-footer__credit">
+                  Made for DJs in Norway by{' '}
+                  <a href="https://twitter.com/webmaxru/">Maxim Salnikov</a>
+                </p>
+                <nav className="site-footer__nav" aria-label="Legal and project">
+                  <Link to="/about">About</Link>
+                  <Link to="/privacy">Privacy</Link>
+                  <Link to="/terms">Terms</Link>
+                  <Link to="/contact">Contact</Link>
+                  <Link to="/affiliate-disclosure">Affiliate disclosure</Link>
+                </nav>
+              </div>
             ) : (
-              <p>Debugging mode</p>
+              <p className="site-footer__debug">Debugging mode</p>
             )}
           </footer>
 

@@ -23,7 +23,6 @@ function NotFound() {
     <main className="content publishing-page">
       <Seo page={page} />
       <header className="publishing-header">
-        <p className="publishing-header__eyebrow">BPM Techno</p>
         <h2 className="publishing-header__title">Page not found</h2>
         <p className="publishing-header__lede">{page.description}</p>
       </header>

@@ -302,10 +302,20 @@ function Home(props) {
   };
 
   return (
-    <main className="content">
+    <main className="content home-content">
       <Seo page={homePublishingPage} />
       {isShowingInit ? (
-        <div>
+        <section className="home-tool" aria-labelledby="live-tool-title">
+          <div className="home-tool__heading">
+            <p className="home-tool__status">
+              <span aria-hidden="true"></span>
+              Ready for room audio
+            </p>
+            <h2 id="live-tool-title">Find the BPM in the room</h2>
+            <p>
+              Point your device toward the speakers and let the beat settle.
+            </p>
+          </div>
           <button
             onClick={startListening}
             disabled={isListening}
@@ -313,36 +323,50 @@ function Home(props) {
             data-tooltip-id="home-hint"
             data-tooltip-content="Click and wait for some time for BPM stabilizes"
           >
-            Start listening
+            <svg viewBox="0 0 32 32" aria-hidden="true">
+              <path d="M7 18v-4M13 23V9M19 20v-8M25 25V7" />
+            </svg>
+            <span>Start listening</span>
           </button>
 
-          <p>You will be asked to provide access to your microphone.</p>
-          <p>App does not send any audio stream data to the servers.</p>
+          <div className="home-tool__notes">
+            <p>You will be asked to provide access to your microphone.</p>
+            <p>App does not send any audio stream data to the servers.</p>
+          </div>
 
           <AffiliateCard
             campaignId="studio-headphones"
             placement="home_initial"
           />
-        </div>
+        </section>
       ) : (
-        <div>
-          <h2 style={{ opacity: threshold + 0.4 }}>
+        <section className="home-tool home-tool--result" aria-live="polite">
+          <p className="home-tool__status">
+            <span aria-hidden="true"></span>
+            {isResultReady ? 'Tempo locked' : 'Analyzing the beat'}
+          </p>
+          <h2
+            className="bpm-display"
+            style={{ '--bpm-confidence': threshold + 0.4 }}
+          >
             {isResultReady ? primaryBPM : null}
           </h2>
-          <h3>{isResultReady ? 'BPM' : 'Listening. Wait...'}</h3>
+          <p className="bpm-display__unit">
+            {isResultReady ? 'BPM' : 'Listening. Wait...'}
+          </p>
 
           {!isResultReady && interimBPM ? (
-            <p style={{ color: '#d98c5f', fontSize: '1.2em', opacity: 0.5, margin: 0 }}>
+            <p className="bpm-display__interim">
               {interimBPM}
             </p>
           ) : null}
 
           {!isResultReady && primaryBPM ? (
-            <h4>
-              <small>Last: </small>
+            <p className="bpm-display__previous">
+              <span>Last: </span>
               {primaryBPM}
-              <small> BPM</small>
-            </h4>
+              <span> BPM</span>
+            </p>
           ) : null}
 
           <button onClick={stopListening} className="btn-stop">
@@ -364,33 +388,29 @@ function Home(props) {
             />
           ) : null}
 
-          <br />
-          <br />
-
-          {isSampleVisible ? (
-            <p>
-              <small className="hint" onClick={toggleSampleVisibility}>
-                Hide sample file
-              </small>
-              <br />
+          <div className="sample-audio">
+            <button
+              className="sample-audio__toggle"
+              type="button"
+              aria-expanded={isSampleVisible}
+              onClick={toggleSampleVisibility}
+            >
+              {isSampleVisible ? 'Hide sample file' : 'Try a 120 BPM sample'}
+            </button>
+            {isSampleVisible ? (
+              <>
               <audio
                 src="/samples/bpmtechno-120.mp3"
                 id="sample"
                 controls
               ></audio>
-              <br />
-              <small>
+              <p>
                 Play it loud! It takes 5-30 seconds to detect correct BPM (120).{' '}
-              </small>
-            </p>
-          ) : (
-            <p>
-              <small className="hint" onClick={toggleSampleVisibility}>
-                Show sample file
-              </small>
-            </p>
-          )}
-        </div>
+              </p>
+              </>
+            ) : null}
+          </div>
+        </section>
       )}
 
       {!isMobile ? (

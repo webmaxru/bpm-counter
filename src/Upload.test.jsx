@@ -195,8 +195,7 @@ describe('Upload — telemetry integration', () => {
       expect(screen.getByText(/Does 120 sound correct/)).toBeInTheDocument();
     });
 
-    // Click thumbs up — Feedback should call appInsights.trackEvent
-    fireEvent.click(screen.getByText('👍🏽'));
+    fireEvent.click(screen.getByRole('button', { name: 'Yes, accurate' }));
 
     await waitFor(() => {
       // Post-fix: Feedback receives appInsights prop and calls trackEvent

@@ -13,13 +13,6 @@ import './Publishing.css';
 export function PublishingHeader({ page }) {
   return (
     <header className="publishing-header">
-      <p className="publishing-header__eyebrow">
-        {page.category === 'guide'
-          ? 'BPM Techno guide'
-          : page.category === 'tool'
-            ? 'Free music tool'
-            : 'BPM Techno'}
-      </p>
       <h2 className="publishing-header__title">{page.heading}</h2>
       <p className="publishing-header__lede">{page.lede}</p>
       <p className="publishing-header__updated">

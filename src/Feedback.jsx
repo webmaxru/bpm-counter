@@ -76,18 +76,18 @@ class Feedback extends React.Component {
 
   render() {
     return (
-      <div>
-        <br />
+      <div className="feedback">
         <p>Does {this.props.bpm} sound correct?</p>
-        <button
-          onClick={() => this.sendFeedback(true)}
-          data-tooltip-id="feedback-hint"
-          data-tooltip-content="Please, give us feedback - did it count BPM correctly?"
-        >
-          👍🏽
-        </button>
-        &nbsp;&nbsp;&nbsp;
-        <button onClick={() => this.sendFeedback(false)}>👎🏽</button>
+        <div className="feedback__actions">
+          <button
+            onClick={() => this.sendFeedback(true)}
+            data-tooltip-id="feedback-hint"
+            data-tooltip-content="Please, give us feedback - did it count BPM correctly?"
+          >
+            Yes, accurate
+          </button>
+          <button onClick={() => this.sendFeedback(false)}>No, off</button>
+        </div>
         <Tooltip
           id="feedback-hint"
           isOpen={this.state.showHint}

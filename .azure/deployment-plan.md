@@ -11,7 +11,7 @@
 - **Production branch:** `main`
 - **Production domains:** `https://bpmtech.no`, `https://www.bpmtech.no`
 - **Azure hostname:** `https://mango-mud-0136f961e.azurestaticapps.net`
-- **Change objective:** Remove public-facing implementation, hosting, and demo-oriented material; refocus the production site on DJs and music workflows; redeploy and verify the streamlined experience.
+- **Change objective:** Install the Impeccable agent skill project-locally, polish the production interface around a DJ-booth instrument aesthetic, and redeploy without changing the existing Azure architecture.
 
 ## 2. Requirements
 
@@ -137,6 +137,28 @@ All validation checks passed. The release is approved for the existing CI/CD dep
 | GitHub Actions | Workflow active, secret present, no pending deployment |
 | Diff quality | `git diff --check` passed; local branch synchronized with `origin/main` before commit |
 | Static RBAC review | Not applicable; no Bicep, Terraform, identity, or role changes |
+
+### Impeccable Design Polish Validation
+
+**Validation executed:** 2026-08-01T04:01:45+02:00
+
+| Check | Result |
+|---|---|
+| Impeccable typography detector | Passed with no findings |
+| Impeccable layout detector | Passed with no findings |
+| `npm test -- --run` | 126 passed, 1 skipped |
+| `npm run test:e2e` | 20 passed, including 130 BPM and 140 BPM fake microphone tests |
+| `npm run build` | Succeeded with 15 prerendered routes and 26 service-worker precache entries |
+| Generated artifact audit | 15 HTML documents, 15 sitemap URLs, service worker and AdSense metadata present |
+| API dependencies | `npm --prefix api ls --depth=0` passed |
+| Azure target | Existing `bpm-counter` Free-tier Static Web App in West US 2 |
+| Custom domains | `bpmtech.no` and `www.bpmtech.no` both `Ready` |
+| Azure Policy | 0 assigned policies |
+| GitHub Actions | Deployment workflow active; three latest production runs successful |
+| Deployment credential | Required Static Web Apps GitHub Actions secret present |
+| Branch safety | Local `main` synchronized with `origin/main` before the release commit |
+| Diff quality | `git diff --check` passed |
+| Static RBAC review | Not applicable; no infrastructure, identity, or role changes |
 
 ## 8. Security and Identity
 
@@ -290,3 +312,36 @@ Sources: Azure Prepare references for Static Web Apps deployment, routing, regio
 - Generated-site audit: 15 HTML documents, 15 sitemap URLs, indexable `/about`, and no obsolete auth/demo routes.
 - Public HTML scan found no Azure Static Web Apps, GitHub project, proof-of-concept, demo-playground, or PWA implementation copy.
 - `X-Powered-By` was removed from deployment headers.
+
+## 19. Impeccable Design Polish Release
+
+**Approval:** The user's explicit request to install Impeccable, polish the design, and redeploy is approval for this application-only production update.
+
+### Scope
+
+- Install Impeccable 4.0.4 into the repository's detected project-local agent harness folders.
+- Preserve the established dark blue, teal, gold, and orange identity while refining it into a more purposeful DJ-booth instrument interface.
+- Introduce reusable color, spacing, radius, typography, and content-width tokens.
+- Strengthen the site brand, primary navigation, responsive app shell, footer, live BPM tool, affiliate recommendation, publishing pages, calculators, and feedback controls.
+- Preserve all content routes, SEO metadata, AdSense verification, analytics, affiliate links, audio analysis behavior, and Azure infrastructure.
+- Update the intentional browser visual baseline and BPM detection selectors to match the refined semantic structure.
+
+### Release Acceptance
+
+- The home tool has a clear primary action and remains usable at mobile, tablet, and desktop widths.
+- Publishing pages maintain comfortable reading measure and a consistent editorial hierarchy.
+- Keyboard focus, disabled controls, touch targets, contrast, and reduced-motion behavior remain production ready.
+- All 15 publishing routes are prerendered and the service worker remains functional.
+- Unit tests, browser tests including fake microphone BPM detection, Impeccable detector scans, and the production build pass.
+- No Azure resources, deployment credentials, custom domains, API bindings, or data stores change.
+
+## 20. Impeccable Preparation Evidence
+
+- Impeccable 4.0.4 installed project-locally under `.agents/skills/impeccable` and `.github/skills/impeccable`, with supported project hooks.
+- Impeccable typography detector: no findings.
+- Impeccable layout detector: no findings.
+- Unit tests: 126 passed, 1 skipped.
+- Playwright: 20 passed, including 130 BPM and 140 BPM fake microphone detection.
+- Production build: succeeded with 15 prerendered routes and 26 service-worker precache entries.
+- Desktop and mobile browser inspection completed for the home and About surfaces.
+- Existing Azure target confirmed as `bpm-counter` in West US 2 on the Free SKU.

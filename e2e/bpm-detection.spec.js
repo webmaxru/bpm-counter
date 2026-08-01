@@ -75,7 +75,7 @@ test.describe('BPM detection via fake audio capture', () => {
 
         // Wait for the listening state to confirm the microphone is active.
         await expect(
-          page.getByRole('heading', { name: 'Listening. Wait...' })
+          page.getByText('Listening. Wait...', { exact: true })
         ).toBeVisible({ timeout: 15000 });
 
         // Continuous analysis may emit an early outlier before converging.
@@ -83,7 +83,7 @@ test.describe('BPM detection via fake audio capture', () => {
           .poll(
             async () => {
               const bpmText = await page
-                .locator('main.content > div > h2')
+                .locator('.bpm-display')
                 .textContent();
               const detectedBpm = Number.parseFloat(bpmText);
 
