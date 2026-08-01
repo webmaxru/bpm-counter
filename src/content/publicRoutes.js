@@ -1,5 +1,6 @@
 export const STATIC_PUBLISHING_ROUTES = Object.freeze([
   '/',
+  '/about',
   '/upload',
   '/tools/tap-tempo',
   '/tools/bpm-to-ms',
@@ -15,7 +16,7 @@ export const STATIC_PUBLISHING_ROUTES = Object.freeze([
   '/affiliate-disclosure',
 ]);
 
-export const APP_SHELL_ROUTES = Object.freeze(['/', '/about']);
+export const APP_SHELL_ROUTES = Object.freeze(['/']);
 
 export const STATIC_PUBLISHING_ALIASES = Object.freeze([
   {

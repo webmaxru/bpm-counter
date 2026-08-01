@@ -165,11 +165,12 @@ describe('App', () => {
     ).toBeInTheDocument();
   });
 
-  it('has "?" link to about page', () => {
+  it('links to the audience-focused about page from the footer', () => {
     render(<App />);
-    const aboutLink = screen.getByText('?');
-    expect(aboutLink).toBeInTheDocument();
-    expect(aboutLink.closest('a')).toHaveAttribute('href', '/about');
+    expect(screen.getByRole('link', { name: 'About' })).toHaveAttribute(
+      'href',
+      '/about'
+    );
   });
 
   it('has footer with author credit', () => {
@@ -187,18 +188,23 @@ describe('App', () => {
     ).toBeInTheDocument();
   });
 
-  it('shows About component on /about route', () => {
+  it('shows the DJ-focused publishing page on /about', () => {
     window.history.pushState({}, '', '/about');
     render(<App />);
-    expect(screen.getByText(/3-in-1 project/i)).toBeInTheDocument();
-    expect(document.title).toBe('About BPM Techno | Project and Credits');
+    expect(
+      screen.getByRole('heading', { name: 'About BPM Techno' })
+    ).toBeInTheDocument();
+    expect(screen.getByText(/Built around real DJ decisions/i)).toBeInTheDocument();
+    expect(document.title).toBe(
+      'About BPM Techno | Practical BPM Tools for DJs'
+    );
     expect(document.head.querySelector('link[rel="canonical"]')).toHaveAttribute(
       'href',
       'https://bpmtech.no/about'
     );
     expect(document.head.querySelector('meta[name="robots"]')).toHaveAttribute(
       'content',
-      'noindex, nofollow'
+      'index, follow'
     );
   });
 

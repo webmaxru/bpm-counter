@@ -116,16 +116,3 @@ header h1 {
 header h1 a {
   text-decoration: none;
 }
-
-.about {
-  margin-left: auto;
-  background: #35748c;
-  border-radius: 0 0 0 2em;
-  color: #ffffff;
-  border: 0;
-  padding: 0.7em 0.6em 0 1em;
-  font-size: 1em;
-  line-height: 0.5em;
-  font-weight: bold;
-  text-decoration: none;
-}

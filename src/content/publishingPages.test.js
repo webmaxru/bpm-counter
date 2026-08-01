@@ -59,7 +59,8 @@ describe('publishing page content', () => {
       patterns.some((pattern) => pattern.test(path));
 
     expect(matchesAppShell('/')).toBe(true);
-    expect(matchesAppShell('/about/?utm_source=test')).toBe(true);
+    expect(matchesAppShell('/about/?utm_source=test')).toBe(false);
+    expect(STATIC_PUBLISHING_ROUTES).toContain('/about');
     expect(matchesAppShell('/not-a-real-page')).toBe(false);
     expect(STATIC_PUBLISHING_ALIASES).toContainEqual({
       route: '/privacy.html',
@@ -93,6 +94,18 @@ describe('publishing page content', () => {
     expect(privacyText).toContain(
       'Google-certified consent management platform'
     );
+  });
+
+  it('keeps public trust pages focused on DJs rather than implementation details', () => {
+    const publicTrustText = publishingPages
+      .filter((page) => ['about', 'contact'].includes(page.id))
+      .map(getPageText)
+      .join(' ');
+
+    expect(publicTrustText).not.toMatch(
+      /Azure|Static Web Apps|GitHub|proof of concept|technical playground/i
+    );
+    expect(publicTrustText).toMatch(/DJs|DJ community/i);
   });
 
   it('provides complete route metadata', () => {

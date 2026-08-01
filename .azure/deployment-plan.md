@@ -11,7 +11,7 @@
 - **Production branch:** `main`
 - **Production domains:** `https://bpmtech.no`, `https://www.bpmtech.no`
 - **Azure hostname:** `https://mango-mud-0136f961e.azurestaticapps.net`
-- **Change objective:** Deploy the completed affiliate monetization improvements and AdSense-oriented publishing surface, then verify production readiness.
+- **Change objective:** Remove public-facing implementation, hosting, and demo-oriented material; refocus the production site on DJs and music workflows; redeploy and verify the streamlined experience.
 
 ## 2. Requirements
 
@@ -20,7 +20,7 @@
 | Classification | Production |
 | Expected scale | Small, under 1,000 users per month initially |
 | Budget | Cost-Optimized |
-| Compliance | No special regulated-workload requirements; preserve privacy, telemetry disclosure, affiliate disclosure, and authenticated-route controls |
+| Compliance | No special regulated-workload requirements; preserve privacy, telemetry disclosure, affiliate disclosure, and AdSense verification |
 | Availability | Use the existing globally served Azure Static Web Apps production endpoint |
 | Data residency | Preserve the existing West US 2 deployment; no data-plane or storage changes |
 
@@ -119,11 +119,30 @@ The Azure Quota CLI was attempted for `Microsoft.Web` in `westus2`, but the subs
 
 All validation checks passed. The release is approved for the existing CI/CD deployment recipe.
 
+### DJ Production Cleanup Validation
+
+**Validation executed:** 2026-08-01T03:31:22+02:00
+
+| Check | Result |
+|---|---|
+| `npm test` | 126 passed, 1 skipped |
+| `npm run test:e2e` | 20 passed |
+| `npm run build` | Succeeded with 15 prerendered routes and 26 precache entries |
+| Generated artifact audit | 15 HTML documents, 15 sitemap URLs, `/about` prerendered, service worker present |
+| Public-copy scan | No Azure demo, GitHub project, proof-of-concept, technical-playground, or PWA implementation copy in generated HTML |
+| Removed route audit | Login, account, admin, auth-demo, logout, and redirect-demo routes absent |
+| Deployment configuration | 17 valid routes, no `X-Powered-By` header |
+| Azure target | Existing `bpm-counter` Free-tier site in West US 2 |
+| Azure Policy | 0 assigned policies |
+| GitHub Actions | Workflow active, secret present, no pending deployment |
+| Diff quality | `git diff --check` passed; local branch synchronized with `origin/main` before commit |
+| Static RBAC review | Not applicable; no Bicep, Terraform, identity, or role changes |
+
 ## 8. Security and Identity
 
 - Keep the Static Web Apps deployment token in GitHub Actions secrets; do not expose or rotate it during this release.
-- Preserve existing Static Web Apps authentication and authorization rules.
-- Preserve noindex behavior for authentication, account, demo, and other non-publishing routes.
+- Remove the obsolete public authentication and platform-demo routes without changing the feedback API or deployment credential.
+- Preserve noindex behavior for error pages and other non-publishing responses.
 - Preserve telemetry URL sanitization so analyzer query parameters are not sent to GA4 or Application Insights.
 - Preserve `rel="sponsored nofollow noopener noreferrer"` on affiliate destinations.
 - No new RBAC assignments, managed identities, secrets, public ports, or network resources are required.
@@ -158,7 +177,7 @@ This release is expected to add no Azure infrastructure cost. Existing service u
 - `npm test` passes.
 - `npm run test:e2e` passes.
 - `npm run build` succeeds.
-- The build contains all 14 prerendered public documents, sitemap, robots configuration, structured metadata, routing configuration, and bundled service worker.
+- The build contains all 15 prerendered public documents, sitemap, robots configuration, structured metadata, routing configuration, and bundled service worker.
 
 ### Deployment
 
@@ -183,7 +202,7 @@ This release is expected to add no Azure infrastructure cost. Existing service u
 - Confirm Googlebot-readable static HTML across the publishing surface.
 - Confirm `robots.txt` and `sitemap.xml` are reachable and internally consistent.
 - Confirm trust pages: privacy, terms, contact, and affiliate disclosure.
-- Confirm no ad placements exist on error, login, account, demo, or other noindex pages.
+- Confirm no ad placements exist on error or other noindex pages.
 - Check for an existing AdSense publisher ID and approved site-verification method.
 - Add or verify `ads.txt` only when the actual publisher ID is known; never invent one.
 - Confirm a Google-certified consent-management platform is configured before serving ads to users in the EEA, UK, or Switzerland.
@@ -208,7 +227,7 @@ The deployment does not mutate or delete Azure infrastructure, so rollback is li
 | Region availability | West US 2 is one of the supported Static Web Apps regions. No region change is needed. |
 | Free SKU | Supports two custom domains. The existing `bpmtech.no` and `www.bpmtech.no` domains consume both slots, and this release adds no domain. |
 | GitHub-linked deployment | Reuse the existing repository/branch integration and deployment token stored in GitHub Actions secrets. Never expose the token in logs or deployment outputs. |
-| Routing and authentication | Preserve explicit Static Web Apps routes, authenticated/admin role controls, noindex headers, and real 404 behavior. |
+| Routing | Preserve explicit public routes, noindex error behavior, and real 404 responses while removing obsolete demo/authentication surfaces. |
 | Managed Azure Functions | The integrated API remains unchanged as an infrastructure component; no standalone Function App, plan, storage account, or deployment slot is introduced. |
 | Cosmos DB binding | Preserve the existing feedback output binding and connection configuration; no data model, capacity, or account changes are in scope. |
 | Application Insights | Preserve the existing client instrumentation and URL sanitization; no telemetry resource or connection-string change is in scope. |
@@ -237,3 +256,37 @@ Sources: Azure Prepare references for Static Web Apps deployment, routing, regio
   - [x] Unit tests, browser tests, and production build pass.
   - [x] Git diff passes whitespace/error checks.
   - [x] Static RBAC review is complete or documented as not applicable.
+
+## 17. DJ Production Cleanup Release
+
+**Approval:** The user's explicit request to remove technical material and redeploy is approval for this content-only production update.
+
+### Scope
+
+- Replace the Azure/demo-oriented `/about` experience with an original, indexable About page written for DJs.
+- Remove the public login, account, admin, authentication-demo, telemetry-playground, and redirect-demo routes and components.
+- Remove visitor-facing Azure, GitHub, hosting, source-code, PWA proof-of-concept, and API-demo descriptions.
+- Remove the `X-Powered-By` platform header, expired origin-trial metadata, and production console timing output.
+- Replace developer-oriented contact and footer links with product, DJ feedback, privacy, and partnership paths.
+- Simplify legal copy that exposes implementation details while retaining required privacy and advertising disclosures.
+- Prerender `/about`, include it in the sitemap and offline route set, and keep unknown routes as real 404 responses.
+
+### Release Acceptance
+
+- No public page or navigation element describes the site as an Azure demo, technical playground, proof of concept, or source-code project.
+- `/about` is crawlable, canonical, indexable, DJ-focused, and included in the sitemap.
+- `/login`, `/account`, `/admin`, `/login-account`, `/login-twitter`, `/logout`, and `/aboutme` are no longer application routes.
+- Footer and contact content do not link to the source repository or issue tracker.
+- The feedback API, analytics, affiliate disclosures, AdSense verification, and deployment architecture remain functional.
+- Local unit tests, Playwright tests, and the production build pass before Azure validation and deployment.
+
+## 18. DJ Cleanup Preparation Evidence
+
+- Azure context remains the existing `bpm-counter` Free-tier Static Web App in West US 2 under `Visual Studio Enterprise Subscription`.
+- Local `main` and `origin/main` are synchronized before the release commit.
+- Unit tests: 126 passed, 1 skipped.
+- Playwright: 20 passed.
+- Production build: succeeded with 15 prerendered routes and 26 service-worker precache entries.
+- Generated-site audit: 15 HTML documents, 15 sitemap URLs, indexable `/about`, and no obsolete auth/demo routes.
+- Public HTML scan found no Azure Static Web Apps, GitHub project, proof-of-concept, demo-playground, or PWA implementation copy.
+- `X-Powered-By` was removed from deployment headers.

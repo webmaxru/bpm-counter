@@ -1,10 +1,6 @@
 /* eslint-disable no-unused-vars */
 import './App.css';
 import Home from './Home.jsx';
-import About from './About.jsx';
-import Account from './Account.jsx';
-import Admin from './Admin.jsx';
-import Login from './Login.jsx';
 import Upload from './Upload.jsx';
 import TapTempo from './TapTempo.jsx';
 import BpmToMs from './BpmToMs.jsx';
@@ -30,59 +26,6 @@ import TelemetryProvider from './telemetry-provider';
 import { TelemetryContext } from './TelemetryContext';
 import { AppInsightsErrorBoundary } from '@microsoft/applicationinsights-react-js';
 import Seo from './Seo';
-
-const legacyRoutePages = Object.freeze({
-  about: {
-    id: 'about',
-    path: '/about',
-    category: 'system',
-    structuredDataType: 'WebPage',
-    title: 'About BPM Techno | Project and Credits',
-    description:
-      'Learn about the BPM Techno project, its maintainer, Azure Static Web Apps demo features, and open-source repository.',
-    heading: 'About BPM Techno',
-    noindex: true,
-  },
-  login: {
-    id: 'login',
-    path: '/login',
-    category: 'system',
-    structuredDataType: 'WebPage',
-    title: 'Log In | BPM Techno',
-    description: 'Sign in to the BPM Techno authentication demonstration.',
-    heading: 'Log in',
-    noindex: true,
-  },
-  account: {
-    id: 'account',
-    path: '/account',
-    category: 'system',
-    structuredDataType: 'WebPage',
-    title: 'Account | BPM Techno',
-    description: 'View the authenticated BPM Techno demonstration account.',
-    heading: 'Account',
-    noindex: true,
-  },
-  admin: {
-    id: 'admin',
-    path: '/admin',
-    category: 'system',
-    structuredDataType: 'WebPage',
-    title: 'Admin | BPM Techno',
-    description: 'BPM Techno administrator demonstration route.',
-    heading: 'Admin',
-    noindex: true,
-  },
-});
-
-function LegacyRoute({ page, children }) {
-  return (
-    <>
-      <Seo page={page} />
-      {children}
-    </>
-  );
-}
 
 function App() {
   const query = new URLSearchParams(window.location.search);
@@ -158,9 +101,6 @@ function App() {
     }
 
 
-    const [navTiming] = window.performance.getEntriesByType("navigation");
-    console.log(navTiming)
-    
     return () => {
       mounted = false;
     };
@@ -180,9 +120,6 @@ function App() {
             <h1>
               <Link to="/">BPM Techno &mdash; Real-Time BPM Counter</Link>
             </h1>
-            <Link to="/about" className="about">
-              &#63;
-            </Link>
           </header>
           <div className="body">
             <nav className="site-nav" aria-label="Primary">
@@ -213,11 +150,7 @@ function App() {
               <Routes>
                 <Route
                   path="/about"
-                  element={
-                    <LegacyRoute page={legacyRoutePages.about}>
-                      <About />
-                    </LegacyRoute>
-                  }
+                  element={<PublishingPage pageId="about" />}
                 />
                 <Route
                   path="/affiliate-disclosure"
@@ -238,30 +171,6 @@ function App() {
                 <Route
                   path="/contact"
                   element={<PublishingPage pageId="contact" />}
-                />
-                <Route
-                  path="/account"
-                  element={
-                    <LegacyRoute page={legacyRoutePages.account}>
-                      <Account />
-                    </LegacyRoute>
-                  }
-                />
-                <Route
-                  path="/admin"
-                  element={
-                    <LegacyRoute page={legacyRoutePages.admin}>
-                      <Admin />
-                    </LegacyRoute>
-                  }
-                />
-                <Route
-                  path="/login"
-                  element={
-                    <LegacyRoute page={legacyRoutePages.login}>
-                      <Login />
-                    </LegacyRoute>
-                  }
                 />
                 <Route path="/upload" element={<Upload isDebug={isDebug} log={log} />} />
                 <Route path="/tools/tap-tempo" element={<TapTempo />} />
@@ -300,7 +209,7 @@ function App() {
               <p>
                 Made in 🇳🇴&nbsp; by&nbsp;
                 <a href="https://twitter.com/webmaxru/">Maxim Salnikov</a> |&nbsp;
-                <a href="https://github.com/webmaxru/bpm-counter">GitHub</a> |&nbsp;
+                <Link to="/about">About</Link> |&nbsp;
                 <Link to="/privacy">Privacy</Link> |&nbsp;
                 <Link to="/terms">Terms</Link> |&nbsp;
                 <Link to="/contact">Contact</Link> |&nbsp;

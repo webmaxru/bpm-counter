@@ -1,7 +1,7 @@
 {
   "short_name": "BPM Techno",
   "name": "BPM Techno - Real-Time BPM Counter",
-  "description": "Produce some beats using any player, launchpad, keyboard, and mix them live with another track easily and precisely using this free online real-time BPM counter",
+  "description": "Measure track tempo, tap a beat, compare half-time and double-time BPM, and calculate tempo-synced timing values for DJ sets.",
   "start_url": "/?utm_source=homescreen",
   "display": "standalone",
   "display_override": ["window-control-overlay", "minimal-ui"],

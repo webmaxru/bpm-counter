@@ -50,18 +50,6 @@ self.addEventListener('install', async (event) => {
       event.addRoutes([
         {
           condition: {
-            urlPattern: { pathname: '/login' },
-          },
-          source: 'network',
-        },
-        {
-          condition: {
-            urlPattern: { pathname: '/about' },
-          },
-          source: 'fetch-event',
-        },
-        {
-          condition: {
             urlPattern: { pathname: '/favicon.ico' },
           },
           source: 'race-network-and-fetch-handler',

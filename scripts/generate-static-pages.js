@@ -136,7 +136,7 @@ function renderRelatedNavigation() {
 }
 
 function renderStaticShell(page) {
-  return `<header><h1><a href="/">BPM Techno - Real-Time BPM Counter</a></h1><a href="/about" class="about">?</a></header><div class="body">${renderPrimaryNavigation()}${renderPublishingPage(page)}${renderRelatedNavigation()}</div><footer><p>Made by <a href="https://twitter.com/webmaxru/">Maxim Salnikov</a> | <a href="https://github.com/webmaxru/bpm-counter">GitHub</a> | <a href="/privacy">Privacy</a> | <a href="/terms">Terms</a> | <a href="/contact">Contact</a> | <a href="/affiliate-disclosure">Affiliate disclosure</a></p></footer>`;
+  return `<header><h1><a href="/">BPM Techno - Real-Time BPM Counter</a></h1></header><div class="body">${renderPrimaryNavigation()}${renderPublishingPage(page)}${renderRelatedNavigation()}</div><footer><p>Made for DJs by <a href="https://twitter.com/webmaxru/">Maxim Salnikov</a> | <a href="/about">About</a> | <a href="/privacy">Privacy</a> | <a href="/terms">Terms</a> | <a href="/contact">Contact</a> | <a href="/affiliate-disclosure">Affiliate disclosure</a></p></footer>`;
 }
 
 function setMetaContent(html, attribute, key, content) {

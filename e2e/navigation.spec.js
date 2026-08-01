@@ -1,16 +1,14 @@
 import { test, expect } from '@playwright/test';
 
-test('navigate from home to about via ? link', async ({ page }) => {
+test('navigate from home to the DJ-focused about page', async ({ page }) => {
   await page.goto('/');
 
-  await page.getByRole('link', { name: '?' }).click();
+  await page.getByRole('link', { name: 'About' }).click();
 
   await expect(page).toHaveURL(/\/about/);
-  await expect(page.getByText(/3-in-1 project/i)).toBeVisible();
+  await expect(page.getByText(/Built around real DJ decisions/i)).toBeVisible();
   await expect(
-    page
-      .getByRole('link', { name: 'Maxim Salnikov', exact: true })
-      .first()
+    page.getByRole('link', { name: 'Follow Maxim Salnikov on X' })
   ).toBeVisible();
 });
 

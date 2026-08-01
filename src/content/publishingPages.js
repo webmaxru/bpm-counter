@@ -1,4 +1,4 @@
-const updatedDate = '2026-07-31';
+const updatedDate = '2026-08-01';
 
 export const publishingPages = Object.freeze([
   {
@@ -65,6 +65,70 @@ export const publishingPages = Object.freeze([
       },
     ],
     relatedPageIds: ['tap-tempo', 'bpm-converter', 'real-time-guide'],
+  },
+  {
+    id: 'about',
+    path: '/about',
+    category: 'about',
+    structuredDataType: 'AboutPage',
+    title: 'About BPM Techno | Practical BPM Tools for DJs',
+    description:
+      'Learn why BPM Techno offers fast, free tempo tools and practical beatmatching resources for DJs, producers, and music learners.',
+    heading: 'About BPM Techno',
+    lede:
+      'BPM Techno is a focused set of free tempo tools for DJs who need a quick answer while preparing tracks, practicing transitions, or working with music away from their usual setup.',
+    updatedDate,
+    sections: [
+      {
+        heading: 'Built around real DJ decisions',
+        paragraphs: [
+          'Knowing a track tempo is useful when you are checking an untagged file, preparing a transition, comparing two records, setting an effects delay, or deciding whether a result is being counted in half-time or double-time. BPM Techno keeps those common tasks close together instead of turning them into separate, complicated workflows.',
+          'The tools are designed to give you a practical starting point quickly. They work best when you combine the result with active listening, phrase awareness, and the tempo information in your DJ library.',
+        ],
+      },
+      {
+        heading: 'Choose the tempo method that fits the moment',
+        bullets: [
+          'Use the live counter when music is already playing through speakers.',
+          'Analyze a direct audio URL when you have a browser-accessible track file.',
+          'Use tap tempo when your ears can follow the pulse more reliably than automatic detection.',
+          'Convert BPM to milliseconds when setting tempo-synced delays or timing values.',
+          'Compare half-time and double-time values when a detected number feels musically wrong.',
+        ],
+      },
+      {
+        heading: 'Tools supported by practical guidance',
+        paragraphs: [
+          'A BPM number only becomes useful when it helps you make a better musical decision. The guides explain how to interpret tempo, recognize common genre ranges, improve automatic detection, and correct a mix when two tracks match in speed but not in phase.',
+          'The aim is not to replace DJ technique. It is to remove small points of friction so you can spend more time listening, selecting, practicing, and mixing.',
+        ],
+      },
+      {
+        heading: 'Created for the DJ community',
+        paragraphs: [
+          'BPM Techno is created and maintained by Maxim Salnikov. Feedback from working DJs, producers, educators, and learners helps shape which tools and guides are most useful next.',
+        ],
+        links: [
+          {
+            href: 'https://twitter.com/webmaxru',
+            label: 'Follow Maxim Salnikov on X',
+          },
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: 'Is BPM Techno free to use?',
+        answer:
+          'Yes. The BPM counter, calculators, and guides are available without a subscription.',
+      },
+      {
+        question: 'Should I trust the detected BPM without checking it?',
+        answer:
+          'Treat automatic detection as a strong starting point. Confirm the pulse by ear and check half-time or double-time when the number does not fit the track.',
+      },
+    ],
+    relatedPageIds: ['home', 'beatmatching-guide', 'contact'],
   },
   {
     id: 'upload',
@@ -530,7 +594,7 @@ export const publishingPages = Object.freeze([
     structuredDataType: 'WebPage',
     title: 'Privacy Policy | BPM Techno',
     description:
-      'How BPM Techno handles microphone audio, remote audio URLs, feedback, analytics, advertising, authentication, and affiliate links.',
+      'How BPM Techno handles microphone audio, remote audio URLs, feedback, analytics, advertising, and affiliate links.',
     heading: 'Privacy policy',
     lede:
       'This policy explains the data used by BPM Techno and the boundaries between browser-local audio processing, application telemetry, and third-party services.',
@@ -552,8 +616,8 @@ export const publishingPages = Object.freeze([
       {
         heading: 'Analytics and diagnostics',
         paragraphs: [
-          'BPM Techno uses Google Analytics 4 and Azure Application Insights to understand feature usage, performance, and errors. These services may process device, browser, page, network, and interaction information according to their own terms and privacy documentation.',
-          'Analytics records the page route without query strings, and the direct audio-file request is excluded from automatic Application Insights dependency tracking. The analyzer URL is still visible to your browser, the audio host, and any infrastructure that handles the original page request.',
+          'BPM Techno uses analytics and diagnostics services provided by Google and Microsoft to understand feature usage, performance, and errors. These services may process device, browser, page, network, and interaction information according to their own terms and privacy documentation.',
+          'Analytics records the page route without query strings. Audio URLs are not included in analytics events or automatic request monitoring. The analyzer URL is still visible to your browser, the audio host, and infrastructure that handles the original page request.',
           'Do not include personal information in URLs submitted to the audio analyzer because URLs can appear in browser, hosting, or network logs.',
         ],
       },
@@ -573,12 +637,6 @@ export const publishingPages = Object.freeze([
         ],
       },
       {
-        heading: 'Authentication',
-        paragraphs: [
-          'Optional Azure Static Web Apps authentication is used only for protected demonstration routes. If you choose to sign in, the configured identity provider and Azure may process account identifiers needed to authenticate the session.',
-        ],
-      },
-      {
         heading: 'Affiliate links and external sites',
         paragraphs: [
           'Some product recommendations are affiliate links. Following one sends you to an external merchant, which receives the normal request and may use its own cookies or identifiers. BPM Techno may earn a commission from a qualifying purchase.',
@@ -591,7 +649,7 @@ export const publishingPages = Object.freeze([
           'Deny or revoke microphone permission in browser settings.',
           'Do not submit optional result feedback.',
           'Use browser privacy controls to manage cookies and site data.',
-          'Report privacy questions through the project issue tracker on GitHub.',
+          'Contact the maintainer on X with privacy questions, without including sensitive information in a public message.',
         ],
       },
     ],
@@ -619,20 +677,20 @@ export const publishingPages = Object.freeze([
       {
         heading: 'Acceptable use',
         paragraphs: [
-          'Use the service lawfully and do not attempt to disrupt the application, overload its API, bypass access controls, or submit audio URLs you are not authorized to access.',
+          'Use the service lawfully and do not attempt to disrupt the application, overwhelm its feedback service, or submit audio URLs you are not authorized to access.',
           'You are responsible for complying with copyright, privacy, and other rights that apply to audio you play or analyze.',
         ],
       },
       {
         heading: 'Availability and changes',
         paragraphs: [
-          'The service may change, become unavailable, or remove features without notice. Offline behavior depends on the installed service worker and previously cached application resources.',
+          'The service may change, become unavailable, or remove features without notice. Some previously visited tools may remain available when your browser is offline.',
         ],
       },
       {
         heading: 'External links',
         paragraphs: [
-          'Links to merchants, documentation, social networks, and other external services are provided for convenience. BPM Techno does not control their content, availability, pricing, or policies.',
+          'Links to merchants, social networks, and other external services are provided for convenience. BPM Techno does not control their content, availability, pricing, or policies.',
         ],
       },
     ],
@@ -645,28 +703,29 @@ export const publishingPages = Object.freeze([
     structuredDataType: 'ContactPage',
     title: 'Contact BPM Techno | Support and Partnerships',
     description:
-      'Report BPM Techno bugs, suggest improvements, ask privacy questions, or discuss sponsorship opportunities.',
+      'Share DJ feedback, suggest BPM tools and guides, ask privacy questions, or discuss relevant music partnerships.',
     heading: 'Contact BPM Techno',
     lede:
-      'The project is maintained publicly. Choose the channel that matches your request so it can be handled efficiently.',
+      'Feedback from DJs, producers, educators, and music learners helps keep BPM Techno practical and focused.',
     updatedDate,
     sections: [
       {
-        heading: 'Bug reports and feature requests',
+        heading: 'DJ feedback and feature ideas',
         paragraphs: [
-          'Use the GitHub issue tracker for reproducible bugs and product suggestions. Include the browser, operating system, route, and steps needed to reproduce the problem. Do not attach copyrighted audio or personal information.',
+          'Share problems, workflow ideas, or requests for new BPM tools with the maintainer on X. Explain what you were trying to do, what happened, and what would make the experience more useful.',
+          'Do not send copyrighted audio files, private track links, account credentials, or other sensitive information.',
         ],
         links: [
           {
-            href: 'https://github.com/webmaxru/bpm-counter/issues',
-            label: 'Open the GitHub issue tracker',
+            href: 'https://twitter.com/webmaxru',
+            label: 'Contact Maxim Salnikov on X',
           },
         ],
       },
       {
         heading: 'Privacy and data questions',
         paragraphs: [
-          'Use the issue tracker and clearly label the request as a privacy question. Avoid posting account identifiers, authentication tokens, or other sensitive data in a public issue.',
+          'Send a message on X and clearly label it as a privacy question. Do not include private audio URLs, account credentials, or other sensitive data in a public message.',
         ],
       },
       {
@@ -682,7 +741,7 @@ export const publishingPages = Object.freeze([
         ],
       },
     ],
-    relatedPageIds: ['privacy', 'terms', 'affiliate-disclosure'],
+    relatedPageIds: ['about', 'privacy', 'affiliate-disclosure'],
   },
   {
     id: 'affiliate-disclosure',
