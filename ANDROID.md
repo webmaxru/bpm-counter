@@ -50,11 +50,12 @@ ignored by Git.
 Create a private upload key once and back it up securely. Never commit it:
 
 ```powershell
+$keytool = Get-ChildItem "$HOME\.bubblewrap\jdk" -Recurse -Filter keytool.exe | Select-Object -First 1
+if (-not $keytool) {
+  throw "Bubblewrap JDK not found. Run npm run android:doctor first."
+}
 New-Item -ItemType Directory -Force android\keystore | Out-Null
-keytool -genkeypair -v `
-  -keystore android\keystore\bpm-techno-upload.jks `
-  -alias bpm-techno-upload `
-  -keyalg RSA -keysize 2048 -validity 10000
+& $keytool.FullName -genkeypair -v -keystore android\keystore\bpm-techno-upload.jks -alias bpm-techno-upload -keyalg RSA -keysize 2048 -validity 10000
 ```
 
 Set passwords only in the current shell or a secure secret store, then build:
