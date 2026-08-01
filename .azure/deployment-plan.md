@@ -11,7 +11,7 @@
 - **Production branch:** `main`
 - **Production domains:** `https://bpmtech.no`, `https://www.bpmtech.no`
 - **Azure hostname:** `https://mango-mud-0136f961e.azurestaticapps.net`
-- **Change objective:** Polish the production home experience for mobile conversion: simplify the hero, strengthen the local-audio privacy proof, keep the affiliate action in the first viewport, correct active navigation states, unify toast styling, and redeploy without changing the existing Azure architecture.
+- **Change objective:** Rebuild the desktop home experience as a coherent task-first DJ workstation: separate the detector from monetization, establish intentional wide/intermediate/mobile grids, preserve first-viewport affiliate visibility, and redeploy without changing the existing Azure architecture.
 
 ## 2. Requirements
 
@@ -216,6 +216,33 @@ All validation checks passed. The release is approved for the existing CI/CD dep
 | Generated artifact audit | 15 sitemap URLs, 17 HTML documents including shell/error documents, 17 SWA routes, `ads.txt`, and service worker present |
 | Static RBAC review | Not applicable; no Bicep, Terraform, identity, or role changes |
 | Azure impact | No infrastructure, API, quota, or resource changes |
+
+### Desktop Workstation Redesign Validation
+
+**Validation executed:** 2026-08-01
+
+| Check | Result |
+|---|---|
+| Impeccable critique | Independent UX and typography assessments completed; task-first workstation direction selected |
+| Impeccable detector | Full source, layout, and typography scans passed with no findings |
+| Responsive visual review | Reviewed 320, 390, 768, 1024, 1280, 1366, 1440, and 1920 pixel layouts |
+| Desktop geometry | At 1440×900 the 944px detector uses separate heading/action columns, privacy spans below both without collision, and the affiliate rail aligns outside the detector |
+| Breakpoint hardening | Explicit tests cover tablet alignment, 1280 intermediate navigation, 1366 utility rails, 1440 desktop grid, and 320/390 mobile layouts |
+| Interaction states | Fake microphone tests confirm 130 and 140 BPM result states, analyzer visibility, media cleanup, and external affiliate placement |
+| `npm test -- --run` | 126 passed, 1 skipped |
+| `npm run test:e2e -- --workers=2` | 25 passed |
+| `npm run build` | Succeeded with 15 prerendered routes and 26 service-worker precache entries |
+| Azure account | Enabled `Visual Studio Enterprise Subscription` with the planned subscription ID |
+| Azure target | Existing `bpm-counter` Free-tier Static Web App in West US 2 linked to `webmaxru/bpm-counter` branch `main` |
+| Custom domains | `bpmtech.no` and `www.bpmtech.no` both `Ready` |
+| Azure Policy | 0 assigned policies |
+| GitHub Actions | Workflow active, deployment token secret present, and three latest push deployments successful |
+| API dependencies | `npm --prefix api ls --depth=0` passed |
+| Generated artifacts | 15 sitemap URLs, 17 HTML documents, 17 SWA routes, `ads.txt`, and bundled service worker present |
+| Branch safety | Local `main` synchronized with `origin/main` before the release commit |
+| Diff quality | `git diff --check` passed |
+| Static RBAC review | Not applicable; no Bicep, Terraform, identity, or role changes |
+| Azure impact | No infrastructure, identity, API, quota, or resource changes |
 
 ## 8. Security and Identity
 

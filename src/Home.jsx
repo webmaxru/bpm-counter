@@ -306,116 +306,113 @@ function Home(props) {
       <Seo page={homePublishingPage} />
       <div className="home-tool">
         {isShowingInit ? (
-        <section className="home-tool__content" aria-labelledby="live-tool-title">
-          <div className="home-tool__heading">
-            <h2 id="live-tool-title">Find the BPM</h2>
-            <p>Measure music playing around you.</p>
-          </div>
-          <button
-            onClick={startListening}
-            disabled={isListening}
-            className="btn-start"
-            data-tooltip-id="home-hint"
-            data-tooltip-content="Click and wait for some time for BPM stabilizes"
+          <section
+            className="home-tool__content home-tool__content--initial"
+            aria-labelledby="live-tool-title"
           >
-            <svg viewBox="0 0 32 32" aria-hidden="true">
-              <path d="M7 18v-4M13 23V9M19 20v-8M25 25V7" />
-            </svg>
-            <span>Start listening</span>
-          </button>
-
-          <div className="home-tool__privacy">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M12 3 5 6v5c0 4.6 2.9 8.3 7 10 4.1-1.7 7-5.4 7-10V6l-7-3Z" />
-              <path d="m9 12 2 2 4-5" />
-            </svg>
-            <p>
-              <strong>No audio is sent to any server.</strong>
-              {' '}
-              <span>Analysis stays on this device.</span>
-            </p>
-          </div>
-          <p className="home-tool__permission">
-            Microphone permission is requested when you start.
-          </p>
-
-          <AffiliateCard
-            campaignId="studio-headphones"
-            placement="home_initial"
-          />
-        </section>
-      ) : (
-        <section className="home-tool__content home-tool--result" aria-live="polite">
-          <p className="home-tool__status">
-            <span aria-hidden="true"></span>
-            {isResultReady ? 'Tempo locked' : 'Analyzing the beat'}
-          </p>
-          <h2
-            className="bpm-display"
-            style={{ '--bpm-confidence': threshold + 0.4 }}
-          >
-            {isResultReady ? primaryBPM : null}
-          </h2>
-          <p className="bpm-display__unit">
-            {isResultReady ? 'BPM' : 'Listening. Wait...'}
-          </p>
-
-          {!isResultReady && interimBPM ? (
-            <p className="bpm-display__interim">
-              {interimBPM}
-            </p>
-          ) : null}
-
-          {!isResultReady && primaryBPM ? (
-            <p className="bpm-display__previous">
-              <span>Last: </span>
-              {primaryBPM}
-              <span> BPM</span>
-            </p>
-          ) : null}
-
-          <button onClick={stopListening} className="btn-stop">
-            Start over
-          </button>
-
-          {primaryBPM ? (
-            <Feedback
-              bpm={primaryBPM}
-              log={log}
-              type="mic"
-            ></Feedback>
-          ) : null}
-
-          {isResultReady ? (
-            <AffiliateCard
-              campaignId="dj-controllers"
-              placement="home_result"
-            />
-          ) : null}
-
-          <div className="sample-audio">
-            <button
-              className="sample-audio__toggle"
-              type="button"
-              aria-expanded={isSampleVisible}
-              onClick={toggleSampleVisibility}
-            >
-              {isSampleVisible ? 'Hide sample file' : 'Try a 120 BPM sample'}
-            </button>
-            {isSampleVisible ? (
-              <>
-              <audio
-                src="/samples/bpmtechno-120.mp3"
-                id="sample"
-                controls
-              ></audio>
+            <div className="home-tool__heading">
+              <h2 id="live-tool-title">Find the BPM</h2>
               <p>
-                Play it loud! It takes 5-30 seconds to detect correct BPM (120).{' '}
+                Point your device toward the speakers and let the beat settle.
               </p>
-              </>
+            </div>
+
+            <div className="home-tool__action">
+              <button
+                onClick={startListening}
+                disabled={isListening}
+                className="btn-start"
+                data-tooltip-id="home-hint"
+                data-tooltip-content="Start listening, then allow a few seconds for the tempo to stabilize."
+              >
+                <svg viewBox="0 0 32 32" aria-hidden="true">
+                  <path d="M7 18v-4M13 23V9M19 20v-8M25 25V7" />
+                </svg>
+                <span>Start listening</span>
+              </button>
+              <p className="home-tool__permission">
+                Microphone permission is requested when you start.
+              </p>
+            </div>
+
+            <div className="home-tool__privacy">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 3 5 6v5c0 4.6 2.9 8.3 7 10 4.1-1.7 7-5.4 7-10V6l-7-3Z" />
+                <path d="m9 12 2 2 4-5" />
+              </svg>
+              <p>
+                <strong>No audio is sent to any server.</strong>{' '}
+                <span>Analysis stays on this device.</span>
+              </p>
+            </div>
+          </section>
+        ) : (
+          <section
+            className="home-tool__content home-tool--result"
+            aria-live="polite"
+          >
+            <p className="home-tool__status">
+              <span aria-hidden="true"></span>
+              {isResultReady ? 'Tempo locked' : 'Analyzing the beat'}
+            </p>
+            <h2
+              className="bpm-display"
+              style={{ '--bpm-confidence': threshold + 0.4 }}
+            >
+              {isResultReady ? primaryBPM : null}
+            </h2>
+            <p className="bpm-display__unit">
+              {isResultReady ? 'BPM' : 'Listening. Wait...'}
+            </p>
+
+            {!isResultReady && interimBPM ? (
+              <p className="bpm-display__interim">{interimBPM}</p>
             ) : null}
-          </div>
-        </section>
+
+            {!isResultReady && primaryBPM ? (
+              <p className="bpm-display__previous">
+                <span>Last: </span>
+                {primaryBPM}
+                <span> BPM</span>
+              </p>
+            ) : null}
+
+            <button onClick={stopListening} className="btn-stop">
+              Start over
+            </button>
+
+            {primaryBPM ? (
+              <Feedback
+                bpm={primaryBPM}
+                log={log}
+                type="mic"
+              ></Feedback>
+            ) : null}
+
+            <div className="sample-audio">
+              <button
+                className="sample-audio__toggle"
+                type="button"
+                aria-expanded={isSampleVisible}
+                onClick={toggleSampleVisibility}
+              >
+                {isSampleVisible ? 'Hide sample file' : 'Try a 120 BPM sample'}
+              </button>
+              {isSampleVisible ? (
+                <>
+                  <audio
+                    src="/samples/bpmtechno-120.mp3"
+                    id="sample"
+                    controls
+                  ></audio>
+                  <p>
+                    Play the sample through a speaker. Detection usually
+                    stabilizes within 5–30 seconds at 120 BPM.
+                  </p>
+                </>
+              ) : null}
+            </div>
+          </section>
         )}
 
         <div
@@ -429,6 +426,18 @@ function Home(props) {
           <div id="AudioMotionAnalyzer"></div>
         </div>
       </div>
+
+      {isShowingInit ? (
+        <AffiliateCard
+          campaignId="studio-headphones"
+          placement="home_initial"
+        />
+      ) : isResultReady ? (
+        <AffiliateCard
+          campaignId="dj-controllers"
+          placement="home_result"
+        />
+      ) : null}
 
       {!isMobile ? (
         <Tooltip id="home-hint" place="top" className="custom-hint" />

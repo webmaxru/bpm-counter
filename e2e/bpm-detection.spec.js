@@ -104,6 +104,9 @@ test.describe('BPM detection via fake audio capture', () => {
           )
           .toBeLessThanOrEqual(TOLERANCE);
 
+        await expect(page.locator('.home-tool .affiliate-card')).toHaveCount(0);
+        await expect(page.locator('.affiliate-card')).toBeVisible();
+
         if (expectedBpm === 130) {
           await page
             .getByRole('link', { name: 'Tap tempo', exact: true })

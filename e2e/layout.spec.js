@@ -83,12 +83,43 @@ test.describe('Page layout', () => {
     expect(dimensions.documentWidth).toBeLessThanOrEqual(
       dimensions.viewportWidth
     );
+
+    const toolBox = await page.locator('.home-tool').boundingBox();
+    const affiliateCardBox = await page.locator('.affiliate-card').boundingBox();
+    expect(affiliateCardBox.width).toBeCloseTo(toolBox.width, -1);
+  });
+
+  test('intermediate and wide desktop grids switch without alignment drift', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.reload();
+
+    const intermediateNavBox = await page.locator('.site-nav').boundingBox();
+    const intermediateContentBox = await page
+      .locator('.home-content')
+      .boundingBox();
+
+    expect(intermediateNavBox.x).toBeCloseTo(intermediateContentBox.x, 0);
+    expect(intermediateNavBox.width).toBeCloseTo(
+      intermediateContentBox.width,
+      0
+    );
+
+    await page.setViewportSize({ width: 1366, height: 768 });
+    await page.reload();
+
+    const wideNavBox = await page.locator('.site-nav').boundingBox();
+    const wideContentBox = await page.locator('.home-content').boundingBox();
+
+    expect(wideNavBox.x + wideNavBox.width).toBeLessThan(wideContentBox.x);
+    await expect(page.locator('.related-nav')).toBeVisible();
   });
 
   test('active desktop navigation stays readable on hover and focus', async ({
     page,
   }) => {
-    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.setViewportSize({ width: 1440, height: 900 });
     await page.reload();
 
     const activeLink = page.getByRole('link', {
@@ -101,6 +132,39 @@ test.describe('Page layout', () => {
 
     await activeLink.focus();
     await expect(activeLink).toHaveCSS('color', 'rgb(255, 179, 107)');
+  });
+
+  test('desktop detector follows a task-first grid without collisions', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.reload();
+
+    const tool = page.locator('.home-tool');
+    const heading = page.locator('.home-tool__heading');
+    const startButton = page.getByRole('button', {
+      name: /Start listening/i,
+    });
+    const privacy = page.locator('.home-tool__privacy');
+    const affiliateCard = page.locator('.affiliate-card');
+
+    await expect(tool.locator('.affiliate-card')).toHaveCount(0);
+
+    const toolBox = await tool.boundingBox();
+    const headingBox = await heading.boundingBox();
+    const startButtonBox = await startButton.boundingBox();
+    const privacyBox = await privacy.boundingBox();
+    const affiliateCardBox = await affiliateCard.boundingBox();
+
+    expect(headingBox.x).toBeLessThan(startButtonBox.x);
+    expect(privacyBox.y).toBeGreaterThan(
+      Math.max(
+        headingBox.y + headingBox.height,
+        startButtonBox.y + startButtonBox.height
+      )
+    );
+    expect(affiliateCardBox.y).toBeGreaterThan(toolBox.y + toolBox.height);
+    expect(affiliateCardBox.width).toBeCloseTo(toolBox.width, -1);
   });
 
   test('mobile first viewport keeps the CTA and affiliate offer visible', async ({
@@ -137,6 +201,26 @@ test.describe('Page layout', () => {
     expect(affiliateCardBox.y).toBeLessThan(dimensions.viewportHeight);
     expect(affiliateLinkBox.y + affiliateLinkBox.height).toBeLessThan(
       dimensions.viewportHeight
+    );
+  });
+
+  test('compact mobile layout remains usable at 320 pixels', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 320, height: 720 });
+    await page.reload();
+
+    const dimensions = await page.evaluate(() => ({
+      viewportWidth: window.innerWidth,
+      documentWidth: document.documentElement.scrollWidth,
+    }));
+
+    await expect(
+      page.getByRole('button', { name: /Start listening/i })
+    ).toBeVisible();
+    await expect(page.locator('.home-tool__privacy')).toBeVisible();
+    expect(dimensions.documentWidth).toBeLessThanOrEqual(
+      dimensions.viewportWidth
     );
   });
 });

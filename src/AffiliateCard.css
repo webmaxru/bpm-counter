@@ -1,6 +1,6 @@
 .affiliate-card {
   position: relative;
-  width: min(100%, 38rem);
+  width: 100%;
   margin: 2.5rem auto 0;
   padding: 1.5rem;
   border: 1px solid var(--color-line);
@@ -12,7 +12,7 @@
 .affiliate-card__label {
   margin: 0 0 0.55rem;
   color: var(--color-signal);
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -30,6 +30,7 @@
 .affiliate-card__description {
   margin: 0.65rem 0 1.1rem;
   color: var(--color-text-muted);
+  font-size: 1rem;
   line-height: 1.6;
 }
 
@@ -54,12 +55,54 @@
 .affiliate-card__disclosure {
   margin: 1rem 0 0;
   color: var(--color-text-faint);
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   line-height: 1.5;
 }
 
 .affiliate-card__disclosure a {
   color: inherit;
+}
+
+@container home-content (min-width: 46rem) {
+  .affiliate-card {
+    display: grid;
+    width: 100%;
+    margin-top: 1.5rem;
+    padding: 1.5rem 1.75rem;
+    grid-template-areas:
+      'label action'
+      'title action'
+      'description action'
+      'disclosure disclosure';
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: 3rem;
+  }
+
+  .affiliate-card__label {
+    grid-area: label;
+  }
+
+  .affiliate-card .affiliate-card__title {
+    grid-area: title;
+  }
+
+  .affiliate-card__description {
+    max-width: 58ch;
+    grid-area: description;
+    margin-bottom: 0;
+  }
+
+  .affiliate-card__link {
+    min-width: 14rem;
+    grid-area: action;
+    justify-content: center;
+  }
+
+  .affiliate-card__disclosure {
+    grid-area: disclosure;
+    margin-top: 1rem;
+  }
 }
 
 @media (max-width: 47.99rem) {

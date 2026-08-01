@@ -184,12 +184,21 @@
   }
 }
 
-@media (min-width: 72rem) {
+@media (min-width: 48rem) and (max-width: 83.99rem) {
+  .site-nav {
+    width: min(100%, 64rem);
+    margin: 0 auto 1.75rem;
+    padding-right: 0;
+    padding-left: 0;
+  }
+}
+
+@media (min-width: 84rem) {
   .body {
     display: grid;
-    grid-template-columns: 11rem minmax(0, 1fr) 13rem;
+    grid-template-columns: 10rem minmax(0, 1fr) 12rem;
     align-items: start;
-    gap: 3rem;
+    gap: 2.5rem;
   }
 
   .site-nav {
