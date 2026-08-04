@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Saira:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 1024px;
+        height: 500px;
+        margin: 0;
+        overflow: hidden;
+      }
+
+      body {
+        background: #071c2b;
+        color: #f7f3ed;
+        font-family: 'Saira', sans-serif;
+      }
+
+      .canvas {
+        position: relative;
+        width: 1024px;
+        height: 500px;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 80% 42%, rgba(105, 222, 213, 0.12), transparent 250px),
+          #071c2b;
+      }
+
+      .brand {
+        position: absolute;
+        top: 54px;
+        left: 64px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .brand-mark {
+        display: grid;
+        width: 48px;
+        height: 48px;
+        place-items: center;
+        border-radius: 50%;
+        background: #ffb36b;
+        color: #071c2b;
+      }
+
+      .brand-name {
+        font-size: 23px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+
+      .copy {
+        position: absolute;
+        top: 150px;
+        left: 64px;
+        width: 520px;
+      }
+
+      h1 {
+        max-width: 500px;
+        margin: 0;
+        font-size: 70px;
+        font-weight: 700;
+        letter-spacing: -0.045em;
+        line-height: 0.98;
+      }
+
+      .description {
+        max-width: 510px;
+        margin: 24px 0 0;
+        color: #b9cfd8;
+        font-size: 24px;
+        font-weight: 500;
+        line-height: 1.35;
+      }
+
+      .signal-field {
+        position: absolute;
+        right: 38px;
+        bottom: 38px;
+        width: 390px;
+        height: 390px;
+      }
+
+      .orbit {
+        position: absolute;
+        border: 1px solid rgba(105, 222, 213, 0.28);
+        border-radius: 50%;
+      }
+
+      .orbit-one {
+        inset: 10px;
+      }
+
+      .orbit-two {
+        inset: 54px;
+        border-color: rgba(255, 179, 107, 0.24);
+      }
+
+      .tempo {
+        position: absolute;
+        top: 112px;
+        left: 100px;
+        width: 190px;
+        text-align: center;
+      }
+
+      .tempo-value {
+        color: #ffb36b;
+        font-size: 98px;
+        font-weight: 700;
+        letter-spacing: -0.055em;
+        line-height: 0.9;
+      }
+
+      .tempo-unit {
+        margin-top: 12px;
+        color: #69ded5;
+        font-size: 18px;
+        font-weight: 700;
+        letter-spacing: 0.22em;
+      }
+
+      .bars {
+        position: absolute;
+        right: 44px;
+        bottom: 40px;
+        left: 44px;
+        display: flex;
+        height: 74px;
+        align-items: end;
+        justify-content: space-between;
+      }
+
+      .bar {
+        width: 9px;
+        border-radius: 6px;
+        background: #69ded5;
+        opacity: 0.9;
+      }
+
+      .bar:nth-child(1) { height: 20px; }
+      .bar:nth-child(2) { height: 34px; }
+      .bar:nth-child(3) { height: 54px; }
+      .bar:nth-child(4) { height: 30px; }
+      .bar:nth-child(5) { height: 68px; background: #ffb36b; }
+      .bar:nth-child(6) { height: 42px; }
+      .bar:nth-child(7) { height: 60px; }
+      .bar:nth-child(8) { height: 28px; }
+      .bar:nth-child(9) { height: 46px; }
+      .bar:nth-child(10) { height: 22px; }
+
+      .pulse {
+        position: absolute;
+        top: 52px;
+        right: 0;
+        width: 96px;
+        height: 30px;
+        color: #ff8b5c;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="canvas">
+      <div class="brand">
+        <span class="brand-mark">
+          <svg width="27" height="27" viewBox="0 0 32 32" aria-hidden="true">
+            <path
+              d="M5 14v4M10 9v14M16 5v22M22 10v12M27 13v6"
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-width="2.6"
+            />
+          </svg>
+        </span>
+        <span class="brand-name">BPM Techno</span>
+      </div>
+
+      <section class="copy">
+        <h1>Find the beat.</h1>
+        <p class="description">
+          Live BPM counter, tap tempo, and timing tools built for DJs.
+        </p>
+      </section>
+
+      <div class="signal-field" aria-hidden="true">
+        <div class="orbit orbit-one"></div>
+        <div class="orbit orbit-two"></div>
+        <svg class="pulse" viewBox="0 0 96 30">
+          <path
+            d="M1 16h18l7-12 10 24 10-17 7 5h42"
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="3"
+          />
+        </svg>
+        <div class="tempo">
+          <div class="tempo-value">128</div>
+          <div class="tempo-unit">BPM</div>
+        </div>
+        <div class="bars">
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

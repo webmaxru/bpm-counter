@@ -1,0 +1,79 @@
+MICROSOFT STORE LISTING - ENGLISH (UNITED STATES)
+
+SHORT DESCRIPTION
+
+Measure live music tempo, tap a beat, analyze an audio URL, and convert BPM to milliseconds with private, offline-ready tools for DJs.
+
+
+DESCRIPTION
+
+Find a track's tempo without interrupting your workflow. BPM Techno is a free set of focused BPM tools for DJs, producers, musicians, and anyone working with rhythm.
+
+Use the real-time counter when music is already playing through speakers. Allow microphone access, point your device toward a clear section of the track, and let the detector estimate its beats per minute. The microphone stream is analyzed on your device: BPM Techno does not upload or store your live audio.
+
+Choose the tool that fits the moment:
+
+- Detect BPM from music playing nearby.
+- Tap along manually when you can hear the pulse clearly.
+- Analyze a direct, browser-accessible MP3 or WAV URL.
+- Convert BPM into whole, half, quarter, eighth, sixteenth, dotted, and triplet note durations.
+- Compare half-time and double-time values when a result does not match the way you count the track.
+
+BPM Techno is useful for preparing DJ sets, checking untagged tracks, practicing transitions, setting tempo-synced delays, and resolving common half-time or double-time readings. Practical guides explain how BPM detection works, how to improve accuracy, and how to apply tempo information while beatmatching.
+
+The core counter and calculators are designed to remain useful offline after the app has loaded. An internet connection is still required for remote audio URLs and external resources.
+
+Automatic BPM detection works best with a steady section containing clear rhythmic transients. Treat the result as a strong starting point, confirm it by ear, and check the related half-time or double-time value when needed.
+
+Free to use. No account or subscription required.
+
+
+WHAT'S NEW IN THIS VERSION
+
+- Completely redesigned interface with clearer navigation and a focused desktop layout.
+- Added a dedicated tap-tempo counter for manual BPM measurement.
+- Added BPM-to-milliseconds calculations for straight, dotted, and triplet note values.
+- Improved direct audio URL analysis for browser-accessible MP3 and WAV files.
+- Added half-time and double-time tools for interpreting ambiguous BPM results.
+- Strengthened privacy messaging: live microphone audio is processed locally and is not uploaded.
+- Improved offline support, responsive behavior, accessibility, and practical DJ guidance.
+
+
+PRODUCT FEATURES
+
+Real-time BPM detection for music playing through speakers
+
+Private on-device microphone analysis with no live audio uploads
+
+Tap-tempo counter with a rolling average for steadier results
+
+Direct BPM analysis from browser-accessible MP3 and WAV URLs
+
+BPM-to-milliseconds calculator for tempo-synced effects
+
+Whole, half, quarter, eighth, sixteenth, dotted, and triplet timing values
+
+Half-time and double-time BPM comparison
+
+Offline-ready core counter and calculators
+
+Practical beatmatching and BPM detection guides
+
+Free to use with no account or subscription
+
+Responsive interface for desktop, laptop, tablet, and touch input
+
+
+SCREENSHOT CAPTIONS
+
+01-listen-idle.png
+Detect the BPM of music playing nearby while audio stays on your device.
+
+02-audio-url-analyzer.png
+Estimate tempo from a direct, browser-accessible MP3 or WAV URL.
+
+03-tap-tempo.png
+Tap along with the beat to calculate BPM from your timing.
+
+04-bpm-to-ms.png
+Convert BPM into precise note durations for delays, sequencing, and effects.

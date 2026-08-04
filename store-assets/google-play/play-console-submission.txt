@@ -1,0 +1,86 @@
+GOOGLE PLAY CONSOLE SUBMISSION HANDOFF
+
+PACKAGE
+
+Package ID: no.bpmtech.twa
+Version name: 3.0.0
+Version code: 3
+App category: Music & Audio
+Suggested tags: DJ, Music, Audio, Tools
+
+
+STORE CONTACTS
+
+Website: https://bpmtech.no
+Privacy policy: https://bpmtech.no/privacy
+Support email: REQUIRED - enter the developer support email already associated with the Play account
+
+
+APP CONTENT
+
+Contains ads: Yes
+App access: All functionality is available without an account or special access
+Target audience: 13 and older
+Designed for children: No
+News app: No
+Government app: No
+Financial features: None
+Health features: None
+In-app purchases: None
+Subscriptions: None
+
+
+DATA SAFETY DRAFT
+
+Live microphone audio:
+- Processed on the device
+- Not collected
+- Not shared
+
+Remote audio URLs:
+- Requested directly by the user's browser from the selected host
+- Audio is decoded in browser memory
+- Audio is not stored by BPM Techno
+
+Analytics and diagnostics:
+- App activity may be collected for analytics
+- Diagnostics and performance data may be collected
+- Device or other identifiers may be collected by Google Analytics and Microsoft Application Insights
+- Approximate location may be derived from network information by analytics providers
+- Data is encrypted in transit
+- Data is used for analytics, app functionality, fraud prevention, security, and diagnostics
+
+Optional result feedback:
+- Detected BPM, analysis mode, and the user's accuracy rating may be collected
+- Audio is not included
+
+Account creation:
+- The app does not create user accounts
+- An account-deletion URL is not applicable
+
+Review the final Data Safety answers against the production Google Analytics,
+Application Insights, consent, and advertising configuration before submission.
+
+
+MONETIZATION AND POLICY NOTES
+
+- Declare that the app contains ads because it includes clearly labeled affiliate recommendations and may display Google ads after approval.
+- Amazon links are for physical products and open external merchant pages.
+- No Google Play Billing integration is required for those physical-product links.
+- Keep advertising visually distinct from navigation and application controls.
+
+
+DEVICE-FAMILY ASSETS INCLUDED
+
+- Phone screenshots: 5
+- 7-inch tablet screenshots: 5
+- 10-inch tablet screenshots: 5
+- Chromebook screenshots: 5
+- App icon: 512 x 512 PNG
+- Feature graphic: 1024 x 500 opaque PNG
+
+Not included because the app does not target these form factors:
+- Wear OS
+- Android TV
+- Android Automotive OS
+- Android XR

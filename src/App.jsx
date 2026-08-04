@@ -27,6 +27,7 @@ import TelemetryProvider from './telemetry-provider';
 import { TelemetryContext } from './TelemetryContext';
 import { AppInsightsErrorBoundary } from '@microsoft/applicationinsights-react-js';
 import Seo from './Seo';
+import { isNativeApp, openExternalUrl } from './nativePlatform';
 
 function App() {
   const query = new URLSearchParams(window.location.search);
@@ -43,7 +44,7 @@ function App() {
   useEffect(() => {
     let mounted = true;
 
-    if ('serviceWorker' in navigator) {
+    if (!isNativeApp() && 'serviceWorker' in navigator) {
       const wb = new Workbox('/sw.js');
 
       const refreshPage = () => {
@@ -109,6 +110,50 @@ function App() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!isNativeApp()) {
+      return undefined;
+    }
+
+    document.documentElement.classList.add('native-app');
+
+    const handleExternalLink = (event) => {
+      if (
+        event.defaultPrevented ||
+        event.button !== 0 ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.shiftKey ||
+        event.altKey
+      ) {
+        return;
+      }
+
+      const anchor = event.target.closest?.('a[href]');
+      if (!anchor) {
+        return;
+      }
+
+      const targetUrl = new URL(anchor.href, window.location.href);
+      if (!['http:', 'https:'].includes(targetUrl.protocol)) {
+        return;
+      }
+
+      event.preventDefault();
+      openExternalUrl(targetUrl.href).catch((error) => {
+        console.error('Unable to open the external link.', error);
+        window.location.href = targetUrl.href;
+      });
+    };
+
+    document.addEventListener('click', handleExternalLink);
+
+    return () => {
+      document.documentElement.classList.remove('native-app');
+      document.removeEventListener('click', handleExternalLink);
+    };
+  }, []);
+
   return (
     <Router>
       <TelemetryProvider
@@ -144,7 +189,7 @@ function App() {
                 Listen
               </NavLink>
               <NavLink className={navLinkClassName} to="/upload">
-                Audio URL
+                Audio file
               </NavLink>
               <NavLink className={navLinkClassName} to="/tools/tap-tempo">
                 Tap tempo

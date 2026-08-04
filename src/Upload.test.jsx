@@ -78,6 +78,25 @@ describe('Upload', () => {
     ).toBeInTheDocument();
   });
 
+  it('analyzes a local audio file selected from the device', async () => {
+    renderWithRouter(<Upload {...defaultProps} />);
+    const file = new File(['audio'], 'track.mp3', { type: 'audio/mpeg' });
+    file.arrayBuffer = vi.fn().mockResolvedValue(new ArrayBuffer(1024));
+
+    fireEvent.change(screen.getByLabelText(/Choose an audio file/i), {
+      target: { files: [file] },
+    });
+    fireEvent.click(
+      screen.getByRole('button', { name: /Analyze selected file/i })
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getByText('120', { selector: '.tool-panel__result' })
+      ).toBeInTheDocument();
+    });
+  });
+
   it('shows link back to real-time detection', () => {
     renderWithRouter(<Upload {...defaultProps} />);
     expect(

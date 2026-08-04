@@ -1,0 +1,568 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Saira:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+      }
+
+      body {
+        background: #071c2b;
+        color: #f7f3ed;
+        font-family: 'Saira', sans-serif;
+      }
+
+      .scene {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 72% 42%, rgba(105, 222, 213, 0.13), transparent 38%),
+          radial-gradient(circle at 12% 92%, rgba(255, 139, 92, 0.1), transparent 32%),
+          #071c2b;
+      }
+
+      .brand,
+      .message,
+      .tempo,
+      .pulse,
+      .bars,
+      .orbit,
+      .corner-signal {
+        position: absolute;
+      }
+
+      .brand {
+        z-index: 3;
+        display: flex;
+        align-items: center;
+        gap: 1.3vmin;
+      }
+
+      .mark {
+        display: grid;
+        flex: 0 0 auto;
+        place-items: center;
+        border-radius: 50%;
+        background: #ffb36b;
+        color: #071c2b;
+      }
+
+      .mark svg {
+        width: 58%;
+        height: 58%;
+      }
+
+      .brand-name {
+        font-weight: 700;
+        letter-spacing: -0.025em;
+        line-height: 1;
+      }
+
+      .message {
+        z-index: 3;
+      }
+
+      .headline {
+        margin: 0;
+        font-weight: 700;
+        letter-spacing: -0.05em;
+        line-height: 0.98;
+      }
+
+      .description {
+        margin: 0;
+        color: #b9cfd8;
+        font-weight: 500;
+        line-height: 1.35;
+      }
+
+      .tempo {
+        z-index: 3;
+        text-align: center;
+      }
+
+      .tempo-value {
+        color: #ffb36b;
+        font-weight: 700;
+        letter-spacing: -0.06em;
+        line-height: 0.86;
+      }
+
+      .tempo-unit {
+        color: #69ded5;
+        font-weight: 700;
+        letter-spacing: 0.24em;
+      }
+
+      .orbit {
+        z-index: 1;
+        border: 1px solid rgba(105, 222, 213, 0.3);
+        border-radius: 50%;
+      }
+
+      .orbit::after {
+        position: absolute;
+        inset: 13%;
+        border: 1px solid rgba(255, 179, 107, 0.26);
+        border-radius: 50%;
+        content: '';
+      }
+
+      .bars {
+        z-index: 2;
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+      }
+
+      .bar {
+        width: 5.4%;
+        border-radius: 999px;
+        background: #69ded5;
+      }
+
+      .bar:nth-child(1) { height: 26%; }
+      .bar:nth-child(2) { height: 46%; }
+      .bar:nth-child(3) { height: 72%; }
+      .bar:nth-child(4) { height: 42%; }
+      .bar:nth-child(5) { height: 92%; background: #ffb36b; }
+      .bar:nth-child(6) { height: 58%; }
+      .bar:nth-child(7) { height: 80%; }
+      .bar:nth-child(8) { height: 38%; }
+      .bar:nth-child(9) { height: 64%; }
+      .bar:nth-child(10) { height: 30%; }
+
+      .pulse {
+        z-index: 3;
+        color: #ff8b5c;
+      }
+
+      .corner-signal {
+        z-index: 1;
+        border: 1px solid rgba(105, 222, 213, 0.2);
+        border-radius: 50%;
+      }
+
+      body[data-variant='poster'] .brand,
+      body[data-variant='branded-key'] .brand {
+        top: 7.5%;
+        left: 8%;
+      }
+
+      body[data-variant='poster'] .mark,
+      body[data-variant='branded-key'] .mark {
+        width: 10vmin;
+        height: 10vmin;
+      }
+
+      body[data-variant='poster'] .brand-name,
+      body[data-variant='branded-key'] .brand-name {
+        font-size: 5.8vmin;
+      }
+
+      body[data-variant='poster'] .message,
+      body[data-variant='branded-key'] .message {
+        top: 20%;
+        left: 8%;
+        width: 84%;
+      }
+
+      body[data-variant='poster'] .headline,
+      body[data-variant='branded-key'] .headline {
+        font-size: 10vmin;
+      }
+
+      body[data-variant='poster'] .description,
+      body[data-variant='branded-key'] .description {
+        max-width: 82%;
+        margin-top: 2.8vmin;
+        font-size: 3.7vmin;
+      }
+
+      body[data-variant='poster'] .orbit,
+      body[data-variant='branded-key'] .orbit {
+        right: -14%;
+        bottom: -3%;
+        width: 82vmin;
+        height: 82vmin;
+      }
+
+      body[data-variant='poster'] .tempo,
+      body[data-variant='branded-key'] .tempo {
+        right: 6%;
+        bottom: 23%;
+        width: 52%;
+      }
+
+      body[data-variant='poster'] .tempo-value,
+      body[data-variant='branded-key'] .tempo-value {
+        font-size: 19vmin;
+      }
+
+      body[data-variant='poster'] .tempo-unit,
+      body[data-variant='branded-key'] .tempo-unit {
+        margin-top: 2vmin;
+        font-size: 3.2vmin;
+      }
+
+      body[data-variant='poster'] .bars,
+      body[data-variant='branded-key'] .bars {
+        right: 7%;
+        bottom: 7%;
+        width: 58%;
+        height: 11%;
+      }
+
+      body[data-variant='poster'] .pulse,
+      body[data-variant='branded-key'] .pulse {
+        right: 7%;
+        bottom: 47%;
+        width: 24%;
+      }
+
+      body[data-variant='box'] .brand {
+        top: 8%;
+        left: 8%;
+      }
+
+      body[data-variant='box'] .mark {
+        width: 12vmin;
+        height: 12vmin;
+      }
+
+      body[data-variant='box'] .brand-name {
+        font-size: 6.5vmin;
+      }
+
+      body[data-variant='box'] .message {
+        top: 26%;
+        left: 8%;
+        width: 84%;
+      }
+
+      body[data-variant='box'] .headline {
+        font-size: 10vmin;
+      }
+
+      body[data-variant='box'] .description {
+        max-width: 72%;
+        margin-top: 2.6vmin;
+        font-size: 3.3vmin;
+      }
+
+      body[data-variant='box'] .orbit {
+        right: -13%;
+        bottom: -16%;
+        width: 72vmin;
+        height: 72vmin;
+      }
+
+      body[data-variant='box'] .tempo {
+        right: 5%;
+        bottom: 17%;
+        width: 50%;
+      }
+
+      body[data-variant='box'] .tempo-value {
+        font-size: 17vmin;
+      }
+
+      body[data-variant='box'] .tempo-unit {
+        margin-top: 1.8vmin;
+        font-size: 2.8vmin;
+      }
+
+      body[data-variant='box'] .bars {
+        right: 5%;
+        bottom: 5%;
+        width: 55%;
+        height: 11%;
+      }
+
+      body[data-variant='box'] .pulse {
+        right: 6%;
+        bottom: 46%;
+        width: 18%;
+      }
+
+      body[data-variant='icon'] .message,
+      body[data-variant='icon'] .tempo,
+      body[data-variant='icon'] .pulse,
+      body[data-variant='icon'] .bars {
+        display: none;
+      }
+
+      body[data-variant='icon'] .brand {
+        position: absolute;
+        z-index: 3;
+        inset: 0;
+        display: block;
+      }
+
+      body[data-variant='icon'] .brand-name {
+        display: none;
+      }
+
+      body[data-variant='icon'] .brand .mark {
+        position: absolute;
+        top: 17%;
+        left: 17%;
+        width: 66%;
+        height: 66%;
+        box-shadow: 0 4vmin 10vmin rgba(0, 0, 0, 0.25);
+      }
+
+      body[data-variant='icon'] .orbit {
+        inset: -12%;
+        width: 124%;
+        height: 124%;
+      }
+
+      body[data-variant='icon'] .corner-signal {
+        right: -22%;
+        bottom: -22%;
+        width: 64%;
+        height: 64%;
+        border-color: rgba(255, 139, 92, 0.24);
+      }
+
+      body[data-variant='superhero'] .brand,
+      body[data-variant='superhero'] .message {
+        display: none;
+      }
+
+      body[data-variant='superhero'] .orbit {
+        top: -26%;
+        right: 4%;
+        width: 86vmin;
+        height: 86vmin;
+      }
+
+      body[data-variant='superhero'] .tempo {
+        top: 28%;
+        right: 12%;
+        width: 36%;
+      }
+
+      body[data-variant='superhero'] .tempo-value {
+        font-size: 16vmin;
+      }
+
+      body[data-variant='superhero'] .tempo-unit {
+        margin-top: 1.6vmin;
+        font-size: 2.6vmin;
+      }
+
+      body[data-variant='superhero'] .bars {
+        top: 18%;
+        bottom: 18%;
+        left: 5%;
+        width: 42%;
+      }
+
+      body[data-variant='superhero'] .bar {
+        width: 5.5%;
+      }
+
+      body[data-variant='superhero'] .pulse {
+        top: 12%;
+        right: 6%;
+        width: 14%;
+      }
+
+      body[data-variant='titled-hero'] .brand {
+        top: 11%;
+        left: 6%;
+      }
+
+      body[data-variant='titled-hero'] .mark {
+        width: 8vmin;
+        height: 8vmin;
+      }
+
+      body[data-variant='titled-hero'] .brand-name {
+        font-size: 5vmin;
+      }
+
+      body[data-variant='titled-hero'] .message {
+        top: 33%;
+        left: 6%;
+        width: 48%;
+      }
+
+      body[data-variant='titled-hero'] .headline {
+        font-size: 7vmin;
+      }
+
+      body[data-variant='titled-hero'] .description {
+        max-width: 88%;
+        margin-top: 2vmin;
+        font-size: 2.6vmin;
+      }
+
+      body[data-variant='titled-hero'] .orbit {
+        top: -18%;
+        right: 2%;
+        width: 82vmin;
+        height: 82vmin;
+      }
+
+      body[data-variant='titled-hero'] .tempo {
+        top: 29%;
+        right: 10%;
+        width: 32%;
+      }
+
+      body[data-variant='titled-hero'] .tempo-value {
+        font-size: 15vmin;
+      }
+
+      body[data-variant='titled-hero'] .tempo-unit {
+        margin-top: 1.6vmin;
+        font-size: 2.5vmin;
+      }
+
+      body[data-variant='titled-hero'] .bars {
+        right: 5%;
+        bottom: 7%;
+        width: 38%;
+        height: 14%;
+      }
+
+      body[data-variant='titled-hero'] .pulse {
+        top: 12%;
+        right: 5%;
+        width: 13%;
+      }
+
+      body[data-variant='promo-square'] .brand,
+      body[data-variant='promo-square'] .message {
+        display: none;
+      }
+
+      body[data-variant='promo-square'] .mark {
+        position: absolute;
+        z-index: 3;
+        top: 8%;
+        left: 8%;
+        width: 14%;
+        height: 14%;
+      }
+
+      body[data-variant='promo-square'] .orbit {
+        top: 8%;
+        right: -10%;
+        width: 80%;
+        height: 80%;
+      }
+
+      body[data-variant='promo-square'] .tempo {
+        top: 31%;
+        right: 9%;
+        width: 56%;
+      }
+
+      body[data-variant='promo-square'] .tempo-value {
+        font-size: 20vmin;
+      }
+
+      body[data-variant='promo-square'] .tempo-unit {
+        margin-top: 2vmin;
+        font-size: 3.5vmin;
+      }
+
+      body[data-variant='promo-square'] .bars {
+        right: 8%;
+        bottom: 9%;
+        width: 62%;
+        height: 14%;
+      }
+
+      body[data-variant='promo-square'] .pulse {
+        top: 17%;
+        right: 6%;
+        width: 22%;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="scene">
+      <div class="brand">
+        <span class="mark">
+          <svg viewBox="0 0 32 32" aria-hidden="true">
+            <path
+              d="M5 14v4M10 9v14M16 5v22M22 10v12M27 13v6"
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-width="2.6"
+            />
+          </svg>
+        </span>
+        <span class="brand-name">BPM Techno</span>
+      </div>
+
+      <section class="message">
+        <h1 class="headline">Find the beat.</h1>
+        <p class="description">
+          Live BPM counter, tap tempo, and timing tools built for DJs.
+        </p>
+      </section>
+
+      <div class="orbit" aria-hidden="true"></div>
+      <div class="corner-signal" aria-hidden="true"></div>
+
+      <div class="tempo">
+        <div class="tempo-value">128</div>
+        <div class="tempo-unit">BPM</div>
+      </div>
+
+      <svg class="pulse" viewBox="0 0 96 30" aria-hidden="true">
+        <path
+          d="M1 16h18l7-12 10 24 10-17 7 5h42"
+          fill="none"
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="3"
+        />
+      </svg>
+
+      <div class="bars" aria-hidden="true">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </div>
+    </main>
+
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      document.body.dataset.variant = params.get('variant') || 'box';
+    </script>
+  </body>
+</html>

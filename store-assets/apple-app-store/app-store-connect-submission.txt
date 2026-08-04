@@ -1,0 +1,80 @@
+APP STORE CONNECT SUBMISSION HANDOFF
+
+PLATFORM
+
+Primary category: Music
+Secondary category: Utilities
+Version: 3.0.0
+Copyright: 2026 Maxim Salnikov
+SKU suggestion: bpm-techno-ios
+Bundle ID: no.bpmtech.app
+
+
+URLS
+
+Support URL: https://bpmtech.no/contact
+Marketing URL: https://bpmtech.no
+Privacy policy URL: https://bpmtech.no/privacy
+
+
+APP REVIEW NOTES
+
+BPM Techno does not require an account or login.
+
+The microphone permission is used only to analyze rhythm locally on the
+device. Live microphone audio is not uploaded or stored.
+
+The Audio URL tool fetches a direct MP3 or WAV URL selected by the user and
+analyzes it in memory. The remote host may receive normal network request
+information.
+
+The iOS app also supports local audio import through the system document
+picker, haptic feedback for tap tempo, the native Share Sheet for BPM results,
+and an audio session configured for measurement. Bundled app assets allow the
+tools and guidance to open without loading a remote website shell.
+
+The app contains clearly labeled Amazon affiliate recommendations that open
+external merchant pages. It does not sell digital content or subscriptions.
+
+
+APP PRIVACY DRAFT
+
+Data not collected:
+- Live microphone audio
+- Remote audio file contents
+- Name, email address, phone number, or account credentials
+
+Data that may be collected:
+- Product interaction and page-view analytics
+- Performance and diagnostic information
+- Device or browser identifiers used by Google Analytics and Microsoft
+  Application Insights
+- Approximate location derived from network information by analytics services
+- Optional BPM result feedback, analysis mode, and accuracy rating
+
+Data linkage:
+- The app has no user account and does not intentionally link analytics to a
+  named identity
+
+Tracking:
+- Review this answer against the production advertising and consent
+  configuration immediately before submission
+- If cross-app advertising identifiers or personalized ads are enabled, update
+  the App Privacy answers and implement App Tracking Transparency where needed
+
+
+ASSET SET
+
+- App Store icon: 1024 x 1024 opaque PNG
+- iPhone 6.9-inch screenshots: 5 at 1320 x 2868
+- iPad 13-inch screenshots: 5 at 2064 x 2752
+
+The screenshots are generated from the current production web experience.
+Recapture them from the final iOS build if native safe areas, navigation,
+permission prompts, or wrapper chrome change the visible interface.
+
+Not generated because those platforms are not currently targeted:
+- Apple Watch
+- Apple TV
+- Apple Vision Pro
+- macOS

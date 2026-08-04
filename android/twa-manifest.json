@@ -1,7 +1,7 @@
 {
   "packageId": "no.bpmtech.twa",
   "host": "bpmtech.no",
-  "name": "BPM Techno - BPM Tools for DJs",
+  "name": "Realtime BPM Counter - BPM Techno",
   "launcherName": "BPM Techno",
   "display": "standalone",
   "displayOverride": [

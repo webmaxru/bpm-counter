@@ -208,6 +208,10 @@
   margin-top: 1.2rem;
 }
 
+.tool-panel__actions .native-share-button {
+  margin-top: 0;
+}
+
 .tool-panel__primary {
   min-width: 10rem;
   padding: 0.8rem 1.2rem;
@@ -223,9 +227,56 @@
 }
 
 .tool-panel__secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 0.8rem 1.2rem;
   border-color: var(--color-line-strong);
   background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.tool-panel__file-picker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+
+.tool-panel__file-picker .tool-panel__secondary {
+  margin: 0;
+}
+
+.tool-panel__file-picker span {
+  max-width: min(100%, 24rem);
+  overflow: hidden;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tool-panel__divider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: var(--space-6) 0 var(--space-4);
+  color: var(--color-text-faint);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.tool-panel__divider::before,
+.tool-panel__divider::after {
+  height: 1px;
+  flex: 1;
+  background: var(--color-line);
+  content: '';
 }
 
 .tool-panel__hint {

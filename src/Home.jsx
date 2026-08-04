@@ -28,6 +28,7 @@ import {
 } from './PublishingPage';
 import { getPublishingPage } from './content/publishingPages';
 import { useContentTelemetry } from './useContentTelemetry';
+import NativeShareButton from './NativeShareButton';
 
 const homePublishingPage = getPublishingPage('home');
 
@@ -380,6 +381,10 @@ function Home(props) {
             <button onClick={stopListening} className="btn-stop">
               Start over
             </button>
+
+            {isResultReady && primaryBPM ? (
+              <NativeShareButton bpm={primaryBPM} mode="live microphone" />
+            ) : null}
 
             {primaryBPM ? (
               <Feedback

@@ -17,12 +17,14 @@ import {
 import { getPublishingPage } from './content/publishingPages';
 import { useContentTelemetry } from './useContentTelemetry';
 import { APP_INSIGHTS_BYPASS_FETCH } from './telemetryPrivacy';
+import NativeShareButton from './NativeShareButton';
 
 const uploadPublishingPage = getPublishingPage('upload');
 
 export function createSafeAudioAnalysisError(stage) {
   const messages = {
     fetch: 'Audio URL fetch failed.',
+    read: 'The selected audio file could not be read.',
     decode: 'Audio decoding failed.',
     analysis: 'Audio BPM analysis failed.',
   };
@@ -40,8 +42,12 @@ function Upload(props) {
   const query = new URLSearchParams(window.location.search);
 
   const [url, setUrl] = useState(query.get('url') ?? '');
+  const [selectedFile, setSelectedFile] = useState(null);
   const [primaryBPM, setPrimaryBPM] = useState(``);
+  const [resultMode, setResultMode] = useState('');
   const [isResultReady, setIsResultReady] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisMode, setAnalysisMode] = useState('');
 
   useEffect(() => {
     ReactGA.event('select_content', {
@@ -50,51 +56,83 @@ function Upload(props) {
     });
   }, []);
 
-  const calculateBPM = () => {
+  const analyzeAudio = async ({ loadArrayBuffer, mode, initialStage }) => {
     setIsResultReady(false);
+    setIsAnalyzing(true);
+    setAnalysisMode(mode);
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
     const context = new window.AudioContext();
-    let stage = 'fetch';
+    let stage = initialStage;
 
-    fetch(url, {
-      [APP_INSIGHTS_BYPASS_FETCH]: true,
-    })
-      .then(async (response) => {
-        stage = 'decode';
-        const buffer = await response.arrayBuffer();
-
-        const data = await new Promise((resolve, reject) => {
-          context.decodeAudioData(buffer, resolve, reject);
-        });
-
-        stage = 'analysis';
-        const bpm = detect(data);
-        setPrimaryBPM(bpm);
-        setIsResultReady(true);
-
-        ReactGA.event('detect', {
-          mode: 'url',
-          bpm: bpm,
-          threshold: null,
-        });
-
-        // P1 #6: Consistent event schema — matches Home.js detect events
-        appInsights?.trackEvent({
-          name: 'detect',
-          properties: {
-            mode: 'url',
-            bpm: bpm,
-            threshold: null,
-          },
-        });
-      })
-      .catch((err) => {
-        const safeError = createSafeAudioAnalysisError(stage);
-        toast.error(safeError.message);
-        console.error(err);
-        // P1 #7: Track decode/fetch errors to App Insights
-        appInsights?.trackException({ exception: safeError });
+    try {
+      const buffer = await loadArrayBuffer();
+      stage = 'decode';
+      const data = await new Promise((resolve, reject) => {
+        context.decodeAudioData(buffer, resolve, reject);
       });
+
+      stage = 'analysis';
+      const bpm = detect(data);
+      setPrimaryBPM(bpm);
+      setResultMode(mode);
+      setIsResultReady(true);
+
+      ReactGA.event('detect', {
+        mode,
+        bpm,
+        threshold: null,
+      });
+
+      appInsights?.trackEvent({
+        name: 'detect',
+        properties: {
+          mode,
+          bpm,
+          threshold: null,
+        },
+      });
+    } catch (err) {
+      const safeError = createSafeAudioAnalysisError(stage);
+      toast.error(safeError.message);
+      console.error(err);
+      appInsights?.trackException({ exception: safeError });
+    } finally {
+      setIsAnalyzing(false);
+      setAnalysisMode('');
+      await context.close?.().catch((error) => {
+        log.warn(`Unable to close audio context: ${error.message}`);
+      });
+    }
+  };
+
+  const calculateBPM = () => {
+    return analyzeAudio({
+      mode: 'url',
+      initialStage: 'fetch',
+      loadArrayBuffer: async () => {
+        const response = await fetch(url, {
+          [APP_INSIGHTS_BYPASS_FETCH]: true,
+        });
+
+        if (response.ok === false) {
+          throw new Error(`Audio request failed with ${response.status}.`);
+        }
+
+        return response.arrayBuffer();
+      },
+    });
+  };
+
+  const calculateFileBPM = () => {
+    if (!selectedFile) {
+      return Promise.resolve();
+    }
+
+    return analyzeAudio({
+      mode: 'file',
+      initialStage: 'read',
+      loadArrayBuffer: () => selectedFile.arrayBuffer(),
+    });
   };
 
   return (
@@ -103,13 +141,18 @@ function Upload(props) {
       <article>
         <PublishingHeader page={uploadPublishingPage} />
 
-        <section className="tool-panel" aria-label="Audio URL BPM analyzer">
+        <section className="tool-panel" aria-label="Audio file BPM analyzer">
           {isResultReady && primaryBPM ? (
             <>
               <div className="tool-panel__result" aria-live="polite">
                 {primaryBPM}
               </div>
               <p className="tool-panel__unit">BPM</p>
+              <NativeShareButton
+                bpm={primaryBPM}
+                mode={resultMode === 'file' ? 'audio file' : 'audio URL'}
+                className="tool-panel__secondary"
+              />
             </>
           ) : null}
 
@@ -117,9 +160,43 @@ function Upload(props) {
             <Feedback bpm={primaryBPM} log={log} type="file"></Feedback>
           ) : null}
 
-          <label htmlFor="url">
-            Direct URL of an MP3 or WAV file
-          </label>
+          <div className="tool-panel__file-picker">
+            <label className="tool-panel__secondary" htmlFor="audio-file">
+              Choose an audio file
+            </label>
+            <input
+              className="visually-hidden"
+              id="audio-file"
+              type="file"
+              accept="audio/*,.mp3,.wav,.m4a,.aac,.flac"
+              onChange={(event) => {
+                setSelectedFile(event.target.files?.[0] ?? null);
+                setPrimaryBPM('');
+                setIsResultReady(false);
+              }}
+            />
+            <span aria-live="polite">
+              {selectedFile ? selectedFile.name : 'No file selected'}
+            </span>
+          </div>
+          <div className="tool-panel__actions">
+            <button
+              className="tool-panel__primary"
+              type="button"
+              onClick={calculateFileBPM}
+              disabled={!selectedFile || isAnalyzing}
+            >
+              {isAnalyzing && analysisMode === 'file'
+                ? 'Analyzing file...'
+                : 'Analyze selected file'}
+            </button>
+          </div>
+
+          <p className="tool-panel__divider">
+            <span>or use a direct link</span>
+          </p>
+
+          <label htmlFor="url">Direct URL of an MP3 or WAV file</label>
           <input
             id="url"
             type="url"
@@ -143,9 +220,11 @@ function Upload(props) {
               className="tool-panel__primary"
               type="button"
               onClick={calculateBPM}
-              disabled={!url}
+              disabled={!url || isAnalyzing}
             >
-              Fetch and calculate
+              {isAnalyzing && analysisMode === 'url'
+                ? 'Fetching audio...'
+                : 'Fetch and calculate'}
             </button>
           </div>
           <p className="tool-panel__hint">

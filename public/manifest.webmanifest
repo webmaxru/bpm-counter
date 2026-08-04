@@ -1,6 +1,6 @@
 {
   "short_name": "BPM Techno",
-  "name": "BPM Techno - Real-Time BPM Counter",
+  "name": "Realtime BPM Counter - BPM Techno",
   "description": "Measure track tempo, tap a beat, compare half-time and double-time BPM, and calculate tempo-synced timing values for DJ sets.",
   "start_url": "/?utm_source=homescreen",
   "display": "standalone",

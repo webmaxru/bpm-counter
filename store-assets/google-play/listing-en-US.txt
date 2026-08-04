@@ -1,0 +1,61 @@
+GOOGLE PLAY MAIN STORE LISTING - ENGLISH (UNITED STATES)
+
+APP NAME
+
+Realtime BPM Counter for DJs
+
+
+SHORT DESCRIPTION
+
+Detect live BPM, tap tempo, analyze audio URLs, and calculate DJ timing.
+
+
+FULL DESCRIPTION
+
+Find a track's tempo without interrupting your workflow. BPM Techno is a free BPM toolkit for DJs, producers, musicians, and anyone working with rhythm.
+
+MEASURE LIVE BPM
+
+Use the real-time counter when music is already playing through speakers. Allow microphone access, point your device toward a clear and steady section of the track, and let BPM Techno estimate its beats per minute.
+
+Your live microphone stream is analyzed on your device. BPM Techno does not upload or store the microphone audio.
+
+CHOOSE THE RIGHT TOOL
+
+- Detect BPM from music playing nearby.
+- Tap along manually when you can hear the pulse clearly.
+- Analyze a direct, browser-accessible MP3 or WAV URL.
+- Convert BPM into whole, half, quarter, eighth, sixteenth, dotted, and triplet note durations.
+- Compare half-time and double-time values when a detected number does not match the way you count the track.
+
+BUILT FOR REAL DJ TASKS
+
+Use BPM Techno while preparing a set, checking an untagged track, practicing a transition, setting a tempo-synced delay, or resolving a common half-time or double-time reading.
+
+Practical guides explain how BPM detection works, how to improve accuracy, how to understand genre tempo ranges, and how to apply tempo information while beatmatching.
+
+PRIVATE AND OFFLINE-READY
+
+The live counter, tap-tempo tool, and calculators are designed to remain useful offline after the app has loaded. An internet connection is still required to fetch remote audio URLs and open external resources.
+
+No account or subscription is required.
+
+ACCURATE, WITH HONEST LIMITS
+
+Automatic detection works best with a steady section containing clear kicks, snares, claps, or other rhythmic transients. Silence, speech, ambient intros, heavy syncopation, and distorted microphone input can reduce accuracy.
+
+Treat every automatic result as a strong starting point. Confirm the pulse by ear and check the related half-time or double-time value when needed.
+
+
+RELEASE NOTES - VERSION 3
+
+Version 3 introduces a completely redesigned interface, clearer navigation, tap tempo, BPM-to-milliseconds calculations, half-time and double-time comparison, improved audio URL analysis, stronger local-audio privacy messaging, better offline behavior, and a polished experience across phones, tablets, and larger screens.
+
+
+SCREENSHOT ORDER
+
+1. Live BPM counter
+2. Audio URL analyzer
+3. Tap-tempo counter
+4. BPM-to-milliseconds calculator
+5. Half-time and double-time converter

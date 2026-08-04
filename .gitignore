@@ -35,6 +35,17 @@ android/service-account*.json
 key.properties
 .env.android
 
+# Capacitor / iOS build state and signing material
+ios/App/Pods/
+ios/App/build/
+ios/DerivedData/
+ios/*.ipa
+ios/*.xcarchive
+ios/*.mobileprovision
+ios/signing-private/
+*.p12
+.env.ios
+
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

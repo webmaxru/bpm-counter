@@ -24,7 +24,7 @@ def twaManifest = [
     applicationId: 'no.bpmtech.twa',
     hostName: 'bpmtech.no', // The domain being opened in the TWA.
     launchUrl: '/?utm_source=android', // The start path for the TWA. Must be relative to the domain.
-    name: 'BPM Techno - BPM Tools for DJs', // The application name.
+    name: 'Realtime BPM Counter - BPM Techno', // The application name.
     launcherName: 'BPM Techno', // The name shown on the Android Launcher.
     themeColor: '#071C2B', // The color used for the status bar.
     themeColorDark: '#071C2B', // The color used for the dark status bar.

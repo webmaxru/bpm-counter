@@ -1,0 +1,9 @@
+{
+  "appId": "no.bpmtech.app",
+  "appName": "BPM Techno",
+  "webDir": "build",
+  "ios": {
+    "contentInset": "automatic",
+    "preferredContentMode": "mobile"
+  }
+}

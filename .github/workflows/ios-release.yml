@@ -1,0 +1,202 @@
+name: iOS TestFlight Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: App Store version
+        required: true
+        default: "3.0.0"
+        type: string
+      build_number:
+        description: Optional App Store build number (defaults to the workflow run number)
+        required: false
+        type: string
+      upload_to_testflight:
+        description: Upload the exported IPA to TestFlight
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-testflight-release
+  cancel-in-progress: false
+
+jobs:
+  archive:
+    name: Sign, archive, and upload
+    runs-on: macos-26
+    timeout-minutes: 45
+    env:
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      IOS_BUNDLE_ID: ${{ vars.IOS_BUNDLE_ID || 'no.bpmtech.app' }}
+      IOS_DISTRIBUTION_CERTIFICATE_BASE64: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_BASE64 }}
+      IOS_CERTIFICATE_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
+      IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
+      APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+      APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+      APP_STORE_CONNECT_API_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build and synchronize iOS
+        run: npm run ios:sync
+
+      - name: Verify signing inputs
+        env:
+          UPLOAD_TO_TESTFLIGHT: ${{ inputs.upload_to_testflight }}
+        run: |
+          required=(
+            APPLE_TEAM_ID
+            IOS_DISTRIBUTION_CERTIFICATE_BASE64
+            IOS_CERTIFICATE_PASSWORD
+            IOS_PROVISIONING_PROFILE_BASE64
+          )
+
+          if [[ "$UPLOAD_TO_TESTFLIGHT" == "true" ]]; then
+            required+=(
+              APP_STORE_CONNECT_API_KEY_ID
+              APP_STORE_CONNECT_ISSUER_ID
+              APP_STORE_CONNECT_API_KEY_BASE64
+            )
+          fi
+
+          for variable in "${required[@]}"; do
+            if [[ -z "${!variable}" ]]; then
+              echo "::error::$variable is not configured."
+              exit 1
+            fi
+          done
+
+      - name: Install distribution certificate and profile
+        env:
+          KEYCHAIN_PASSWORD: ${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          CERTIFICATE_PATH="$RUNNER_TEMP/distribution.p12"
+          PROFILE_PATH="$RUNNER_TEMP/profile.mobileprovision"
+          PROFILE_PLIST_PATH="$RUNNER_TEMP/profile.plist"
+          KEYCHAIN_PATH="$RUNNER_TEMP/app-signing.keychain-db"
+
+          echo "$IOS_DISTRIBUTION_CERTIFICATE_BASE64" | base64 -D > "$CERTIFICATE_PATH"
+          echo "$IOS_PROVISIONING_PROFILE_BASE64" | base64 -D > "$PROFILE_PATH"
+
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security import "$CERTIFICATE_PATH" \
+            -P "$IOS_CERTIFICATE_PASSWORD" \
+            -A \
+            -t cert \
+            -f pkcs12 \
+            -k "$KEYCHAIN_PATH"
+          security set-key-partition-list \
+            -S apple-tool:,apple: \
+            -k "$KEYCHAIN_PASSWORD" \
+            "$KEYCHAIN_PATH"
+          security list-keychain -d user -s "$KEYCHAIN_PATH" login.keychain-db
+
+          security cms -D -i "$PROFILE_PATH" > "$PROFILE_PLIST_PATH"
+          PROFILE_UUID=$(/usr/libexec/PlistBuddy -c "Print :UUID" "$PROFILE_PLIST_PATH")
+          PROFILE_NAME=$(/usr/libexec/PlistBuddy -c "Print :Name" "$PROFILE_PLIST_PATH")
+          PROFILE_APP_IDENTIFIER=$(/usr/libexec/PlistBuddy -c "Print :Entitlements:application-identifier" "$PROFILE_PLIST_PATH")
+          EXPECTED_APP_IDENTIFIER="$APPLE_TEAM_ID.$IOS_BUNDLE_ID"
+
+          if [[ "$PROFILE_APP_IDENTIFIER" != "$EXPECTED_APP_IDENTIFIER" ]]; then
+            echo "::error::Provisioning profile is for $PROFILE_APP_IDENTIFIER, expected $EXPECTED_APP_IDENTIFIER."
+            exit 1
+          fi
+
+          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
+          cp "$PROFILE_PATH" "$HOME/Library/MobileDevice/Provisioning Profiles/$PROFILE_UUID.mobileprovision"
+
+          echo "IOS_KEYCHAIN_PATH=$KEYCHAIN_PATH" >> "$GITHUB_ENV"
+          echo "IOS_PROVISIONING_PROFILE_NAME=$PROFILE_NAME" >> "$GITHUB_ENV"
+
+      - name: Resolve release values
+        env:
+          REQUESTED_BUILD_NUMBER: ${{ inputs.build_number }}
+        run: |
+          if [[ -n "$REQUESTED_BUILD_NUMBER" ]]; then
+            BUILD_NUMBER="$REQUESTED_BUILD_NUMBER"
+          else
+            BUILD_NUMBER="${{ github.run_number }}"
+          fi
+
+          echo "IOS_MARKETING_VERSION=${{ inputs.version }}" >> "$GITHUB_ENV"
+          echo "IOS_BUILD_NUMBER=$BUILD_NUMBER" >> "$GITHUB_ENV"
+          echo "IOS_ARCHIVE_PATH=$RUNNER_TEMP/BPMTechno.xcarchive" >> "$GITHUB_ENV"
+          echo "IOS_EXPORT_PATH=$RUNNER_TEMP/export" >> "$GITHUB_ENV"
+          echo "IOS_EXPORT_OPTIONS_PATH=$RUNNER_TEMP/ExportOptions.plist" >> "$GITHUB_ENV"
+
+      - name: Generate export options
+        run: node scripts/generate-ios-export-options.mjs
+
+      - name: Archive signed app
+        run: |
+          xcodebuild \
+            -project ios/App/App.xcodeproj \
+            -scheme App \
+            -configuration Release \
+            -destination "generic/platform=iOS" \
+            -archivePath "$IOS_ARCHIVE_PATH" \
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
+            PRODUCT_BUNDLE_IDENTIFIER="$IOS_BUNDLE_ID" \
+            MARKETING_VERSION="$IOS_MARKETING_VERSION" \
+            CURRENT_PROJECT_VERSION="$IOS_BUILD_NUMBER" \
+            CODE_SIGN_STYLE=Manual \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
+            PROVISIONING_PROFILE_SPECIFIER="$IOS_PROVISIONING_PROFILE_NAME" \
+            OTHER_CODE_SIGN_FLAGS="--keychain $IOS_KEYCHAIN_PATH" \
+            archive
+
+      - name: Export IPA
+        run: |
+          xcodebuild \
+            -exportArchive \
+            -archivePath "$IOS_ARCHIVE_PATH" \
+            -exportPath "$IOS_EXPORT_PATH" \
+            -exportOptionsPlist "$IOS_EXPORT_OPTIONS_PATH"
+
+      - name: Upload signed IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bpm-techno-ios-${{ inputs.version }}-${{ github.run_number }}
+          path: ${{ runner.temp }}/export/*.ipa
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload to TestFlight
+        if: inputs.upload_to_testflight
+        run: |
+          mkdir -p "$HOME/.appstoreconnect/private_keys"
+          API_KEY_PATH="$HOME/.appstoreconnect/private_keys/AuthKey_$APP_STORE_CONNECT_API_KEY_ID.p8"
+          echo "$APP_STORE_CONNECT_API_KEY_BASE64" | base64 -D > "$API_KEY_PATH"
+          IPA_PATH=$(find "$IOS_EXPORT_PATH" -maxdepth 1 -name "*.ipa" -print -quit)
+
+          xcrun altool \
+            --upload-app \
+            --type ios \
+            --file "$IPA_PATH" \
+            --apiKey "$APP_STORE_CONNECT_API_KEY_ID" \
+            --apiIssuer "$APP_STORE_CONNECT_ISSUER_ID"
+
+      - name: Remove temporary signing keychain
+        if: always()
+        run: |
+          if [[ -n "${IOS_KEYCHAIN_PATH:-}" ]]; then
+            security delete-keychain "$IOS_KEYCHAIN_PATH" || true
+          fi

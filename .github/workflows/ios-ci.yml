@@ -1,0 +1,74 @@
+name: iOS CI
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/ios-ci.yml"
+      - "capacitor.config.json"
+      - "ios/**"
+      - "package.json"
+      - "package-lock.json"
+      - "scripts/**"
+      - "src/**"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/ios-ci.yml"
+      - "capacitor.config.json"
+      - "ios/**"
+      - "package.json"
+      - "package-lock.json"
+      - "scripts/**"
+      - "src/**"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  simulator:
+    name: Build iOS simulator app
+    runs-on: macos-26
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run web tests
+        run: npm test
+
+      - name: Build and synchronize iOS
+        run: npm run ios:sync
+
+      - name: Verify iOS project
+        run: npm run ios:verify
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      - name: Build for iOS Simulator
+        run: |
+          xcodebuild \
+            -project ios/App/App.xcodeproj \
+            -scheme App \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -destination "generic/platform=iOS Simulator" \
+            -derivedDataPath "$RUNNER_TEMP/DerivedData" \
+            CODE_SIGNING_ALLOWED=NO \
+            PRODUCT_BUNDLE_IDENTIFIER=no.bpmtech.app \
+            build

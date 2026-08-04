@@ -1,5 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import ToolPageLayout from './ToolPageLayout';
+import NativeShareButton from './NativeShareButton';
+import { performTapHaptic } from './nativePlatform';
 
 const MAX_TAPS = 8;
 const RESET_GAP_MS = 2500;
@@ -29,6 +31,7 @@ function TapTempo() {
 
   const handleTap = () => {
     const now = window.performance.now();
+    void performTapHaptic();
 
     setTapTimes((currentTapTimes) => {
       const lastTap = currentTapTimes.at(-1);
@@ -68,6 +71,11 @@ function TapTempo() {
           >
             Reset
           </button>
+          <NativeShareButton
+            bpm={bpm}
+            mode="tap tempo"
+            className="tool-panel__secondary"
+          />
         </div>
         <p className="tool-panel__hint">
           {tapTimes.length

@@ -90,7 +90,7 @@ export const publishingPages = Object.freeze([
         heading: 'Choose the tempo method that fits the moment',
         bullets: [
           'Use the live counter when music is already playing through speakers.',
-          'Analyze a direct audio URL when you have a browser-accessible track file.',
+          'Import a local audio file, or analyze a direct URL when the file is browser-accessible.',
           'Use tap tempo when your ears can follow the pulse more reliably than automatic detection.',
           'Convert BPM to milliseconds when setting tempo-synced delays or timing values.',
           'Compare half-time and double-time values when a detected number feels musically wrong.',
@@ -135,16 +135,23 @@ export const publishingPages = Object.freeze([
     path: '/upload',
     category: 'tool',
     structuredDataType: 'WebApplication',
-    title: 'Analyze BPM from an Audio URL | BPM Techno',
+    title: 'Analyze BPM from an Audio File or URL | BPM Techno',
     description:
-      'Fetch a browser-accessible MP3 or WAV URL and estimate its BPM locally with the Web Audio API.',
-    heading: 'Analyze BPM from an audio URL',
+      'Choose a local audio file or fetch a browser-accessible MP3 or WAV URL, then estimate its BPM locally.',
+    heading: 'Analyze BPM from an audio file',
     lede:
-      'Paste a direct URL to an audio file. Your browser fetches and decodes the file, then BPM Techno estimates its tempo locally.',
+      'Choose a track from your device or paste a direct audio URL. BPM Techno decodes the file in memory and estimates its tempo locally.',
     updatedDate,
     sections: [
       {
-        heading: 'The URL must point to audio',
+        heading: 'Local files stay on your device',
+        paragraphs: [
+          'Choose a supported audio file from your device to analyze it without uploading the track. The file is decoded in application memory and is not sent to BPM Techno.',
+          'MP3, WAV, M4A, AAC, and FLAC availability depends on the codecs supported by your browser or operating system.',
+        ],
+      },
+      {
+        heading: 'A remote URL must point directly to audio',
         paragraphs: [
           'Use a direct link to a file that the browser can decode, rather than a streaming service page or a download page containing HTML. The sample link in the form demonstrates the expected format.',
           'MP3 and WAV are commonly supported, but the exact codecs available depend on the browser and operating system.',
@@ -407,7 +414,7 @@ export const publishingPages = Object.freeze([
         heading: 'Privacy boundaries',
         paragraphs: [
           'BPM Techno does not need to record or upload live microphone audio. Audio processing occurs in the browser tab. The browser still displays a permission prompt and may show a microphone indicator while the stream is active.',
-          'Remote audio URLs are requested by the browser from the hosting server, so that server can receive the normal request information such as IP address and user agent.',
+          'Local audio files are decoded in application memory and are not uploaded. Remote audio URLs are requested by the browser from the hosting server, so that server can receive normal request information such as IP address and user agent.',
         ],
       },
     ],
@@ -604,7 +611,7 @@ export const publishingPages = Object.freeze([
         heading: 'Audio processing',
         paragraphs: [
           'Live microphone audio is processed inside the browser with the Web Audio API. BPM Techno does not upload or store the microphone stream on its server.',
-          'When you analyze an audio URL, your browser requests the file directly from the hosting server. That server may receive normal request information such as your IP address and browser user agent. BPM Techno decodes the response in browser memory and does not permanently store the audio.',
+          'When you select a local audio file, BPM Techno decodes it in application memory without uploading it. When you analyze an audio URL, your browser requests the file directly from the hosting server. That server may receive normal request information such as your IP address and browser user agent. BPM Techno does not permanently store either source.',
         ],
       },
       {
