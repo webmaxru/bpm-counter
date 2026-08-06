@@ -84,12 +84,12 @@ describe('publishing page content', () => {
     });
   });
 
-  it('documents the AdSense verification-only state and consent prerequisite', () => {
+  it('documents the enabled AdSense provider and consent prerequisite', () => {
     const privacyPage = publishingPages.find((page) => page.id === 'privacy');
     const privacyText = getPageText(privacyPage);
 
     expect(privacyText).toContain(
-      'does not load Google display advertising code'
+      'loads Google AdSense display advertising code'
     );
     expect(privacyText).toContain(
       'Google-certified consent management platform'

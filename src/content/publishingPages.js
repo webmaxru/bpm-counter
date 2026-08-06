@@ -631,8 +631,8 @@ export const publishingPages = Object.freeze([
       {
         heading: 'Advertising and consent',
         paragraphs: [
-          'BPM Techno currently publishes an AdSense account verification tag and an ads.txt declaration, but it does not load Google display advertising code or serve Google ads.',
-          'If Google ads are enabled after approval, Google and its partners may use cookies, local storage, and device or browser information for ad delivery, measurement, fraud prevention, and personalization where consented.',
+          'BPM Techno currently loads Google AdSense display advertising code. The enabled advertising provider is controlled by the build-time VITE_AD_PROVIDERS setting and defaults to AdSense; Amazon Ads can be enabled later by configuration.',
+          'Google and its partners may use cookies, local storage, and device or browser information for ad delivery, measurement, fraud prevention, and personalization where consented.',
           'Before Google ads are served to visitors in the European Economic Area, the United Kingdom, or Switzerland, BPM Techno will configure a Google-certified consent management platform integrated with the IAB Transparency and Consent Framework.',
         ],
         links: [

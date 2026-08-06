@@ -9,12 +9,15 @@ import {
   getTelemetryPath,
   getTelemetryUrl,
 } from './telemetryPrivacy';
+import { initializeAds } from './ads';
 
 const telemetryPath = getTelemetryPath(window.location);
 const telemetryUrl = getTelemetryUrl(
   window.location,
   window.location.origin
 );
+
+initializeAds();
 
 ReactGA.initialize(import.meta.env.VITE_GA4_MEASUREMENT_ID, {
   gtagOptions: {

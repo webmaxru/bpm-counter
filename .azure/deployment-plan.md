@@ -244,6 +244,22 @@ All validation checks passed. The release is approved for the existing CI/CD dep
 | Static RBAC review | Not applicable; no Bicep, Terraform, identity, or role changes |
 | Azure impact | No infrastructure, identity, API, quota, or resource changes |
 
+### Ad Provider Configuration Validation
+
+**Validation executed:** 2026-08-06
+
+| Check | Result |
+|---|---|
+| `npm test -- --run` | 132 passed, 1 skipped |
+| `npm run build` | Succeeded; 15 prerendered routes and service worker generated |
+| AdSense loader test | Approved AdSense script emitted with publisher client and `crossorigin="anonymous"` |
+| Provider configuration | Defaults to AdSense; supports `adsense`, `amazon`, or both via `VITE_AD_PROVIDERS` |
+| Azure account | Enabled `Visual Studio Enterprise Subscription` with the planned subscription ID |
+| Azure target | Existing `bpm-counter` Free-tier Static Web App in West US 2 |
+| Deployment secret | `AZURE_STATIC_WEB_APPS_API_TOKEN_MANGO_MUD_0136F961E` present |
+| Diff quality | `git diff --check` passed |
+| Azure impact | No infrastructure, identity, API, quota, or resource changes |
+
 ## 8. Security and Identity
 
 - Keep the Static Web Apps deployment token in GitHub Actions secrets; do not expose or rotate it during this release.

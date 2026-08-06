@@ -230,6 +230,10 @@ Your app is ready to be deployed!
 
 The production-ready service worker will also be generated.
 
+### Advertising providers
+
+The build enables Google AdSense by default. Set `VITE_AD_PROVIDERS` to a comma-separated list of `adsense`, `amazon`, or both to choose the providers loaded by the site. The AdSense publisher ID can be overridden with `VITE_ADSENSE_CLIENT_ID`; an Amazon Ads script URL can be overridden with `VITE_AMAZON_ADS_SCRIPT_URL`.
+
 ## About
 
 ### Credits
