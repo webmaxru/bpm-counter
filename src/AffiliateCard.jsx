@@ -124,7 +124,7 @@ function AffiliateCard({ campaignId, placement }) {
       </a>
       <p className="affiliate-card__disclosure">
         As an Amazon Associate I earn from qualifying purchases.{' '}
-        <a href="/affiliate-disclosure">Learn more</a>.
+        <a href="/affiliate-disclosure">How affiliate links work</a>.
       </p>
     </aside>
   );

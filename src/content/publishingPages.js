@@ -1,3 +1,5 @@
+import { growthPages } from './growthPages.js';
+
 const updatedDate = '2026-08-01';
 
 export const publishingPages = Object.freeze([
@@ -64,7 +66,7 @@ export const publishingPages = Object.freeze([
           'Many rhythms have strong pulses at more than one metrical level. Both 70 and 140 BPM can describe the same timing grid, depending on whether you count the slower pulse or every subdivision.',
       },
     ],
-    relatedPageIds: ['tap-tempo', 'bpm-converter', 'real-time-guide'],
+    relatedPageIds: ['tap-tempo', 'metronome', 'bpm-converter', 'real-time-guide'],
   },
   {
     id: 'about',
@@ -231,7 +233,7 @@ export const publishingPages = Object.freeze([
           'No. The tool only measures the timing of button presses in the browser.',
       },
     ],
-    relatedPageIds: ['home', 'bpm-converter', 'beatmatching-guide'],
+    relatedPageIds: ['home', 'bpm-converter', 'beatmatching-guide', 'metronome'],
   },
   {
     id: 'bpm-to-ms',
@@ -270,7 +272,7 @@ export const publishingPages = Object.freeze([
         ],
       },
     ],
-    relatedPageIds: ['bpm-converter', 'genre-guide', 'beatmatching-guide'],
+    relatedPageIds: ['bpm-converter', 'genre-guide', 'beatmatching-guide', 'bpm-to-hz', 'bars-to-time'],
   },
   {
     id: 'bpm-converter',
@@ -313,7 +315,7 @@ export const publishingPages = Object.freeze([
         },
       },
     ],
-    relatedPageIds: ['home', 'tap-tempo', 'genre-guide'],
+    relatedPageIds: ['home', 'tap-tempo', 'genre-guide', 'bpm-reference-table', 'pitch-range'],
   },
   {
     id: 'real-time-guide',
@@ -418,7 +420,7 @@ export const publishingPages = Object.freeze([
         ],
       },
     ],
-    relatedPageIds: ['real-time-guide', 'audio-url-guide', 'bpm-to-ms'],
+    relatedPageIds: ['real-time-guide', 'audio-url-guide', 'bpm-to-ms', 'bpm-reference-table'],
   },
   {
     id: 'genre-guide',
@@ -477,7 +479,7 @@ export const publishingPages = Object.freeze([
         ],
       },
     ],
-    relatedPageIds: ['bpm-converter', 'beatmatching-guide', 'home'],
+    relatedPageIds: ['bpm-converter', 'beatmatching-guide', 'home', 'bpm-reference-table'],
   },
   {
     id: 'beatmatching-guide',
@@ -538,7 +540,7 @@ export const publishingPages = Object.freeze([
         ],
       },
     ],
-    relatedPageIds: ['home', 'genre-guide', 'bpm-converter'],
+    relatedPageIds: ['home', 'genre-guide', 'bpm-converter', 'pitch-range', 'metronome'],
   },
   {
     id: 'audio-url-guide',
@@ -786,6 +788,7 @@ export const publishingPages = Object.freeze([
     ],
     relatedPageIds: ['privacy', 'terms', 'contact'],
   },
+  ...growthPages,
 ]);
 
 const publishingPagesById = new Map(

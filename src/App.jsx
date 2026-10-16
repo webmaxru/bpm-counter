@@ -27,6 +27,10 @@ import TelemetryProvider from './telemetry-provider';
 import { TelemetryContext } from './TelemetryContext';
 import { AppInsightsErrorBoundary } from '@microsoft/applicationinsights-react-js';
 import Seo from './Seo';
+import BarsToTime from './BarsToTime';
+import BpmToHz from './BpmToHz';
+import PitchRange from './PitchRange';
+import Metronome from './Metronome';
 import { isNativeApp, openExternalUrl } from './nativePlatform';
 
 function App() {
@@ -165,7 +169,7 @@ function App() {
       >
         <TelemetryContext.Provider value={appInsights}>
           <header className="site-header">
-            <h1 className="site-brand">
+            <div className="site-brand">
               <Link className="site-brand__link" to="/">
                 <svg
                   className="site-brand__mark"
@@ -181,7 +185,7 @@ function App() {
                   </span>
                 </span>
               </Link>
-            </h1>
+            </div>
           </header>
           <div className="body">
             <nav className="site-nav" aria-label="Primary">
@@ -194,14 +198,14 @@ function App() {
               <NavLink className={navLinkClassName} to="/tools/tap-tempo">
                 Tap tempo
               </NavLink>
-              <NavLink className={navLinkClassName} to="/tools/bpm-to-ms">
-                BPM to ms
+              <NavLink className={navLinkClassName} to="/tools/metronome">
+                Metronome
               </NavLink>
-              <NavLink
-                className={navLinkClassName}
-                to="/guides/beatmatching"
-              >
-                Beatmatching
+              <NavLink className={navLinkClassName} end to="/tools">
+                All tools
+              </NavLink>
+              <NavLink className={navLinkClassName} end to="/guides">
+                Guides
               </NavLink>
             </nav>
 
@@ -238,6 +242,12 @@ function App() {
                 <Route path="/tools/tap-tempo" element={<TapTempo />} />
                 <Route path="/tools/bpm-to-ms" element={<BpmToMs />} />
                 <Route path="/tools/bpm-converter" element={<BpmConverter />} />
+                <Route path="/tools/bars-to-time" element={<BarsToTime />} />
+                <Route path="/tools/bpm-to-hz" element={<BpmToHz />} />
+                <Route path="/tools/pitch-range" element={<PitchRange />} />
+                <Route path="/tools/metronome" element={<Metronome />} />
+                <Route path="/tools" element={<PublishingPage pageId="tools-hub" />} />
+                <Route path="/guides" element={<PublishingPage pageId="guides-hub" />} />
                 <Route path="/guides/:slug" element={<GuidePage />} />
                 <Route
                   path="/"
@@ -257,11 +267,12 @@ function App() {
 
             <aside className="related-nav" aria-label="Popular BPM resources">
               <h2>Popular resources</h2>
+              <Link to="/tools/bpm-to-ms">BPM to ms</Link>
+              <Link to="/tools/bars-to-time">Bars to seconds</Link>
               <Link to="/tools/bpm-converter">Half/double BPM</Link>
               <Link to="/guides/genre-bpm-ranges">Genre BPM ranges</Link>
-              <Link to="/guides/how-bpm-detection-works">
-                How detection works
-              </Link>
+              <Link to="/guides/beatmatching">Beatmatching</Link>
+              <Link to="/guides/bpm-reference-table">BPM reference table</Link>
             </aside>
           </div>
           <footer className="site-footer">

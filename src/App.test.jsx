@@ -158,8 +158,7 @@ describe('App', () => {
   it('displays the header with title', () => {
     render(<App />);
     expect(
-      screen.getByRole('heading', {
-        level: 1,
+      screen.getByRole('link', {
         name: /BPM Techno.*Free.*Offline.*BPM tools for DJs/i,
       })
     ).toBeInTheDocument();

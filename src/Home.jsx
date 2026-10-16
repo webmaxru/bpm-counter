@@ -312,7 +312,7 @@ function Home(props) {
             aria-labelledby="live-tool-title"
           >
             <div className="home-tool__heading">
-              <h2 id="live-tool-title">Find the BPM</h2>
+              <h1 id="live-tool-title">Find the BPM</h1>
               <p>
                 Point your device toward the speakers and let the beat settle.
               </p>

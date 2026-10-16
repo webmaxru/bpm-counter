@@ -1,92 +1,120 @@
 {
     "trailingSlash": "never",
     "routes": [
-      {
-        "route": "/",
-        "rewrite": "/index.html"
-      },
-      {
-        "route": "/upload",
-        "rewrite": "/upload/index.html"
-      },
-      {
-        "route": "/tools/tap-tempo",
-        "rewrite": "/tools/tap-tempo/index.html"
-      },
-      {
-        "route": "/tools/bpm-to-ms",
-        "rewrite": "/tools/bpm-to-ms/index.html"
-      },
-      {
-        "route": "/tools/bpm-converter",
-        "rewrite": "/tools/bpm-converter/index.html"
-      },
-      {
-        "route": "/guides/real-time-bpm-counter",
-        "rewrite": "/guides/real-time-bpm-counter/index.html"
-      },
-      {
-        "route": "/guides/how-bpm-detection-works",
-        "rewrite": "/guides/how-bpm-detection-works/index.html"
-      },
-      {
-        "route": "/guides/genre-bpm-ranges",
-        "rewrite": "/guides/genre-bpm-ranges/index.html"
-      },
-      {
-        "route": "/guides/beatmatching",
-        "rewrite": "/guides/beatmatching/index.html"
-      },
-      {
-        "route": "/guides/analyze-audio-url",
-        "rewrite": "/guides/analyze-audio-url/index.html"
-      },
-      {
-        "route": "/privacy",
-        "rewrite": "/privacy/index.html"
-      },
-      {
-        "route": "/terms",
-        "rewrite": "/terms/index.html"
-      },
-      {
-        "route": "/contact",
-        "rewrite": "/contact/index.html"
-      },
-      {
-        "route": "/affiliate-disclosure",
-        "rewrite": "/affiliate-disclosure/index.html"
-      },
-      {
-        "route": "/privacy.html",
-        "redirect": "/privacy",
-        "statusCode": 301
-      },
-      {
-        "route": "/about",
-        "rewrite": "/about/index.html"
-      },
-      {
-        "route": "/images/*",
-        "headers": {
-          "cache-control": "must-revalidate, max-age=15770000"
+        {
+            "route": "/",
+            "rewrite": "/index.html"
+        },
+        {
+            "route": "/upload",
+            "rewrite": "/upload/index.html"
+        },
+        {
+            "route": "/tools/tap-tempo",
+            "rewrite": "/tools/tap-tempo/index.html"
+        },
+        {
+            "route": "/tools/bpm-to-ms",
+            "rewrite": "/tools/bpm-to-ms/index.html"
+        },
+        {
+            "route": "/tools/bpm-converter",
+            "rewrite": "/tools/bpm-converter/index.html"
+        },
+        {
+            "route": "/guides/real-time-bpm-counter",
+            "rewrite": "/guides/real-time-bpm-counter/index.html"
+        },
+        {
+            "route": "/guides/how-bpm-detection-works",
+            "rewrite": "/guides/how-bpm-detection-works/index.html"
+        },
+        {
+            "route": "/guides/genre-bpm-ranges",
+            "rewrite": "/guides/genre-bpm-ranges/index.html"
+        },
+        {
+            "route": "/guides/beatmatching",
+            "rewrite": "/guides/beatmatching/index.html"
+        },
+        {
+            "route": "/guides/analyze-audio-url",
+            "rewrite": "/guides/analyze-audio-url/index.html"
+        },
+        {
+            "route": "/privacy",
+            "rewrite": "/privacy/index.html"
+        },
+        {
+            "route": "/terms",
+            "rewrite": "/terms/index.html"
+        },
+        {
+            "route": "/contact",
+            "rewrite": "/contact/index.html"
+        },
+        {
+            "route": "/affiliate-disclosure",
+            "rewrite": "/affiliate-disclosure/index.html"
+        },
+        {
+            "route": "/tools/bars-to-time",
+            "rewrite": "/tools/bars-to-time/index.html"
+        },
+        {
+            "route": "/tools/bpm-to-hz",
+            "rewrite": "/tools/bpm-to-hz/index.html"
+        },
+        {
+            "route": "/tools/pitch-range",
+            "rewrite": "/tools/pitch-range/index.html"
+        },
+        {
+            "route": "/tools/metronome",
+            "rewrite": "/tools/metronome/index.html"
+        },
+        {
+            "route": "/tools",
+            "rewrite": "/tools/index.html"
+        },
+        {
+            "route": "/guides/bpm-reference-table",
+            "rewrite": "/guides/bpm-reference-table/index.html"
+        },
+        {
+            "route": "/guides",
+            "rewrite": "/guides/index.html"
+        },
+        {
+            "route": "/privacy.html",
+            "redirect": "/privacy",
+            "statusCode": 301
+        },
+        {
+            "route": "/about",
+            "rewrite": "/about/index.html"
+        },
+        {
+            "route": "/images/*",
+            "headers": {
+                "cache-control": "must-revalidate, max-age=15770000"
+            }
         }
-      }
     ],
     "responseOverrides": {
-      "400": {
-        "rewrite": "/400.html"
-      },
-      "404": {
-        "rewrite": "/404.html"
-      }
+        "400": {
+            "rewrite": "/400.html"
+        },
+        "404": {
+            "rewrite": "/404.html"
+        }
     },
     "globalHeaders": {
-      "X-Content-Type-Options": "nosniff",
-      "X-Frame-Options": "DENY"
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "DENY"
     },
     "mimeTypes": {
-      ".json": "text/json",
-      ".webmanifest": "application/manifest+json"
+        ".json": "text/json",
+        ".webmanifest": "application/manifest+json"
     }
-  }
+}

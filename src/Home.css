@@ -27,6 +27,7 @@ max-width: 38rem;
 margin: 0 auto;
 }
 
+.home-tool__heading h1,
 .home-tool__heading h2 {
 max-width: 12ch;
 margin: 0 auto;
@@ -305,6 +306,7 @@ border-radius: inherit;
   text-align: left;
 }
 
+.home-tool__content--initial .home-tool__heading h1,
 .home-tool__content--initial .home-tool__heading h2 {
   max-width: 10ch;
   margin: 0;
@@ -362,6 +364,7 @@ border-radius: inherit;
   padding: 1.25rem;
 }
 
+.home-tool__heading h1,
 .home-tool__heading h2 {
   font-size: 2.35rem;
   line-height: 1;
