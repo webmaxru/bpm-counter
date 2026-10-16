@@ -41,9 +41,9 @@ export function formatDuration(seconds) {
     return `${(Math.round(seconds * 100) / 100).toString()} s`;
   }
 
-  const minutes = Math.floor(seconds / 60);
-  const rest = seconds - minutes * 60;
-  const restText = rest.toFixed(1).padStart(4, '0');
+  const tenths = Math.round(seconds * 10);
+  const minutes = Math.floor(tenths / 600);
+  const restText = ((tenths % 600) / 10).toFixed(1).padStart(4, '0');
 
   return `${minutes}:${restText} min`;
 }
