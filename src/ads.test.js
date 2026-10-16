@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { AD_PROVIDERS, adsConfig, initializeAds } from './ads';
 
 afterEach(() => {
@@ -27,5 +27,21 @@ describe('ads configuration', () => {
     initializeAds();
 
     expect(document.getElementById('amazon-ads-script')).toBeNull();
+  });
+
+  it('waits for the window load event before injecting ad scripts', () => {
+    const readyState = vi
+      .spyOn(document, 'readyState', 'get')
+      .mockReturnValue('loading');
+    vi.useFakeTimers();
+
+    initializeAds();
+    expect(document.getElementById('adsense-script')).toBeNull();
+
+    window.dispatchEvent(new Event('load'));
+    expect(document.getElementById('adsense-script')).not.toBeNull();
+
+    vi.useRealTimers();
+    readyState.mockRestore();
   });
 });

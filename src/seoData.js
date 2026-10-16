@@ -1,5 +1,37 @@
 export const SITE_ORIGIN = 'https://bpmtech.no';
 
+const BREADCRUMB_PARENTS = Object.freeze({
+  '/tools/': { name: 'Tools', path: '/tools' },
+  '/guides/': { name: 'Guides', path: '/guides' },
+});
+
+export function createBreadcrumbList(page, url) {
+  if (page.path === '/') {
+    return null;
+  }
+
+  const items = [{ name: 'BPM Techno', path: '/' }];
+  const parentPrefix = Object.keys(BREADCRUMB_PARENTS).find((prefix) =>
+    page.path.startsWith(prefix)
+  );
+
+  if (parentPrefix) {
+    items.push(BREADCRUMB_PARENTS[parentPrefix]);
+  }
+
+  items.push({ name: page.heading, path: page.path });
+
+  return {
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: item.name,
+      item: item.path === page.path ? url : new URL(item.path, SITE_ORIGIN).toString(),
+    })),
+  };
+}
+
 export function createStructuredData(page) {
   const url = new URL(page.path, SITE_ORIGIN).toString();
   let primaryEntity;
@@ -23,6 +55,7 @@ export function createStructuredData(page) {
       '@type': 'Article',
       headline: page.heading,
       description: page.description,
+      datePublished: page.publishedDate ?? page.updatedDate,
       dateModified: page.updatedDate,
       mainEntityOfPage: url,
       author: {
@@ -47,6 +80,12 @@ export function createStructuredData(page) {
   }
 
   const graph = [primaryEntity];
+
+  const breadcrumb = createBreadcrumbList(page, url);
+
+  if (breadcrumb) {
+    graph.push(breadcrumb);
+  }
 
   if (page.faqs?.length) {
     graph.push({

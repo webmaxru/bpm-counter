@@ -62,7 +62,7 @@ function renderSection(section) {
     : '';
   const table = section.table ? renderTable(section.table) : '';
 
-  return `<section class="publishing-section"><h3 class="publishing-section__title">${escapeHtml(section.heading)}</h3>${paragraphs}${steps}${bullets}${links}${table}</section>`;
+  return `<section class="publishing-section"><h2 class="publishing-section__title">${escapeHtml(section.heading)}</h2>${paragraphs}${steps}${bullets}${links}${table}</section>`;
 }
 
 function renderFaq(page) {
@@ -70,7 +70,7 @@ function renderFaq(page) {
     return '';
   }
 
-  return `<section class="publishing-faq"><h3 class="publishing-section__title">Frequently asked questions</h3><dl>${page.faqs
+  return `<section class="publishing-faq"><h2 class="publishing-section__title">Frequently asked questions</h2><dl>${page.faqs
     .map(
       (faq) =>
         `<dt>${escapeHtml(faq.question)}</dt><dd>${escapeHtml(faq.answer)}</dd>`
@@ -85,7 +85,7 @@ function renderRelatedPages(page) {
     return '';
   }
 
-  return `<nav class="publishing-related" aria-label="Related BPM resources"><h3 class="publishing-section__title">Related BPM resources</h3><div class="publishing-related__grid">${relatedPages
+  return `<nav class="publishing-related" aria-label="Related BPM resources"><h2 class="publishing-section__title">Related BPM resources</h2><div class="publishing-related__grid">${relatedPages
     .map(
       (relatedPage) =>
         `<a class="publishing-related__link" href="${escapeHtml(relatedPage.path)}"><strong>${escapeHtml(relatedPage.heading)}</strong><span>${escapeHtml(relatedPage.description)}</span></a>`
@@ -102,7 +102,7 @@ function renderToolPlaceholder(page) {
 }
 
 function renderPublishingPage(page) {
-  return `<main class="content publishing-page"><article><header class="publishing-header"><h2 class="publishing-header__title">${escapeHtml(page.heading)}</h2><p class="publishing-header__lede">${escapeHtml(page.lede)}</p><p class="publishing-header__updated">Updated ${escapeHtml(page.updatedDate)}</p></header>${renderToolPlaceholder(page)}${page.sections
+  return `<main class="content publishing-page"><article><header class="publishing-header"><h1 class="publishing-header__title">${escapeHtml(page.heading)}</h1><p class="publishing-header__lede">${escapeHtml(page.lede)}</p><p class="publishing-header__updated">Updated ${escapeHtml(page.updatedDate)}</p></header>${renderToolPlaceholder(page)}${page.sections
     .map(renderSection)
     .join('')}${renderFaq(page)}</article>${renderRelatedPages(page)}</main>`;
 }
@@ -112,8 +112,9 @@ function renderPrimaryNavigation() {
     ['/', 'Listen'],
     ['/upload', 'Audio URL'],
     ['/tools/tap-tempo', 'Tap tempo'],
-    ['/tools/bpm-to-ms', 'BPM to ms'],
-    ['/guides/beatmatching', 'Beatmatching'],
+    ['/tools/metronome', 'Metronome'],
+    ['/tools', 'All tools'],
+    ['/guides', 'Guides'],
   ];
 
   return `<nav class="site-nav" aria-label="Primary">${links
@@ -125,11 +126,11 @@ function renderPrimaryNavigation() {
 }
 
 function renderRelatedNavigation() {
-  return '<aside class="related-nav" aria-label="Popular BPM resources"><h2>Popular resources</h2><a href="/tools/bpm-converter">Half/double BPM</a><a href="/guides/genre-bpm-ranges">Genre BPM ranges</a><a href="/guides/how-bpm-detection-works">How detection works</a></aside>';
+  return '<aside class="related-nav" aria-label="Popular BPM resources"><h2>Popular resources</h2><a href="/tools/bpm-to-ms">BPM to ms</a><a href="/tools/bars-to-time">Bars to seconds</a><a href="/tools/bpm-converter">Half/double BPM</a><a href="/guides/genre-bpm-ranges">Genre BPM ranges</a><a href="/guides/beatmatching">Beatmatching</a><a href="/guides/bpm-reference-table">BPM reference table</a></aside>';
 }
 
 function renderStaticShell(page) {
-  return `<header class="site-header"><h1 class="site-brand"><a class="site-brand__link" href="/"><svg class="site-brand__mark" viewBox="0 0 40 40" aria-hidden="true"><path d="M5 23v-6M11 29V11M17 25V15M23 34V6M29 27V13M35 22v-4"></path></svg><span class="site-brand__copy"><span class="site-brand__name">BPM Techno</span><span class="site-brand__descriptor">Free · Offline · BPM tools for DJs</span></span></a></h1></header><div class="body">${renderPrimaryNavigation()}${renderPublishingPage(page)}${renderRelatedNavigation()}</div><footer class="site-footer"><div class="site-footer__inner"><p class="site-footer__credit">Made for DJs in Norway by <a href="https://twitter.com/webmaxru/">Maxim Salnikov</a></p><nav class="site-footer__nav" aria-label="Legal and project"><a href="/about">About</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/contact">Contact</a><a href="/affiliate-disclosure">Affiliate disclosure</a></nav></div></footer>`;
+  return `<header class="site-header"><div class="site-brand"><a class="site-brand__link" href="/"><svg class="site-brand__mark" viewBox="0 0 40 40" aria-hidden="true"><path d="M5 23v-6M11 29V11M17 25V15M23 34V6M29 27V13M35 22v-4"></path></svg><span class="site-brand__copy"><span class="site-brand__name">BPM Techno</span><span class="site-brand__descriptor">Free · Offline · BPM tools for DJs</span></span></a></div></header><div class="body">${renderPrimaryNavigation()}${renderPublishingPage(page)}${renderRelatedNavigation()}</div><footer class="site-footer"><div class="site-footer__inner"><p class="site-footer__credit">Made for DJs in Norway by <a href="https://twitter.com/webmaxru/">Maxim Salnikov</a></p><nav class="site-footer__nav" aria-label="Legal and project"><a href="/about">About</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/contact">Contact</a><a href="/affiliate-disclosure">Affiliate disclosure</a></nav></div></footer>`;
 }
 
 function setMetaContent(html, attribute, key, content) {

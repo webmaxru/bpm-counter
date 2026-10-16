@@ -8,12 +8,13 @@ import {
 } from './content/publishingPages';
 import { useContentTelemetry } from './useContentTelemetry';
 import NotFound from './NotFound';
+import AdSlot from './AdSlot';
 import './Publishing.css';
 
 export function PublishingHeader({ page }) {
   return (
     <header className="publishing-header">
-      <h2 className="publishing-header__title">{page.heading}</h2>
+      <h1 className="publishing-header__title">{page.heading}</h1>
       <p className="publishing-header__lede">{page.lede}</p>
       <p className="publishing-header__updated">
         Updated {page.updatedDate}
@@ -22,12 +23,14 @@ export function PublishingHeader({ page }) {
   );
 }
 
-export function PublishingSections({ page }) {
+export function PublishingSections({ page, adAfterSection = -1 }) {
   return (
     <>
-      {page.sections.map((section) => (
-        <section className="publishing-section" key={section.heading}>
-          <h3 className="publishing-section__title">{section.heading}</h3>
+      {page.sections.map((section, index) => (
+        <React.Fragment key={section.heading}>
+        {index === adAfterSection ? <AdSlot name="inArticle" /> : null}
+        <section className="publishing-section">
+          <h2 className="publishing-section__title">{section.heading}</h2>
 
           {section.paragraphs?.map((paragraph) => (
             <p key={paragraph}>{paragraph}</p>
@@ -84,6 +87,7 @@ export function PublishingSections({ page }) {
             </div>
           ) : null}
         </section>
+        </React.Fragment>
       ))}
     </>
   );
@@ -96,9 +100,9 @@ export function PublishingFaq({ page }) {
 
   return (
     <section className="publishing-faq">
-      <h3 className="publishing-section__title">
+      <h2 className="publishing-section__title">
         Frequently asked questions
-      </h3>
+      </h2>
       <dl>
         {page.faqs.map((faq) => (
           <React.Fragment key={faq.question}>
@@ -120,7 +124,7 @@ export function RelatedPublishingPages({ page }) {
 
   return (
     <nav className="publishing-related" aria-label="Related BPM resources">
-      <h3 className="publishing-section__title">Related BPM resources</h3>
+      <h2 className="publishing-section__title">Related BPM resources</h2>
       <div className="publishing-related__grid">
         {relatedPages.map((relatedPage) => (
           <Link
@@ -145,9 +149,15 @@ export function PublishingArticle({ page }) {
       <Seo page={page} />
       <article>
         <PublishingHeader page={page} />
-        <PublishingSections page={page} />
+        <PublishingSections
+          page={page}
+          adAfterSection={page.category === 'guide' ? 1 : -1}
+        />
         <PublishingFaq page={page} />
       </article>
+      {page.category === 'guide' ? (
+        <AdSlot name="multiplex" format="autorelaxed" minHeight={320} />
+      ) : null}
       <RelatedPublishingPages page={page} />
     </main>
   );
