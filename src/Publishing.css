@@ -172,7 +172,44 @@
 }
 
 .tool-panel label {
+  display: block;
   font-weight: 600;
+}
+
+.tool-panel label + label,
+.tool-panel .tool-results-grid + label,
+.tool-panel .publishing-table-wrapper + label,
+.tool-panel .tool-panel__note + label,
+.tool-panel input + label,
+.tool-panel select + label {
+  margin-top: var(--space-5, 1.5rem);
+}
+
+.tool-panel select {
+  display: block;
+  width: min(100%, 16rem);
+  margin: 0.65rem auto 0;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-md, 8px);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 1.05rem;
+  text-align: center;
+}
+
+.tool-panel__note {
+  margin: 0.75rem auto 0;
+  max-width: 36rem;
+  color: var(--color-text-muted);
+  font-size: 1.05rem;
+  line-height: 1.5;
+}
+
+.tool-panel .publishing-table-wrapper {
+  margin-top: var(--space-4, 1rem);
+  text-align: left;
 }
 
 .tool-panel input[type='number'] {

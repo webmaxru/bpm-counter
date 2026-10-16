@@ -1,0 +1,19 @@
+.ad-slot {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  width: 100%;
+  margin: 2rem 0;
+  contain: layout;
+}
+
+.ad-slot__label {
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+
+.ad-slot .adsbygoogle {
+  width: 100%;
+}

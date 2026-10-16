@@ -1,0 +1,56 @@
+.metronome__slider {
+  width: 100%;
+  margin: 0.75rem 0 1rem;
+  accent-color: var(--color-accent, #ffb36b);
+}
+
+.metronome__steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.metronome__steps button,
+.metronome__toggle {
+  min-height: 48px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.metronome__toggle {
+  width: 100%;
+  margin-top: 1rem;
+  font-size: 1.1rem;
+}
+
+.metronome__toggle[aria-pressed='true'] {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.metronome__beats {
+  display: flex;
+  gap: 0.6rem;
+  margin: 1rem 0 0;
+}
+
+.metronome__beat {
+  flex: 1 1 0;
+  height: 18px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.12);
+  transition: background 60ms linear;
+}
+
+.metronome__beat--accent {
+  height: 24px;
+}
+
+.metronome__beat--active {
+  background: var(--color-accent, #ffb36b);
+}

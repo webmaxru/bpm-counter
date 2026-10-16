@@ -8,6 +8,7 @@ import {
 } from './PublishingPage';
 import { getPublishingPage } from './content/publishingPages';
 import { useContentTelemetry } from './useContentTelemetry';
+import AdSlot from './AdSlot';
 import './Publishing.css';
 
 function ToolPageLayout({ pageId, children }) {
@@ -20,9 +21,10 @@ function ToolPageLayout({ pageId, children }) {
       <article>
         <PublishingHeader page={page} />
         {children}
-        <PublishingSections page={page} />
+        <PublishingSections page={page} adAfterSection={1} />
         <PublishingFaq page={page} />
       </article>
+      <AdSlot name="multiplex" format="autorelaxed" minHeight={320} />
       <RelatedPublishingPages page={page} />
     </main>
   );
