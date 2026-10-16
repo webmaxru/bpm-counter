@@ -2,7 +2,7 @@ import { injectManifest } from "workbox-build";
 
 let workboxConfig = {
   globDirectory: "build",
-  globPatterns: ["favicon.ico", "**/*.html", "assets/**/*", "images/icons/*", "manifest.webmanifest"],
+  globPatterns: ["favicon.ico", "**/*.html", "assets/**/*", "fonts/*.woff2", "images/icons/*", "manifest.webmanifest"],
   globIgnores: [
     "**/*.map",
     "**/*.txt"

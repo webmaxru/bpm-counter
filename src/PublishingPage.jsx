@@ -28,7 +28,14 @@ export function PublishingSections({ page, adAfterSection = -1 }) {
     <>
       {page.sections.map((section, index) => (
         <React.Fragment key={section.heading}>
-        {index === adAfterSection ? <AdSlot name="inArticle" format="fluid" layout="in-article" /> : null}
+        {index === adAfterSection ? (
+          <AdSlot
+            key={`${page.id}-in-article`}
+            name="inArticle"
+            format="fluid"
+            layout="in-article"
+          />
+        ) : null}
         <section className="publishing-section">
           <h2 className="publishing-section__title">{section.heading}</h2>
 
@@ -156,7 +163,12 @@ export function PublishingArticle({ page }) {
         <PublishingFaq page={page} />
       </article>
       {page.category === 'guide' ? (
-        <AdSlot name="multiplex" format="autorelaxed" minHeight={320} />
+        <AdSlot
+          key={`${page.id}-multiplex`}
+          name="multiplex"
+          format="autorelaxed"
+          minHeight={320}
+        />
       ) : null}
       <RelatedPublishingPages page={page} />
     </main>

@@ -35,9 +35,9 @@ export const adsConfig = Object.freeze({
 });
 
 const ADSENSE_SLOTS = Object.freeze({
-  // Optional manual units. Create them in AdSense (Ads → By ad unit) and set the
-  // slot ids at build time; with no id configured the slot renders nothing and
-  // Auto ads keep working exactly as before.
+  // Manual units (AdSense → Ads → By ad unit). The ids are set in `.env`, so
+  // both units are enabled by default; with no id configured the slot renders
+  // nothing and only Auto ads run.
   inArticle: import.meta.env.VITE_ADSENSE_SLOT_IN_ARTICLE || '',
   multiplex: import.meta.env.VITE_ADSENSE_SLOT_MULTIPLEX || '',
 });

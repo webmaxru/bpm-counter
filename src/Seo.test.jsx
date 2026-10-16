@@ -2,6 +2,7 @@ import React from 'react';
 import { render, waitFor } from '@testing-library/react';
 import Seo from './Seo';
 import { getPublishingPage } from './content/publishingPages';
+import { createStructuredData } from './seoData';
 
 afterEach(() => {
   document.head.querySelector('link[rel="canonical"]')?.remove();
@@ -61,5 +62,32 @@ describe('Seo', () => {
       ).toHaveAttribute('content', 'index, follow');
     });
     expect(document.getElementById('route-structured-data')).not.toBeNull();
+  });
+});
+
+describe('createStructuredData', () => {
+  const article = {
+    path: '/guides/example',
+    structuredDataType: 'Article',
+    heading: 'Example guide',
+    description: 'Example description',
+    updatedDate: '2026-10-16',
+  };
+
+  it('omits datePublished when no publication date is known', () => {
+    const [entity] = createStructuredData(article)['@graph'];
+
+    expect(entity).not.toHaveProperty('datePublished');
+    expect(entity.dateModified).toBe('2026-10-16');
+  });
+
+  it('emits datePublished from a real publication date', () => {
+    const [entity] = createStructuredData({
+      ...article,
+      publishedDate: '2026-04-02',
+    })['@graph'];
+
+    expect(entity.datePublished).toBe('2026-04-02');
+    expect(entity.dateModified).toBe('2026-10-16');
   });
 });

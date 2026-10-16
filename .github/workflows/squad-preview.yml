@@ -16,6 +16,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
 
       - name: Validate version consistency
         run: |
@@ -26,8 +27,11 @@ jobs:
           fi
           echo "✅ Version $VERSION validated in CHANGELOG.md"
 
+      - name: Install dependencies
+        run: npm ci
+
       - name: Run tests
-        run: node --test test/*.test.js
+        run: npm test
 
       - name: Check no .ai-team/ or .squad/ files are tracked
         run: |

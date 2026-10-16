@@ -348,8 +348,13 @@ function Home(props) {
             </div>
           </section>
         ) : (
+          <>
+          <h1 className="visually-hidden" id="live-tool-title">
+            Find the BPM
+          </h1>
           <section
             className="home-tool__content home-tool--result"
+            aria-labelledby="live-tool-title"
             aria-live="polite"
           >
             <p className="home-tool__status">
@@ -418,6 +423,7 @@ function Home(props) {
               ) : null}
             </div>
           </section>
+          </>
         )}
 
         <div

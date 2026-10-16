@@ -4,15 +4,11 @@ test('primary navigation exposes BPM tools and guides', async ({ page }) => {
   await page.goto('/');
 
   const navigation = page.getByRole('navigation', { name: 'Primary' });
-  await expect(
-    navigation.getByRole('link', { name: 'Tap tempo' })
-  ).toBeVisible();
-  await expect(
-    navigation.getByRole('link', { name: 'BPM to ms' })
-  ).toBeVisible();
-  await expect(
-    navigation.getByRole('link', { name: 'Beatmatching' })
-  ).toBeVisible();
+  for (const name of ['Tap tempo', 'Metronome', 'All tools', 'Guides']) {
+    await expect(
+      navigation.getByRole('link', { name, exact: true })
+    ).toBeVisible();
+  }
 });
 
 test('tap tempo calculates a stable manual BPM', async ({ page }) => {

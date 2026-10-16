@@ -74,7 +74,7 @@ function BarsToTime() {
     () => secondsToBars(bpm, seconds, beatsPerBar),
     [bpm, seconds, beatsPerBar]
   );
-  const valid = beatSeconds !== null;
+  const valid = barsToSeconds(bpm, 1, beatsPerBar) !== null;
 
   return (
     <ToolPageLayout pageId="bars-to-time">

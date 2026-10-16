@@ -24,7 +24,12 @@ function ToolPageLayout({ pageId, children }) {
         <PublishingSections page={page} adAfterSection={1} />
         <PublishingFaq page={page} />
       </article>
-      <AdSlot name="multiplex" format="autorelaxed" minHeight={320} />
+      <AdSlot
+        key={`${page.id}-multiplex`}
+        name="multiplex"
+        format="autorelaxed"
+        minHeight={320}
+      />
       <RelatedPublishingPages page={page} />
     </main>
   );

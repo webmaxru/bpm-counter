@@ -274,7 +274,7 @@ describe('App', () => {
     render(<App />);
 
     expect(
-      screen.getByRole('heading', { name: /Page not found/i })
+      screen.getByRole('heading', { level: 1, name: /Page not found/i })
     ).toBeInTheDocument();
     expect(document.head.querySelector('meta[name="robots"]')).toHaveAttribute(
       'content',

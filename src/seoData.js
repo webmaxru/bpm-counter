@@ -55,7 +55,7 @@ export function createStructuredData(page) {
       '@type': 'Article',
       headline: page.heading,
       description: page.description,
-      datePublished: page.publishedDate ?? page.updatedDate,
+      ...(page.publishedDate ? { datePublished: page.publishedDate } : {}),
       dateModified: page.updatedDate,
       mainEntityOfPage: url,
       author: {

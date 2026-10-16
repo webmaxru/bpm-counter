@@ -41,10 +41,30 @@ function scheduleClick(context, time, accented) {
   gain.connect(context.destination);
   oscillator.start(time);
   oscillator.stop(time + 0.06);
+
+  return { oscillator, gain };
+}
+
+function silenceClick({ oscillator, gain }) {
+  try {
+    oscillator.stop();
+  } catch {
+    // The oscillator has already finished.
+  }
+  oscillator.disconnect?.();
+  gain.disconnect?.();
+}
+
+function parseTempo(value) {
+  const text = String(value).trim();
+  const numeric = Number(text);
+
+  return text !== '' && Number.isFinite(numeric) ? numeric : null;
 }
 
 function Metronome() {
   const [bpm, setBpm] = useState(120);
+  const [tempoDraft, setTempoDraft] = useState('120');
   const [beatsPerBar, setBeatsPerBar] = useState(4);
   const [running, setRunning] = useState(false);
   const [currentBeat, setCurrentBeat] = useState(-1);
@@ -56,19 +76,36 @@ function Metronome() {
   const beatRef = useRef(0);
   const bpmRef = useRef(bpm);
   const beatsRef = useRef(beatsPerBar);
+  const scheduledClicksRef = useRef(new Set());
+  const beatTimeoutsRef = useRef(new Set());
+  // Bumped on every stop/unmount so a start that is still awaiting resume()
+  // can tell it has been cancelled.
+  const sessionRef = useRef(0);
+  const startingRef = useRef(false);
 
   bpmRef.current = bpm;
   beatsRef.current = beatsPerBar;
 
-  const stop = useCallback(() => {
-    if (timerRef.current) {
+  const halt = useCallback(() => {
+    sessionRef.current += 1;
+    startingRef.current = false;
+
+    if (timerRef.current !== null) {
       window.clearInterval(timerRef.current);
       timerRef.current = null;
     }
 
+    beatTimeoutsRef.current.forEach((id) => window.clearTimeout(id));
+    beatTimeoutsRef.current.clear();
+    scheduledClicksRef.current.forEach(silenceClick);
+    scheduledClicksRef.current.clear();
+  }, []);
+
+  const stop = useCallback(() => {
+    halt();
     setRunning(false);
     setCurrentBeat(-1);
-  }, []);
+  }, [halt]);
 
   const scheduler = useCallback(() => {
     const context = contextRef.current;
@@ -77,33 +114,68 @@ function Metronome() {
       return;
     }
 
-    while (nextTimeRef.current < context.currentTime + SCHEDULE_AHEAD_SECONDS) {
-      const beat = beatRef.current;
-      scheduleClick(context, nextTimeRef.current, beat === 0);
+    const now = context.currentTime;
+    const beats = beatsRef.current;
 
-      const delay = Math.max(0, (nextTimeRef.current - context.currentTime) * 1000);
-      window.setTimeout(() => setCurrentBeat(beat), delay);
-
+    // After a main-thread stall or background timer throttling, beats that are
+    // already in the past are skipped (keeping the bar position) instead of
+    // being played all at once.
+    while (nextTimeRef.current < now) {
       nextTimeRef.current = nextBeatTime(nextTimeRef.current, bpmRef.current);
-      beatRef.current = (beat + 1) % beatsRef.current;
+      beatRef.current = (beatRef.current + 1) % beats;
+    }
+
+    while (nextTimeRef.current < now + SCHEDULE_AHEAD_SECONDS) {
+      const beat = beatRef.current % beats;
+      const time = nextTimeRef.current;
+      const click = scheduleClick(context, time, beat === 0);
+
+      scheduledClicksRef.current.add(click);
+      click.oscillator.onended = () => {
+        scheduledClicksRef.current.delete(click);
+      };
+
+      const timeoutId = window.setTimeout(() => {
+        beatTimeoutsRef.current.delete(timeoutId);
+        setCurrentBeat(beat);
+      }, Math.max(0, (time - now) * 1000));
+      beatTimeoutsRef.current.add(timeoutId);
+
+      nextTimeRef.current = nextBeatTime(time, bpmRef.current);
+      beatRef.current = (beat + 1) % beats;
     }
   }, []);
 
   const start = useCallback(async () => {
     const AudioContextClass = getAudioContextClass();
 
-    if (!AudioContextClass) {
+    if (!AudioContextClass || startingRef.current || timerRef.current !== null) {
       return;
     }
 
-    if (!contextRef.current) {
-      contextRef.current = new AudioContextClass();
+    startingRef.current = true;
+    const session = sessionRef.current;
+
+    try {
+      if (!contextRef.current) {
+        contextRef.current = new AudioContextClass();
+      }
+
+      if (contextRef.current.state === 'suspended') {
+        await contextRef.current.resume();
+      }
+    } catch {
+      if (session === sessionRef.current) {
+        startingRef.current = false;
+      }
+      return;
     }
 
-    if (contextRef.current.state === 'suspended') {
-      await contextRef.current.resume();
+    if (session !== sessionRef.current || !contextRef.current) {
+      return;
     }
 
+    startingRef.current = false;
     beatRef.current = 0;
     nextTimeRef.current = contextRef.current.currentTime + 0.05;
     setRunning(true);
@@ -112,15 +184,37 @@ function Metronome() {
 
   useEffect(
     () => () => {
-      if (timerRef.current) {
-        window.clearInterval(timerRef.current);
-      }
-      contextRef.current?.close?.();
+      halt();
+      const context = contextRef.current;
+      contextRef.current = null;
+      context?.close?.();
     },
-    []
+    [halt]
   );
 
-  const adjust = (delta) => setBpm((value) => clampBpm(value + delta));
+  const applyBpm = (value) => {
+    const next = clampBpm(value);
+    setBpm(next);
+    setTempoDraft(String(next));
+  };
+
+  const adjust = (delta) => applyBpm(bpm + delta);
+
+  const handleTempoInput = (event) => {
+    const { value } = event.target;
+    const numeric = parseTempo(value);
+
+    setTempoDraft(value);
+
+    if (numeric !== null && numeric >= MIN_BPM && numeric <= MAX_BPM) {
+      setBpm(clampBpm(numeric));
+    }
+  };
+
+  const commitTempo = () => {
+    const numeric = parseTempo(tempoDraft);
+    applyBpm(numeric === null ? bpm : numeric);
+  };
 
   return (
     <ToolPageLayout pageId="metronome">
@@ -131,10 +225,16 @@ function Metronome() {
           type="number"
           min={MIN_BPM}
           max={MAX_BPM}
-          step="1"
-          inputMode="numeric"
-          value={bpm}
-          onChange={(event) => setBpm(clampBpm(event.target.value))}
+          step="0.1"
+          inputMode="decimal"
+          value={tempoDraft}
+          onChange={handleTempoInput}
+          onBlur={commitTempo}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter') {
+              commitTempo();
+            }
+          }}
         />
         <input
           className="metronome__slider"
@@ -144,7 +244,7 @@ function Metronome() {
           step="1"
           value={bpm}
           aria-label="Tempo slider"
-          onChange={(event) => setBpm(clampBpm(event.target.value))}
+          onChange={(event) => applyBpm(event.target.value)}
         />
 
         <div className="metronome__steps" role="group" aria-label="Adjust tempo">
@@ -203,9 +303,7 @@ function Metronome() {
         )}
         <p className="tool-panel__note" aria-live="polite">
           {running
-            ? `Playing ${bpm} BPM in ${beatsPerBar}/4. Beat ${
-                currentBeat + 1 || 1
-              } of ${beatsPerBar}.`
+            ? `Playing ${bpm} BPM in ${beatsPerBar}/4.`
             : `Ready at ${bpm} BPM, ${beatsPerBar} beats per bar.`}
         </p>
       </section>

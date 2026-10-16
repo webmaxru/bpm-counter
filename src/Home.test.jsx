@@ -173,6 +173,9 @@ describe('Home', () => {
 
     expect(screen.getByRole('button', { name: /Start over/i })).toBeInTheDocument();
     expect(
+      screen.getByRole('heading', { level: 1, name: 'Find the BPM' })
+    ).toBeInTheDocument();
+    expect(
       screen.queryByRole('link', { name: /Browse DJ controllers/i })
     ).not.toBeInTheDocument();
   });

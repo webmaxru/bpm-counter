@@ -33,9 +33,39 @@ describe('barsToSeconds', () => {
     expect(formatDuration(90)).toBe('1:30.0 min');
     expect(formatDuration(null)).toBe('-');
   });
+
+  it('carries rounded seconds into the minutes', () => {
+    expect(formatDuration(119.95)).toBe('2:00.0 min');
+    expect(formatDuration(barsToSeconds(240.1, 120, 4))).toBe('2:00.0 min');
+  });
 });
 
 describe('BarsToTime', () => {
+  it('asks for valid input when beats per bar is cleared or zero', () => {
+    render(
+      <MemoryRouter>
+        <BarsToTime />
+      </MemoryRouter>
+    );
+    const beatsInput = screen.getByRole('spinbutton', { name: /Beats per bar/i });
+
+    fireEvent.change(beatsInput, { target: { value: '' } });
+
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Enter a BPM value and beats per bar greater than zero.'
+    );
+    expect(screen.queryByText('One beat')).not.toBeInTheDocument();
+
+    fireEvent.change(beatsInput, { target: { value: '0' } });
+
+    expect(screen.getByRole('alert')).toBeInTheDocument();
+
+    fireEvent.change(beatsInput, { target: { value: '3' } });
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.getByText('One beat')).toBeInTheDocument();
+  });
+
   it('recalculates when the tempo changes', () => {
     render(
       <MemoryRouter>

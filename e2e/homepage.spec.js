@@ -5,11 +5,14 @@ test('homepage loads with title and start button', async ({ page }) => {
 
   await expect(page).toHaveTitle(/BPM/i);
 
-  const heading = page.getByRole('heading', {
-    level: 1,
+  const brandLink = page.getByRole('link', {
     name: /BPM Techno.*Free.*Offline.*BPM tools for DJs/i,
   });
-  await expect(heading).toBeVisible();
+  await expect(brandLink).toBeVisible();
+
+  await expect(
+    page.getByRole('heading', { level: 1, name: 'Find the BPM' })
+  ).toBeVisible();
 
   const startButton = page.getByRole('button', { name: /Start listening/i });
   await expect(startButton).toBeVisible();
