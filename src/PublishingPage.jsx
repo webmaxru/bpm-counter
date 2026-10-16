@@ -28,7 +28,7 @@ export function PublishingSections({ page, adAfterSection = -1 }) {
     <>
       {page.sections.map((section, index) => (
         <React.Fragment key={section.heading}>
-        {index === adAfterSection ? <AdSlot name="inArticle" /> : null}
+        {index === adAfterSection ? <AdSlot name="inArticle" format="fluid" layout="in-article" /> : null}
         <section className="publishing-section">
           <h2 className="publishing-section__title">{section.heading}</h2>
 

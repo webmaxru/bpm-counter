@@ -74,12 +74,12 @@ function AdSlot({ name, format = 'auto', layout, minHeight = 280 }) {
       {visible ? (
         <ins
           className="adsbygoogle"
-          style={{ display: 'block' }}
+          style={layout === 'in-article' ? { display: 'block', textAlign: 'center' } : { display: 'block' }}
           data-ad-client={adsConfig.adsense.clientId}
           data-ad-slot={slot}
           data-ad-format={format}
           data-ad-layout={layout}
-          data-full-width-responsive="true"
+          data-full-width-responsive={format === 'auto' ? 'true' : undefined}
         />
       ) : null}
     </div>
