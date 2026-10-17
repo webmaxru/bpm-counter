@@ -29,11 +29,20 @@ import {
 import { getPublishingPage } from './content/publishingPages';
 import { useContentTelemetry } from './useContentTelemetry';
 import NativeShareButton from './NativeShareButton';
+import AdSlot from './AdSlot';
+import { getInArticleSectionIndex, shouldShowMultiplex } from './adPlacement';
+import { getStrings } from './i18n';
 
-const homePublishingPage = getPublishingPage('home');
 
 function Home(props) {
   let log = props.log;
+  const locale = props.locale === 'nb' ? 'nb' : 'en';
+  const strings = getStrings(locale);
+  const text = strings.home;
+  const homePublishingPage = getPublishingPage(locale === 'nb' ? 'home-nb' : 'home');
+  const inArticleIndex = getInArticleSectionIndex(homePublishingPage, {
+    hasInteractiveTool: true,
+  });
 
   const isMobile = props.isMobile;
   const isForcedViz = props.isForcedViz;
@@ -192,7 +201,7 @@ function Home(props) {
           startedSuccessfully = true;
         }
       } else {
-        toast.error('No luck with accessing audio in your browser...');
+        toast.error(text.audioUnavailable);
         log.error('Browser is not supported');
       }
     } catch (err) {
@@ -303,7 +312,7 @@ function Home(props) {
   };
 
   return (
-    <main className="content home-content">
+    <main className="content home-content" lang={homePublishingPage.lang}>
       <Seo page={homePublishingPage} />
       <div className="home-tool">
         {isShowingInit ? (
@@ -312,9 +321,9 @@ function Home(props) {
             aria-labelledby="live-tool-title"
           >
             <div className="home-tool__heading">
-              <h1 id="live-tool-title">Find the BPM</h1>
+              <h1 id="live-tool-title">{text.title}</h1>
               <p>
-                Point your device toward the speakers and let the beat settle.
+                {text.intro}
               </p>
             </div>
 
@@ -324,15 +333,15 @@ function Home(props) {
                 disabled={isListening}
                 className="btn-start"
                 data-tooltip-id="home-hint"
-                data-tooltip-content="Start listening, then allow a few seconds for the tempo to stabilize."
+                data-tooltip-content={text.hint}
               >
                 <svg viewBox="0 0 32 32" aria-hidden="true">
                   <path d="M7 18v-4M13 23V9M19 20v-8M25 25V7" />
                 </svg>
-                <span>Start listening</span>
+                <span>{text.start}</span>
               </button>
               <p className="home-tool__permission">
-                Microphone permission is requested when you start.
+                {text.permission}
               </p>
             </div>
 
@@ -342,15 +351,15 @@ function Home(props) {
                 <path d="m9 12 2 2 4-5" />
               </svg>
               <p>
-                <strong>No audio is sent to any server.</strong>{' '}
-                <span>Analysis stays on this device.</span>
+                <strong>{text.privacyStrong}</strong>{' '}
+                <span>{text.privacyRest}</span>
               </p>
             </div>
           </section>
         ) : (
           <>
           <h1 className="visually-hidden" id="live-tool-title">
-            Find the BPM
+            {text.title}
           </h1>
           <section
             className="home-tool__content home-tool--result"
@@ -359,7 +368,7 @@ function Home(props) {
           >
             <p className="home-tool__status">
               <span aria-hidden="true"></span>
-              {isResultReady ? 'Tempo locked' : 'Analyzing the beat'}
+              {isResultReady ? text.locked : text.analyzing}
             </p>
             <h2
               className="bpm-display"
@@ -368,7 +377,7 @@ function Home(props) {
               {isResultReady ? primaryBPM : null}
             </h2>
             <p className="bpm-display__unit">
-              {isResultReady ? 'BPM' : 'Listening. Wait...'}
+              {isResultReady ? 'BPM' : text.listening}
             </p>
 
             {!isResultReady && interimBPM ? (
@@ -377,18 +386,22 @@ function Home(props) {
 
             {!isResultReady && primaryBPM ? (
               <p className="bpm-display__previous">
-                <span>Last: </span>
+                <span>{text.last}</span>
                 {primaryBPM}
                 <span> BPM</span>
               </p>
             ) : null}
 
             <button onClick={stopListening} className="btn-stop">
-              Start over
+              {text.startOver}
             </button>
 
             {isResultReady && primaryBPM ? (
-              <NativeShareButton bpm={primaryBPM} mode="live microphone" />
+              <NativeShareButton
+                bpm={primaryBPM}
+                mode="live microphone"
+                locale={locale}
+              />
             ) : null}
 
             {primaryBPM ? (
@@ -396,6 +409,7 @@ function Home(props) {
                 bpm={primaryBPM}
                 log={log}
                 type="mic"
+                locale={locale}
               ></Feedback>
             ) : null}
 
@@ -406,7 +420,7 @@ function Home(props) {
                 aria-expanded={isSampleVisible}
                 onClick={toggleSampleVisibility}
               >
-                {isSampleVisible ? 'Hide sample file' : 'Try a 120 BPM sample'}
+                {isSampleVisible ? text.hideSample : text.trySample}
               </button>
               {isSampleVisible ? (
                 <>
@@ -416,8 +430,7 @@ function Home(props) {
                     controls
                   ></audio>
                   <p>
-                    Play the sample through a speaker. Detection usually
-                    stabilizes within 5–30 seconds at 120 BPM.
+                    {text.sampleHint}
                   </p>
                 </>
               ) : null}
@@ -432,13 +445,13 @@ function Home(props) {
               ? ' spectrum-analyzer--hidden'
               : ''
           }`}
-          aria-label="Live audio spectrum"
+          aria-label={text.spectrum}
         >
           <div id="AudioMotionAnalyzer"></div>
         </div>
       </div>
 
-      {isShowingInit ? (
+      {locale !== 'en' ? null : isShowingInit ? (
         <AffiliateCard
           campaignId="studio-headphones"
           placement="home_initial"
@@ -456,11 +469,23 @@ function Home(props) {
 
       <section className="home-publishing" aria-labelledby="home-guide-title">
         <h2 className="home-publishing__title" id="home-guide-title">
-          Measure and understand tempo
+          {text.guideTitle}
         </h2>
         <p className="home-publishing__lede">{homePublishingPage.lede}</p>
-        <PublishingSections page={homePublishingPage} />
+        <PublishingSections
+          page={homePublishingPage}
+          adAfterSection={inArticleIndex}
+        />
         <PublishingFaq page={homePublishingPage} />
+        {shouldShowMultiplex(homePublishingPage) ? (
+          <AdSlot
+            key={`${homePublishingPage.id}-multiplex`}
+            name="multiplex"
+            format="autorelaxed"
+            minHeight={320}
+            label={strings.adLabel}
+          />
+        ) : null}
         <RelatedPublishingPages page={homePublishingPage} />
       </section>
     </main>

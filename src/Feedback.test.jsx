@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import Feedback from './Feedback';
 import log from 'loglevel';
+import { toast } from 'react-toastify';
 import { TelemetryContext } from './TelemetryContext';
 
 log.setLevel('silent');
@@ -171,5 +172,29 @@ describe('Feedback', () => {
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalled();
     });
+  });
+
+  it('asks for feedback in Norwegian on Norwegian pages', async () => {
+    const toastSuccess = vi.spyOn(toast, 'success').mockImplementation(() => {});
+    render(<Feedback {...defaultProps} locale="nb" />);
+
+    expect(screen.getByText('Høres 120 riktig ut?')).toBeInTheDocument();
+    expect(screen.queryByText(/Does 120 sound correct/)).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Nei, det er feil' }));
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalled();
+    });
+    expect(toastSuccess).toHaveBeenCalledWith('Sender tilbakemeldingen din. Takk!');
+    toastSuccess.mockRestore();
+    expect(JSON.parse(global.fetch.mock.calls[0][1].body)).toEqual({
+      bpm: '120',
+      type: 'mic',
+      isCorrect: false,
+    });
+    expect(
+      screen.getByRole('button', { name: 'Ja, det stemmer' })
+    ).toBeInTheDocument();
   });
 });

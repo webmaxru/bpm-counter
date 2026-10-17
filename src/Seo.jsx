@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { createStructuredData, SITE_ORIGIN } from './seoData';
+import { getHreflangAlternates } from './content/norwegianPages';
 
 const STRUCTURED_DATA_ID = 'route-structured-data';
 
@@ -28,9 +29,26 @@ function setCanonical(href) {
   canonical.setAttribute('href', href);
 }
 
+function setAlternates(path) {
+  document.head
+    .querySelectorAll('link[rel="alternate"][hreflang]')
+    .forEach((element) => element.remove());
+
+  getHreflangAlternates(path).forEach(({ hreflang, path: alternatePath }) => {
+    const link = document.createElement('link');
+    link.setAttribute('rel', 'alternate');
+    link.setAttribute('hreflang', hreflang);
+    link.setAttribute('href', new URL(alternatePath, SITE_ORIGIN).toString());
+    document.head.appendChild(link);
+  });
+}
+
 function Seo({ page }) {
   useEffect(() => {
     const canonicalUrl = new URL(page.path, SITE_ORIGIN).toString();
+
+    document.documentElement.setAttribute('lang', page.lang === 'nb' ? 'nb' : 'en');
+    setAlternates(page.path);
 
     document.title = page.title;
     setCanonical(canonicalUrl);

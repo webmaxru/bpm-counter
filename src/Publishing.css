@@ -400,3 +400,40 @@
     padding: 1rem;
   }
 }
+
+/* /bpm hub: compact grid of tempo links */
+.publishing-section__links--grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(3.25rem, 1fr));
+  gap: 0.4rem;
+  padding: 0;
+  list-style: none;
+}
+
+.publishing-section__links--grid a {
+  display: block;
+  padding: 0.55rem 0;
+  border-radius: 0.5rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  background: rgba(127, 127, 127, 0.12);
+  text-decoration: none;
+}
+
+/* Tempo pages: metronome and tap check side by side on wide screens */
+.tempo-tools {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 760px) {
+  .tempo-tools {
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+}
+
+.tempo-check__title {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}

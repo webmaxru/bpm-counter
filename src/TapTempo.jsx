@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import ToolPageLayout from './ToolPageLayout';
 import NativeShareButton from './NativeShareButton';
 import { performTapHaptic } from './nativePlatform';
+import { getStrings } from './i18n';
 
 const MAX_TAPS = 8;
 const RESET_GAP_MS = 2500;
@@ -25,7 +26,8 @@ export function calculateTapBpm(tapTimes) {
   return Math.round((60000 / averageInterval) * 10) / 10;
 }
 
-function TapTempo() {
+function TapTempo({ locale = 'en' }) {
+  const strings = getStrings(locale);
   const [tapTimes, setTapTimes] = useState([]);
   const bpm = useMemo(() => calculateTapBpm(tapTimes), [tapTimes]);
 
@@ -45,7 +47,7 @@ function TapTempo() {
   };
 
   return (
-    <ToolPageLayout pageId="tap-tempo">
+    <ToolPageLayout pageId={locale === 'nb' ? 'tap-tempo-nb' : 'tap-tempo'}>
       <section className="tool-panel" aria-labelledby="tap-tempo-result">
         <div
           className="tool-panel__result"
@@ -61,7 +63,7 @@ function TapTempo() {
             type="button"
             onClick={handleTap}
           >
-            Tap beat
+            {strings.tapBeat}
           </button>
           <button
             className="tool-panel__secondary"
@@ -69,18 +71,19 @@ function TapTempo() {
             onClick={() => setTapTimes([])}
             disabled={!tapTimes.length}
           >
-            Reset
+            {strings.reset}
           </button>
           <NativeShareButton
             bpm={bpm}
             mode="tap tempo"
             className="tool-panel__secondary"
+            locale={locale}
           />
         </div>
         <p className="tool-panel__hint">
           {tapTimes.length
-            ? `${tapTimes.length} of ${MAX_TAPS} recent taps`
-            : 'Use the button with a pointer, touch, Enter, or Space.'}
+            ? strings.recentTaps(tapTimes.length, MAX_TAPS)
+            : strings.tapHint}
         </p>
       </section>
     </ToolPageLayout>

@@ -87,7 +87,7 @@ describe('AdSlot on guide pages', () => {
   it('requests a new multiplex ad when navigating between guides', () => {
     const { container } = render(
       <MemoryRouter initialEntries={['/guides/beatmatching']}>
-        <NavigateTo to="/guides/genre-bpm-ranges" />
+        <NavigateTo to="/guides/how-bpm-detection-works" />
         <Routes>
           <Route path="/guides/:slug" element={<GuidePage />} />
         </Routes>

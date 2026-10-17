@@ -13,9 +13,7 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  Link,
   Navigate,
-  NavLink,
 } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
 import { Workbox } from 'workbox-window';
@@ -31,7 +29,21 @@ import BarsToTime from './BarsToTime';
 import BpmToHz from './BpmToHz';
 import PitchRange from './PitchRange';
 import Metronome from './Metronome';
+import TempoPage from './TempoPage';
+import {
+  PopularNav,
+  SiteBrand,
+  SiteFooterContent,
+  SiteNav,
+} from './SiteChrome';
+import AdRouteGuard from './AdRouteGuard';
+import { getLocaleForPath, getStrings } from './i18n';
 import { isNativeApp, openExternalUrl } from './nativePlatform';
+
+/** UI strings for the page that is open when a service-worker event arrives. */
+function getCurrentAppStrings() {
+  return getStrings(getLocaleForPath(window.location.pathname)).app;
+}
 
 function App() {
   const query = new URLSearchParams(window.location.search);
@@ -42,8 +54,6 @@ function App() {
   log.setDefaultLevel(isDebug ? 'info' : 'error');
 
   const [appInsights, setAppInsights] = useState(null);
-  const navLinkClassName = ({ isActive }) =>
-    isActive ? 'site-nav__link site-nav__link--active' : 'site-nav__link';
 
   useEffect(() => {
     let mounted = true;
@@ -59,14 +69,18 @@ function App() {
         wb.messageSkipWaiting();
       };
 
-      const Msg = () => (
-        <div className="update-toast">
-          <span>Updated app is available</span>
-          <button className="update-toast__button" onClick={refreshPage}>
-            Reload
-          </button>
-        </div>
-      );
+      const Msg = () => {
+        const text = getCurrentAppStrings();
+
+        return (
+          <div className="update-toast">
+            <span>{text.updateAvailable}</span>
+            <button className="update-toast__button" onClick={refreshPage}>
+              {text.reload}
+            </button>
+          </div>
+        );
+      };
 
       const showSkipWaitingPrompt = (event) => {
         toast.info(<Msg />);
@@ -80,18 +94,14 @@ function App() {
         }
         // P1 #11: Track SW offline events to App Insights
         if (event.data.type === 'REPLAY_COMPLETED') {
-          toast.success(
-            'Your feedback was sent after the connection is restored'
-          );
+          toast.success(getCurrentAppStrings().feedbackReplayed);
           getAppInsights()?.trackEvent({
             name: 'sw_replay_completed',
             properties: { type: 'REPLAY_COMPLETED' },
           });
         }
         if (event.data.type === 'REQUEST_FAILED') {
-          toast.warning(
-            'Your feedback will be sent after the connection is restored'
-          );
+          toast.warning(getCurrentAppStrings().feedbackQueued);
           getAppInsights()?.trackEvent({
             name: 'sw_request_failed',
             properties: { type: 'REQUEST_FAILED' },
@@ -168,46 +178,12 @@ function App() {
         }}
       >
         <TelemetryContext.Provider value={appInsights}>
+          <AdRouteGuard />
           <header className="site-header">
-            <div className="site-brand">
-              <Link className="site-brand__link" to="/">
-                <svg
-                  className="site-brand__mark"
-                  viewBox="0 0 40 40"
-                  aria-hidden="true"
-                >
-                  <path d="M5 23v-6M11 29V11M17 25V15M23 34V6M29 27V13M35 22v-4" />
-                </svg>
-                <span className="site-brand__copy">
-                  <span className="site-brand__name">BPM Techno</span>
-                  <span className="site-brand__descriptor">
-                    Free · Offline · BPM tools for DJs
-                  </span>
-                </span>
-              </Link>
-            </div>
+            <SiteBrand />
           </header>
           <div className="body">
-            <nav className="site-nav" aria-label="Primary">
-              <NavLink className={navLinkClassName} end to="/">
-                Listen
-              </NavLink>
-              <NavLink className={navLinkClassName} to="/upload">
-                Audio file
-              </NavLink>
-              <NavLink className={navLinkClassName} to="/tools/tap-tempo">
-                Tap tempo
-              </NavLink>
-              <NavLink className={navLinkClassName} to="/tools/metronome">
-                Metronome
-              </NavLink>
-              <NavLink className={navLinkClassName} end to="/tools">
-                All tools
-              </NavLink>
-              <NavLink className={navLinkClassName} end to="/guides">
-                Guides
-              </NavLink>
-            </nav>
+            <SiteNav />
 
             <AppInsightsErrorBoundary
               onError={() => <h1>Something went wrong</h1>}
@@ -249,6 +225,26 @@ function App() {
                 <Route path="/tools" element={<PublishingPage pageId="tools-hub" />} />
                 <Route path="/guides" element={<PublishingPage pageId="guides-hub" />} />
                 <Route path="/guides/:slug" element={<GuidePage />} />
+                <Route path="/bpm" element={<PublishingPage pageId="bpm-hub" />} />
+                <Route path="/bpm/:tempo" element={<TempoPage />} />
+                <Route
+                  path="/no"
+                  element={
+                    <Home
+                      locale="nb"
+                      isDebug={isDebug}
+                      log={log}
+                      isMobile={isMobile}
+                      isForcedViz={isForcedViz}
+                      testBPM={testBPM}
+                    />
+                  }
+                />
+                <Route path="/no/verktoy" element={<PublishingPage pageId="tools-hub-nb" />} />
+                <Route path="/no/verktoy/tap-tempo" element={<TapTempo locale="nb" />} />
+                <Route path="/no/verktoy/bpm-til-ms" element={<BpmToMs locale="nb" />} />
+                <Route path="/no/verktoy/metronom" element={<Metronome locale="nb" />} />
+                <Route path="/no/verktoy/bpm-konverterer" element={<BpmConverter locale="nb" />} />
                 <Route
                   path="/"
                   element={
@@ -265,31 +261,11 @@ function App() {
               </Routes>
             </AppInsightsErrorBoundary>
 
-            <aside className="related-nav" aria-label="Popular BPM resources">
-              <h2>Popular resources</h2>
-              <Link to="/tools/bpm-to-ms">BPM to ms</Link>
-              <Link to="/tools/bars-to-time">Bars to seconds</Link>
-              <Link to="/tools/bpm-converter">Half/double BPM</Link>
-              <Link to="/guides/genre-bpm-ranges">Genre BPM ranges</Link>
-              <Link to="/guides/beatmatching">Beatmatching</Link>
-              <Link to="/guides/bpm-reference-table">BPM reference table</Link>
-            </aside>
+            <PopularNav />
           </div>
           <footer className="site-footer">
             {!isDebug ? (
-              <div className="site-footer__inner">
-                <p className="site-footer__credit">
-                  Made for DJs in Norway by{' '}
-                  <a href="https://twitter.com/webmaxru/">Maxim Salnikov</a>
-                </p>
-                <nav className="site-footer__nav" aria-label="Legal and project">
-                  <Link to="/about">About</Link>
-                  <Link to="/privacy">Privacy</Link>
-                  <Link to="/terms">Terms</Link>
-                  <Link to="/contact">Contact</Link>
-                  <Link to="/affiliate-disclosure">Affiliate disclosure</Link>
-                </nav>
-              </div>
+              <SiteFooterContent />
             ) : (
               <p className="site-footer__debug">Debugging mode</p>
             )}

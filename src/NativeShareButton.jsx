@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import { isNativeApp, shareBpm } from './nativePlatform';
+import { getStrings } from './i18n';
 
-function NativeShareButton({ bpm, mode, className = '' }) {
+function NativeShareButton({ bpm, mode, className = '', locale }) {
   const [isSharing, setIsSharing] = useState(false);
 
   if (!bpm || !isNativeApp()) {
     return null;
   }
+
+  const text = getStrings(locale).share;
 
   const handleShare = async () => {
     setIsSharing(true);
@@ -16,7 +19,7 @@ function NativeShareButton({ bpm, mode, className = '' }) {
       await shareBpm({ bpm, mode });
     } catch (error) {
       console.error('Unable to open the iOS share sheet.', error);
-      toast.error('Sharing is unavailable right now. Please try again.');
+      toast.error(text.unavailable);
     } finally {
       setIsSharing(false);
     }
@@ -33,7 +36,7 @@ function NativeShareButton({ bpm, mode, className = '' }) {
         <path d="M12 16V3m0 0L7.5 7.5M12 3l4.5 4.5" />
         <path d="M5 11v8h14v-8" />
       </svg>
-      <span>{isSharing ? 'Opening share sheet...' : 'Share BPM'}</span>
+      <span>{isSharing ? text.opening : text.button}</span>
     </button>
   );
 }

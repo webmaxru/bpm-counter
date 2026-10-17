@@ -1,11 +1,14 @@
 import {
+  getAllPublishingPages,
   getRelatedPages,
-  publishingPages,
 } from './publishingPages';
+
+const publishingPages = getAllPublishingPages();
 import {
   APP_SHELL_ROUTES,
   getStaticNavigationPattern,
   STATIC_PUBLISHING_ALIASES,
+  PRERENDERED_ROUTES,
   STATIC_PUBLISHING_ROUTES,
 } from './publicRoutes';
 
@@ -37,7 +40,7 @@ describe('publishing page content', () => {
 
   it('covers every prerendered route exactly once', () => {
     const contentPaths = publishingPages.map((page) => page.path).sort();
-    const staticPaths = [...STATIC_PUBLISHING_ROUTES].sort();
+    const staticPaths = [...PRERENDERED_ROUTES].sort();
 
     expect(contentPaths).toEqual(staticPaths);
   });

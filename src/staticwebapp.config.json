@@ -95,6 +95,34 @@
             "rewrite": "/about/index.html"
         },
         {
+            "route": "/bpm",
+            "rewrite": "/bpm/index.html"
+        },
+        {
+            "route": "/no",
+            "rewrite": "/no/index.html"
+        },
+        {
+            "route": "/no/verktoy",
+            "rewrite": "/no/verktoy/index.html"
+        },
+        {
+            "route": "/no/verktoy/tap-tempo",
+            "rewrite": "/no/verktoy/tap-tempo/index.html"
+        },
+        {
+            "route": "/no/verktoy/bpm-til-ms",
+            "rewrite": "/no/verktoy/bpm-til-ms/index.html"
+        },
+        {
+            "route": "/no/verktoy/metronom",
+            "rewrite": "/no/verktoy/metronom/index.html"
+        },
+        {
+            "route": "/no/verktoy/bpm-konverterer",
+            "rewrite": "/no/verktoy/bpm-konverterer/index.html"
+        },
+        {
             "route": "/images/*",
             "headers": {
                 "cache-control": "must-revalidate, max-age=15770000"

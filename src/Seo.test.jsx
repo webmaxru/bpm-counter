@@ -65,6 +65,35 @@ describe('Seo', () => {
   });
 });
 
+describe('Seo hreflang', () => {
+  it('sets the document language and reciprocal alternates on paired pages', async () => {
+    render(<Seo page={getPublishingPage('metronome-nb')} />);
+
+    await waitFor(() => {
+      expect(document.documentElement).toHaveAttribute('lang', 'nb');
+    });
+
+    const alternates = [
+      ...document.head.querySelectorAll('link[rel="alternate"][hreflang]'),
+    ].map((link) => [link.getAttribute('hreflang'), link.getAttribute('href')]);
+
+    expect(alternates).toEqual([
+      ['en', 'https://bpmtech.no/tools/metronome'],
+      ['nb', 'https://bpmtech.no/no/verktoy/metronom'],
+      ['x-default', 'https://bpmtech.no/tools/metronome'],
+    ]);
+  });
+
+  it('removes alternates on pages without a translation', async () => {
+    render(<Seo page={getPublishingPage('guides-hub')} />);
+
+    await waitFor(() => {
+      expect(document.documentElement).toHaveAttribute('lang', 'en');
+    });
+    expect(document.head.querySelectorAll('link[rel="alternate"][hreflang]')).toHaveLength(0);
+  });
+});
+
 describe('createStructuredData', () => {
   const article = {
     path: '/guides/example',

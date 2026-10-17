@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import ToolPageLayout from './ToolPageLayout';
+import { getStrings } from './i18n';
 
 export function calculateTempoFamily(bpm) {
   const numericBpm = Number(bpm);
@@ -15,14 +16,15 @@ export function calculateTempoFamily(bpm) {
   };
 }
 
-function BpmConverter() {
+function BpmConverter({ locale = 'en' }) {
+  const strings = getStrings(locale);
   const [bpm, setBpm] = useState('128');
   const tempoFamily = useMemo(() => calculateTempoFamily(bpm), [bpm]);
 
   return (
-    <ToolPageLayout pageId="bpm-converter">
+    <ToolPageLayout pageId={locale === 'nb' ? 'bpm-converter-nb' : 'bpm-converter'}>
       <section className="tool-panel" aria-labelledby="bpm-converter-input">
-        <label htmlFor="bpm-converter-input">Tempo in BPM</label>
+        <label htmlFor="bpm-converter-input">{strings.tempoInput}</label>
         <input
           id="bpm-converter-input"
           type="number"
@@ -37,26 +39,26 @@ function BpmConverter() {
         {tempoFamily ? (
           <div className="tool-results-grid" aria-live="polite">
             <div className="tool-result-card">
-              <span className="tool-result-card__label">Half-time</span>
+              <span className="tool-result-card__label">{strings.halfTime}</span>
               <span className="tool-result-card__value">
                 {tempoFamily.halfTime} BPM
               </span>
             </div>
             <div className="tool-result-card">
-              <span className="tool-result-card__label">Original</span>
+              <span className="tool-result-card__label">{strings.original}</span>
               <span className="tool-result-card__value">
                 {tempoFamily.original} BPM
               </span>
             </div>
             <div className="tool-result-card">
-              <span className="tool-result-card__label">Double-time</span>
+              <span className="tool-result-card__label">{strings.doubleTime}</span>
               <span className="tool-result-card__value">
                 {tempoFamily.doubleTime} BPM
               </span>
             </div>
           </div>
         ) : (
-          <p role="alert">Enter a BPM value greater than zero.</p>
+          <p role="alert">{strings.enterPositiveBpm}</p>
         )}
       </section>
     </ToolPageLayout>

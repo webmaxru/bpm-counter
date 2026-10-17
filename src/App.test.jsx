@@ -147,6 +147,8 @@ beforeEach(() => {
 
 afterEach(() => {
   cleanup();
+  document.getElementById('adsense-script')?.remove();
+  document.getElementById('amazon-ads-script')?.remove();
   window.history.pushState({}, '', '/');
 });
 
@@ -281,6 +283,46 @@ describe('App', () => {
       'noindex, nofollow'
     );
   });
+
+  it('links the brand to the Norwegian home page on Norwegian routes', () => {
+    window.history.pushState({}, '', '/no/verktoy/metronom');
+    render(<App />);
+
+    const brand = screen.getByRole('link', { name: /BPM Techno.*Gratis/i });
+    expect(brand).toHaveAttribute('href', '/no');
+    expect(screen.getByRole('link', { name: 'English' })).toHaveAttribute(
+      'href',
+      '/tools/metronome'
+    );
+  });
+
+  it('links the brand to the English home page on English routes', () => {
+    window.history.pushState({}, '', '/tools/metronome');
+    render(<App />);
+
+    expect(
+      screen.getByRole('link', { name: /BPM Techno.*Free/i })
+    ).toHaveAttribute('href', '/');
+  });
+});
+
+describe('App — ad route gating', () => {
+  it('loads the AdSense script on tool pages', () => {
+    window.history.pushState({}, '', '/tools/metronome');
+    render(<App />);
+
+    expect(document.getElementById('adsense-script')).not.toBeNull();
+  });
+
+  it.each(['/tools', '/privacy', '/about', '/guides/not-a-real-guide'])(
+    'keeps Auto ads off %s',
+    (path) => {
+      window.history.pushState({}, '', path);
+      render(<App />);
+
+      expect(document.getElementById('adsense-script')).toBeNull();
+    }
+  );
 });
 
 describe('App — telemetry integration', () => {
@@ -376,6 +418,26 @@ describe('App — service worker telemetry', () => {
 
     expect(toast.warning).toHaveBeenCalledWith(
       'Your feedback will be sent after the connection is restored'
+    );
+  });
+
+  it('shows offline feedback toasts in Norwegian on Norwegian pages', async () => {
+    window.history.pushState({}, '', '/no');
+    await act(async () => {
+      render(<App />);
+    });
+
+    const messageHandlers = mockWbEventHandlers['message'] || [];
+    act(() => {
+      messageHandlers.forEach((h) => h({ data: { type: 'REQUEST_FAILED' } }));
+      messageHandlers.forEach((h) => h({ data: { type: 'REPLAY_COMPLETED' } }));
+    });
+
+    expect(toast.warning).toHaveBeenCalledWith(
+      'Tilbakemeldingen din sendes når forbindelsen er tilbake'
+    );
+    expect(toast.success).toHaveBeenCalledWith(
+      'Tilbakemeldingen din ble sendt da forbindelsen kom tilbake'
     );
   });
 });

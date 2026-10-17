@@ -1,3 +1,5 @@
+import { isAdEligiblePath } from './adPlacement.js';
+
 export const AD_PROVIDERS = Object.freeze({
   ADSENSE: 'adsense',
   AMAZON: 'amazon',
@@ -86,9 +88,29 @@ function loadAdScripts() {
 }
 
 const AD_SCRIPT_LOAD_TIMEOUT_MS = 2500;
+const AD_SCRIPT_IDS = Object.freeze(['adsense-script', 'amazon-ads-script']);
 
-export function initializeAds() {
-  if (typeof document === 'undefined' || typeof window === 'undefined') {
+let adLoadScheduled = false;
+
+/** True once an ad script has been added to this document. */
+export function areAdScriptsLoaded() {
+  return (
+    typeof document !== 'undefined' &&
+    AD_SCRIPT_IDS.some((id) => document.getElementById(id))
+  );
+}
+
+/**
+ * Loads the ad scripts after the window load event, but only if the page that
+ * is open at that moment may show ads, so Auto ads never start on hubs, legal
+ * pages or the 404.
+ */
+export function initializeAds({ isPathEligible = isAdEligiblePath } = {}) {
+  if (
+    typeof document === 'undefined' ||
+    typeof window === 'undefined' ||
+    adLoadScheduled
+  ) {
     return;
   }
 
@@ -97,13 +119,20 @@ export function initializeAds() {
   // mobile (Lighthouse, Oct 2026). Waiting for the window load event (with a
   // short cap so a page that never fires it still gets ads) keeps the counter
   // responsive and changes nothing about how Auto ads behave once loaded.
-  let loaded = false;
+  adLoadScheduled = true;
+  let timeoutId = null;
+
   const loadOnce = () => {
-    if (loaded) {
+    if (!adLoadScheduled) {
       return;
     }
-    loaded = true;
-    loadAdScripts();
+    adLoadScheduled = false;
+    window.removeEventListener('load', loadOnce);
+    window.clearTimeout(timeoutId);
+
+    if (isPathEligible(window.location.pathname)) {
+      loadAdScripts();
+    }
   };
 
   if (document.readyState === 'complete') {
@@ -112,5 +141,19 @@ export function initializeAds() {
   }
 
   window.addEventListener('load', loadOnce, { once: true });
-  window.setTimeout(loadOnce, AD_SCRIPT_LOAD_TIMEOUT_MS);
+  timeoutId = window.setTimeout(loadOnce, AD_SCRIPT_LOAD_TIMEOUT_MS);
+}
+
+/**
+ * Keeps the ad scripts in line with the current route. Returns true when the
+ * document has to be reloaded: the scripts are already running (Auto ads keep
+ * placing ads in a single-page app) and the new route must not show any ads.
+ */
+export function syncAdsWithRoute(path, { isPathEligible = isAdEligiblePath } = {}) {
+  if (isPathEligible(path)) {
+    initializeAds({ isPathEligible });
+    return false;
+  }
+
+  return areAdScriptsLoaded();
 }
