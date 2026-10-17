@@ -14,6 +14,7 @@ export const STRINGS = Object.freeze({
     toolPlaceholder:
       'The interactive tool loads when JavaScript is available. The complete guide remains readable below.',
     brandDescriptor: 'Free · Offline · BPM tools for DJs',
+    homePath: '/',
     primaryNavLabel: 'Primary',
     nav: [
       ['/', 'Listen', true],
@@ -93,6 +94,26 @@ export const STRINGS = Object.freeze({
         'Play the sample through a speaker. Detection usually stabilizes within 5–30 seconds at 120 BPM.',
       spectrum: 'Live audio spectrum',
       guideTitle: 'Measure and understand tempo',
+      audioUnavailable: 'No luck with accessing audio in your browser...',
+    },
+    feedback: {
+      question: (bpm) => `Does ${bpm} sound correct?`,
+      yes: 'Yes, accurate',
+      no: 'No, off',
+      hint: 'Please, give us feedback - did it count BPM correctly?',
+      sending: 'Sending your feedback. Thanks!',
+      failed: 'Oops, no luck with sending this time',
+    },
+    share: {
+      button: 'Share BPM',
+      opening: 'Opening share sheet...',
+      unavailable: 'Sharing is unavailable right now. Please try again.',
+    },
+    app: {
+      updateAvailable: 'Updated app is available',
+      reload: 'Reload',
+      feedbackReplayed: 'Your feedback was sent after the connection is restored',
+      feedbackQueued: 'Your feedback will be sent after the connection is restored',
     },
   },
   nb: {
@@ -106,6 +127,7 @@ export const STRINGS = Object.freeze({
     toolPlaceholder:
       'Verktøyet lastes når JavaScript er tilgjengelig. Hele veiledningen kan leses nedenfor.',
     brandDescriptor: 'Gratis · Virker uten nett · BPM-verktøy for DJ-er',
+    homePath: '/no',
     primaryNavLabel: 'Hovedmeny',
     nav: [
       ['/no', 'Lytt', true],
@@ -182,6 +204,26 @@ export const STRINGS = Object.freeze({
         'Spill eksempelet gjennom en høyttaler. Ved 120 BPM stabiliserer målingen seg vanligvis i løpet av 5–30 sekunder.',
       spectrum: 'Lydspekter i sanntid',
       guideTitle: 'Mål og forstå tempo',
+      audioUnavailable: 'Fikk ikke tilgang til lyd i nettleseren din …',
+    },
+    feedback: {
+      question: (bpm) => `Høres ${bpm} riktig ut?`,
+      yes: 'Ja, det stemmer',
+      no: 'Nei, det er feil',
+      hint: 'Gi oss gjerne tilbakemelding: ble BPM-tallet riktig?',
+      sending: 'Sender tilbakemeldingen din. Takk!',
+      failed: 'Beklager, tilbakemeldingen kunne ikke sendes nå',
+    },
+    share: {
+      button: 'Del BPM',
+      opening: 'Åpner delingsmenyen …',
+      unavailable: 'Deling er ikke tilgjengelig akkurat nå. Prøv igjen.',
+    },
+    app: {
+      updateAvailable: 'En ny versjon av appen er klar',
+      reload: 'Last inn på nytt',
+      feedbackReplayed: 'Tilbakemeldingen din ble sendt da forbindelsen kom tilbake',
+      feedbackQueued: 'Tilbakemeldingen din sendes når forbindelsen er tilbake',
     },
   },
 });

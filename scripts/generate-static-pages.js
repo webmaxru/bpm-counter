@@ -140,7 +140,7 @@ function renderRelatedNavigation(page) {
 
 function renderStaticShell(page) {
   const strings = getPageStrings(page);
-  const homePath = page.lang === 'nb' ? '/no' : '/';
+  const homePath = strings.homePath;
 
   return `<header class="site-header"><div class="site-brand"><a class="site-brand__link" href="${homePath}"><svg class="site-brand__mark" viewBox="0 0 40 40" aria-hidden="true"><path d="M5 23v-6M11 29V11M17 25V15M23 34V6M29 27V13M35 22v-4"></path></svg><span class="site-brand__copy"><span class="site-brand__name">BPM Techno</span><span class="site-brand__descriptor">${escapeHtml(strings.brandDescriptor)}</span></span></a></div></header><div class="body">${renderPrimaryNavigation(page)}${renderPublishingPage(page)}${renderRelatedNavigation(page)}</div><footer class="site-footer"><div class="site-footer__inner"><p class="site-footer__credit">${escapeHtml(strings.footerCredit)} <a href="https://twitter.com/webmaxru/">Maxim Salnikov</a></p><nav class="site-footer__nav" aria-label="${escapeHtml(strings.footerNavLabel)}">${strings.footerLinks
     .map(([href, label]) => `<a href="${href}">${escapeHtml(label)}</a>`)

@@ -1,6 +1,7 @@
 // Norwegian (bokmål) versions of the home page and the most used tools.
 // Each page is paired with its English original through HREFLANG_PAIRS so
 // both versions carry reciprocal hreflang links and an x-default.
+import { normalizeRoutePath } from './paths.js';
 
 const nbUpdatedDate = '2026-10-17';
 
@@ -14,8 +15,10 @@ export const HREFLANG_PAIRS = Object.freeze([
 ]);
 
 export function getHreflangAlternates(path) {
+  const normalizedPath = normalizeRoutePath(path);
   const pair = HREFLANG_PAIRS.find(
-    (candidate) => candidate.en === path || candidate.nb === path
+    (candidate) =>
+      candidate.en === normalizedPath || candidate.nb === normalizedPath
   );
 
   if (!pair) {

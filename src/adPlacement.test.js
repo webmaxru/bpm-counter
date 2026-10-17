@@ -1,8 +1,45 @@
-import { getInArticleSectionIndex, shouldShowMultiplex } from './adPlacement';
+import {
+  getInArticleSectionIndex,
+  isAdEligiblePath,
+  shouldShowMultiplex,
+} from './adPlacement';
 import { getPublishingPage } from './content/publishingPages';
 import { getTempoPage } from './content/tempoPages';
 
 describe('ad placement rules', () => {
+  it('allows ads (manual units and Auto ads) only on tool, guide and tempo routes', () => {
+    [
+      '/',
+      '/upload',
+      '/tools/metronome',
+      '/tools/metronome/',
+      '/no',
+      '/no/',
+      '/no/verktoy/metronom',
+      '/guides/beatmatching',
+      '/bpm/128',
+    ].forEach((path) => {
+      expect(isAdEligiblePath(path), path).toBe(true);
+    });
+
+    [
+      '/tools',
+      '/tools/',
+      '/guides',
+      '/bpm',
+      '/no/verktoy',
+      '/about',
+      '/privacy',
+      '/terms',
+      '/contact',
+      '/affiliate-disclosure',
+      '/guides/not-a-real-guide',
+      '/bpm/999',
+    ].forEach((path) => {
+      expect(isAdEligiblePath(path), path).toBe(false);
+    });
+  });
+
   it('keeps hubs and trust pages free of manual units', () => {
     ['tools-hub', 'guides-hub', 'bpm-hub', 'tools-hub-nb', 'privacy', 'about', 'contact'].forEach((id) => {
       const page = getPublishingPage(id);

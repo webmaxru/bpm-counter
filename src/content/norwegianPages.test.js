@@ -27,6 +27,19 @@ describe('Norwegian pages', () => {
     expect(getHreflangAlternates('/guides')).toEqual([]);
   });
 
+  it('ignores trailing slashes when pairing alternates', () => {
+    HREFLANG_PAIRS.forEach(({ en, nb }) => {
+      expect(getHreflangAlternates(`${en}/`.replace('//', '/')), en).toEqual(
+        getHreflangAlternates(en)
+      );
+      expect(getHreflangAlternates(`${nb}/`), nb).toEqual(getHreflangAlternates(nb));
+    });
+    expect(findPublishingPageByPath('/no/verktoy/metronom/')).toBe(
+      findPublishingPageByPath('/no/verktoy/metronom')
+    );
+    expect(findPublishingPageByPath('/bpm/128/')?.path).toBe('/bpm/128');
+  });
+
   it('marks pages as bokmål and keeps related links in Norwegian', () => {
     norwegianPages.forEach((page) => {
       expect(page.lang).toBe('nb');

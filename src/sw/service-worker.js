@@ -1,6 +1,10 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-restricted-globals */
-import { precacheAndRoute, createHandlerBoundToURL } from 'workbox-precaching';
+import {
+  precacheAndRoute,
+  createHandlerBoundToURL,
+  matchPrecache,
+} from 'workbox-precaching';
 import { NavigationRoute, registerRoute } from 'workbox-routing';
 import { setCacheNameDetails, clientsClaim } from 'workbox-core';
 import { NetworkOnly } from 'workbox-strategies';
@@ -13,6 +17,7 @@ import {
   getStaticNavigationPattern,
   STATIC_PUBLISHING_ALIASES,
   STATIC_PUBLISHING_ROUTES,
+  TEMPO_NAVIGATION_PATTERN,
 } from '../content/publicRoutes.js';
 
 async function messageClient(event, messageType) {
@@ -97,6 +102,28 @@ const navigationRoute = new NavigationRoute(navHandler, {
   allowlist: APP_SHELL_ROUTES.map(getStaticNavigationPattern),
 });
 registerRoute(navigationRoute);
+
+// Tempo pages are not precached: fetch the prerendered page, and offline fall
+// back to the precached app shell, which renders the tempo page client-side.
+const tempoNetworkStrategy = new NetworkOnly({ networkTimeoutSeconds: 5 });
+registerRoute(
+  new NavigationRoute(
+    async (options) => {
+      try {
+        return await tempoNetworkStrategy.handle(options);
+      } catch (error) {
+        const appShell = await matchPrecache(
+          getStaticDocumentPath(APP_SHELL_ROUTES[0])
+        );
+        if (appShell) {
+          return appShell;
+        }
+        throw error;
+      }
+    },
+    { allowlist: [TEMPO_NAVIGATION_PATTERN] }
+  )
+);
 
 // STATIC RESOURCES
 

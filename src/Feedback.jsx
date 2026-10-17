@@ -6,6 +6,7 @@ import 'react-tooltip/dist/react-tooltip.css';
 import './custom-hint.css';
 import ReactGA from 'react-ga4';
 import { TelemetryContext } from './TelemetryContext';
+import { getStrings } from './i18n';
 
 class Feedback extends React.Component {
   // P2 #19: Use Context instead of prop drilling
@@ -36,6 +37,8 @@ class Feedback extends React.Component {
   }
 
   async sendFeedback(isCorrect) {
+    const text = getStrings(this.props.locale).feedback;
+
     this.requestOptions.body = JSON.stringify({
       bpm: this.props.bpm,
       type: this.props.type,
@@ -44,7 +47,7 @@ class Feedback extends React.Component {
 
     try {
       // Let's assume that the request is successful
-      toast.success('Sending your feedback. Thanks!');
+      toast.success(text.sending);
 
       let response = await fetch(this.url, this.requestOptions);
 
@@ -67,7 +70,7 @@ class Feedback extends React.Component {
         throw new Error(`HTTP error. Status: ${response.status}`);
       }
     } catch (err) {
-      toast.error('Oops, no luck with sending this time');
+      toast.error(text.failed);
       this.props.log.error(`${err.name}: ${err.message}`);
       // P1 #7: Track API errors to App Insights
       this.context?.trackException({ exception: err });
@@ -75,18 +78,20 @@ class Feedback extends React.Component {
   }
 
   render() {
+    const text = getStrings(this.props.locale).feedback;
+
     return (
       <div className="feedback">
-        <p>Does {this.props.bpm} sound correct?</p>
+        <p>{text.question(this.props.bpm)}</p>
         <div className="feedback__actions">
           <button
             onClick={() => this.sendFeedback(true)}
             data-tooltip-id="feedback-hint"
-            data-tooltip-content="Please, give us feedback - did it count BPM correctly?"
+            data-tooltip-content={text.hint}
           >
-            Yes, accurate
+            {text.yes}
           </button>
-          <button onClick={() => this.sendFeedback(false)}>No, off</button>
+          <button onClick={() => this.sendFeedback(false)}>{text.no}</button>
         </div>
         <Tooltip
           id="feedback-hint"

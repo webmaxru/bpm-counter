@@ -13,7 +13,6 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  Link,
   Navigate,
 } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
@@ -32,12 +31,19 @@ import PitchRange from './PitchRange';
 import Metronome from './Metronome';
 import TempoPage from './TempoPage';
 import {
-  BrandDescriptor,
   PopularNav,
+  SiteBrand,
   SiteFooterContent,
   SiteNav,
 } from './SiteChrome';
+import AdRouteGuard from './AdRouteGuard';
+import { getLocaleForPath, getStrings } from './i18n';
 import { isNativeApp, openExternalUrl } from './nativePlatform';
+
+/** UI strings for the page that is open when a service-worker event arrives. */
+function getCurrentAppStrings() {
+  return getStrings(getLocaleForPath(window.location.pathname)).app;
+}
 
 function App() {
   const query = new URLSearchParams(window.location.search);
@@ -63,14 +69,18 @@ function App() {
         wb.messageSkipWaiting();
       };
 
-      const Msg = () => (
-        <div className="update-toast">
-          <span>Updated app is available</span>
-          <button className="update-toast__button" onClick={refreshPage}>
-            Reload
-          </button>
-        </div>
-      );
+      const Msg = () => {
+        const text = getCurrentAppStrings();
+
+        return (
+          <div className="update-toast">
+            <span>{text.updateAvailable}</span>
+            <button className="update-toast__button" onClick={refreshPage}>
+              {text.reload}
+            </button>
+          </div>
+        );
+      };
 
       const showSkipWaitingPrompt = (event) => {
         toast.info(<Msg />);
@@ -84,18 +94,14 @@ function App() {
         }
         // P1 #11: Track SW offline events to App Insights
         if (event.data.type === 'REPLAY_COMPLETED') {
-          toast.success(
-            'Your feedback was sent after the connection is restored'
-          );
+          toast.success(getCurrentAppStrings().feedbackReplayed);
           getAppInsights()?.trackEvent({
             name: 'sw_replay_completed',
             properties: { type: 'REPLAY_COMPLETED' },
           });
         }
         if (event.data.type === 'REQUEST_FAILED') {
-          toast.warning(
-            'Your feedback will be sent after the connection is restored'
-          );
+          toast.warning(getCurrentAppStrings().feedbackQueued);
           getAppInsights()?.trackEvent({
             name: 'sw_request_failed',
             properties: { type: 'REQUEST_FAILED' },
@@ -172,22 +178,9 @@ function App() {
         }}
       >
         <TelemetryContext.Provider value={appInsights}>
+          <AdRouteGuard />
           <header className="site-header">
-            <div className="site-brand">
-              <Link className="site-brand__link" to="/">
-                <svg
-                  className="site-brand__mark"
-                  viewBox="0 0 40 40"
-                  aria-hidden="true"
-                >
-                  <path d="M5 23v-6M11 29V11M17 25V15M23 34V6M29 27V13M35 22v-4" />
-                </svg>
-                <span className="site-brand__copy">
-                  <span className="site-brand__name">BPM Techno</span>
-                  <BrandDescriptor />
-                </span>
-              </Link>
-            </div>
+            <SiteBrand />
           </header>
           <div className="body">
             <SiteNav />

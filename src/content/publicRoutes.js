@@ -35,8 +35,13 @@ export const STATIC_PUBLISHING_ROUTES = Object.freeze([
 
 // Per-tempo pages (/bpm/60 … /bpm/200): prerendered and in the sitemap, but
 // not precached, so installing the service worker does not download 141
-// extra HTML files. They are served from the network like any web page.
+// extra HTML files. They are served from the network like any web page;
+// offline, the service worker answers with the precached app shell, which
+// renders the same tempo page from the bundled data.
 export const NETWORK_ONLY_PUBLISHING_ROUTES = TEMPO_ROUTES;
+
+// Navigations to a tempo page, e.g. /bpm/128, /bpm/128/ or /bpm/128?x=1.
+export const TEMPO_NAVIGATION_PATTERN = /^\/bpm\/\d+\/?(?:\?.*)?$/;
 
 export const PRERENDERED_ROUTES = Object.freeze([
   ...STATIC_PUBLISHING_ROUTES,

@@ -33,4 +33,15 @@ describe('NativeShareButton', () => {
       screen.queryByRole('button', { name: /Share BPM/i })
     ).not.toBeInTheDocument();
   });
+
+  it('labels the button in Norwegian on Norwegian pages', () => {
+    isNativeApp.mockReturnValue(true);
+
+    render(<NativeShareButton bpm="128" mode="tap tempo" locale="nb" />);
+
+    expect(screen.getByRole('button', { name: 'Del BPM' })).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /Share BPM/i })
+    ).not.toBeInTheDocument();
+  });
 });

@@ -77,6 +77,7 @@ function TapTempo({ locale = 'en' }) {
             bpm={bpm}
             mode="tap tempo"
             className="tool-panel__secondary"
+            locale={locale}
           />
         </div>
         <p className="tool-panel__hint">

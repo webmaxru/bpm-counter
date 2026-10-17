@@ -201,7 +201,7 @@ function Home(props) {
           startedSuccessfully = true;
         }
       } else {
-        toast.error('No luck with accessing audio in your browser...');
+        toast.error(text.audioUnavailable);
         log.error('Browser is not supported');
       }
     } catch (err) {
@@ -397,7 +397,11 @@ function Home(props) {
             </button>
 
             {isResultReady && primaryBPM ? (
-              <NativeShareButton bpm={primaryBPM} mode="live microphone" />
+              <NativeShareButton
+                bpm={primaryBPM}
+                mode="live microphone"
+                locale={locale}
+              />
             ) : null}
 
             {primaryBPM ? (
@@ -405,6 +409,7 @@ function Home(props) {
                 bpm={primaryBPM}
                 log={log}
                 type="mic"
+                locale={locale}
               ></Feedback>
             ) : null}
 

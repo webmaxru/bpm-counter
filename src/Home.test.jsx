@@ -55,6 +55,7 @@ vi.mock('react-tooltip', async () => {
 });
 
 import { createRealtimeBpmAnalyzer } from 'realtime-bpm-analyzer';
+import { toast } from 'react-toastify';
 
 const defaultProps = {
   log,
@@ -297,5 +298,46 @@ describe('Home', () => {
   it('renders tooltip on desktop', () => {
     renderWithRouter(<Home {...defaultProps} isMobile={false} />);
     expect(screen.getByTestId('react-tooltip')).toBeInTheDocument();
+  });
+
+  it('asks for result feedback in Norwegian on /no', async () => {
+    renderWithRouter(<Home {...defaultProps} locale="nb" />);
+
+    fireEvent.click(screen.getByRole('button', { name: /Start lytting/i }));
+
+    await waitFor(() => {
+      expect(mockAnalyzerHandlers.bpmStable).toBeDefined();
+    });
+
+    act(() => {
+      mockAnalyzerHandlers.bpmStable({
+        bpm: [{ tempo: 128 }],
+        threshold: 0.85,
+      });
+    });
+
+    expect(screen.getByText('Høres 128 riktig ut?')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Ja, det stemmer' })).toBeInTheDocument();
+    expect(screen.queryByText(/sound correct/)).not.toBeInTheDocument();
+  });
+
+  it('reports missing browser audio support in Norwegian on /no', async () => {
+    const toastError = vi.spyOn(toast, 'error').mockImplementation(() => {});
+    const getUserMedia = navigator.mediaDevices.getUserMedia;
+    navigator.mediaDevices.getUserMedia = undefined;
+
+    try {
+      renderWithRouter(<Home {...defaultProps} locale="nb" />);
+      fireEvent.click(screen.getByRole('button', { name: /Start lytting/i }));
+
+      await waitFor(() => {
+        expect(toastError).toHaveBeenCalledWith(
+          'Fikk ikke tilgang til lyd i nettleseren din …'
+        );
+      });
+    } finally {
+      navigator.mediaDevices.getUserMedia = getUserMedia;
+      toastError.mockRestore();
+    }
   });
 });

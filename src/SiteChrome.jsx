@@ -85,7 +85,20 @@ export function SiteFooterContent() {
   );
 }
 
-export function BrandDescriptor() {
+export function SiteBrand() {
   const { strings } = useLocaleStrings();
-  return <span className="site-brand__descriptor">{strings.brandDescriptor}</span>;
+
+  return (
+    <div className="site-brand">
+      <Link className="site-brand__link" to={strings.homePath}>
+        <svg className="site-brand__mark" viewBox="0 0 40 40" aria-hidden="true">
+          <path d="M5 23v-6M11 29V11M17 25V15M23 34V6M29 27V13M35 22v-4" />
+        </svg>
+        <span className="site-brand__copy">
+          <span className="site-brand__name">BPM Techno</span>
+          <span className="site-brand__descriptor">{strings.brandDescriptor}</span>
+        </span>
+      </Link>
+    </div>
+  );
 }

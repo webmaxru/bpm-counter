@@ -1,5 +1,6 @@
 import { growthPages } from './growthPages.js';
 import { norwegianPages } from './norwegianPages.js';
+import { normalizeRoutePath } from './paths.js';
 import {
   getAllTempoPages,
   getTempoPageByPath,
@@ -821,7 +822,11 @@ export function getPublishingPage(pageId) {
 }
 
 export function findPublishingPageByPath(path) {
-  return publishingPagesByPath.get(path) ?? getTempoPageByPath(path);
+  const normalizedPath = normalizeRoutePath(path);
+  return (
+    publishingPagesByPath.get(normalizedPath) ??
+    getTempoPageByPath(normalizedPath)
+  );
 }
 
 /** Every page, including the generated per-tempo pages (for prerendering, the sitemap and tests). */
