@@ -13,11 +13,18 @@ const LAZY_ROOT_MARGIN = '600px 0px';
  *   Auto ads keep working alongside the manual units.
  * - Reserves its height before the ad loads to avoid layout shift (CLS).
  * - Requests the ad only when the slot is within ~600 px of the viewport.
- * - Labelled "Advertisements", one of the two labels AdSense permits
+ * - Labelled "Advertisements" (Norwegian pages: «Annonser»), the labels the
+ *   AdSense ad placement policy permits in each language
  *   (support.google.com/adsense/answer/1346295, "Placing ads under a misleading heading").
  * - Callers key the slot by page id so client-side navigation requests a new ad.
  */
-function AdSlot({ name, format = 'auto', layout, minHeight = 280 }) {
+function AdSlot({
+  name,
+  format = 'auto',
+  layout,
+  minHeight = 280,
+  label = 'Advertisements',
+}) {
   const slot = getAdSenseSlot(name);
   const containerRef = useRef(null);
   const [visible, setVisible] = useState(false);
@@ -73,7 +80,7 @@ function AdSlot({ name, format = 'auto', layout, minHeight = 280 }) {
       ref={containerRef}
       style={{ minHeight: `${minHeight}px` }}
     >
-      <span className="ad-slot__label">Advertisements</span>
+      <span className="ad-slot__label">{label}</span>
       {visible ? (
         <ins
           className="adsbygoogle"

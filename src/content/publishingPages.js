@@ -1,4 +1,10 @@
 import { growthPages } from './growthPages.js';
+import { norwegianPages } from './norwegianPages.js';
+import {
+  getAllTempoPages,
+  getTempoPageByPath,
+  tempoHubPage,
+} from './tempoPages.js';
 
 const updatedDate = '2026-08-01';
 
@@ -789,6 +795,8 @@ export const publishingPages = Object.freeze([
     relatedPageIds: ['privacy', 'terms', 'contact'],
   },
   ...growthPages,
+  ...norwegianPages,
+  tempoHubPage,
 ]);
 
 const publishingPagesById = new Map(
@@ -799,7 +807,11 @@ const publishingPagesByPath = new Map(
 );
 
 export function getPublishingPage(pageId) {
-  const page = publishingPagesById.get(pageId);
+  const page =
+    publishingPagesById.get(pageId) ??
+    (/^tempo-\d+$/.test(pageId)
+      ? getTempoPageByPath(`/bpm/${pageId.slice('tempo-'.length)}`)
+      : null);
 
   if (!page) {
     throw new Error(`Unknown publishing page: ${pageId}`);
@@ -809,7 +821,12 @@ export function getPublishingPage(pageId) {
 }
 
 export function findPublishingPageByPath(path) {
-  return publishingPagesByPath.get(path) ?? null;
+  return publishingPagesByPath.get(path) ?? getTempoPageByPath(path);
+}
+
+/** Every page, including the generated per-tempo pages (for prerendering, the sitemap and tests). */
+export function getAllPublishingPages() {
+  return [...publishingPages, ...getAllTempoPages()];
 }
 
 export function getRelatedPages(page) {

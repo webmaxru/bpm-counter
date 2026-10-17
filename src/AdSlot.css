@@ -17,3 +17,18 @@
 .ad-slot .adsbygoogle {
   width: 100%;
 }
+
+/* An unfilled slot keeps its reserved height so nothing below it jumps. */
+.ad-slot .adsbygoogle[data-ad-status='unfilled'] {
+  display: none !important;
+}
+
+.ad-slot--inArticle {
+  margin: 2.5rem 0;
+}
+
+/* Keep clear space between the multiplex unit and the related-page links that
+   follow it, so taps meant for a link do not land on an ad. */
+.ad-slot--multiplex {
+  margin: 2.5rem 0 3rem;
+}

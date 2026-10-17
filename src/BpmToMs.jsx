@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import ToolPageLayout from './ToolPageLayout';
+import { getStrings } from './i18n';
 
 const NOTE_VALUES = Object.freeze([
   ['Whole note', 4],
@@ -26,14 +27,15 @@ export function calculateNoteDurations(bpm) {
   }));
 }
 
-function BpmToMs() {
+function BpmToMs({ locale = 'en' }) {
+  const strings = getStrings(locale);
   const [bpm, setBpm] = useState('120');
   const durations = useMemo(() => calculateNoteDurations(bpm), [bpm]);
 
   return (
-    <ToolPageLayout pageId="bpm-to-ms">
+    <ToolPageLayout pageId={locale === 'nb' ? 'bpm-to-ms-nb' : 'bpm-to-ms'}>
       <section className="tool-panel" aria-labelledby="bpm-ms-input">
-        <label htmlFor="bpm-ms-input">Tempo in BPM</label>
+        <label htmlFor="bpm-ms-input">{strings.tempoInput}</label>
         <input
           id="bpm-ms-input"
           type="number"
@@ -50,7 +52,7 @@ function BpmToMs() {
             {durations.map((duration) => (
               <div className="tool-result-card" key={duration.label}>
                 <span className="tool-result-card__label">
-                  {duration.label}
+                  {strings.noteValues[duration.label] ?? duration.label}
                 </span>
                 <span className="tool-result-card__value">
                   {duration.milliseconds} ms
@@ -59,7 +61,7 @@ function BpmToMs() {
             ))}
           </div>
         ) : (
-          <p role="alert">Enter a BPM value greater than zero.</p>
+          <p role="alert">{strings.enterPositiveBpm}</p>
         )}
       </section>
     </ToolPageLayout>

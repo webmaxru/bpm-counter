@@ -2,14 +2,16 @@ import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import {
   findPublishingPageByPath,
+  getAllPublishingPages,
   getRelatedPages,
-  publishingPages,
 } from '../src/content/publishingPages.js';
 import {
   getStaticDocumentPath,
-  STATIC_PUBLISHING_ROUTES,
+  PRERENDERED_ROUTES,
 } from '../src/content/publicRoutes.js';
+import { getHreflangAlternates } from '../src/content/norwegianPages.js';
 import { createStructuredData, SITE_ORIGIN } from '../src/seoData.js';
+import { getPageStrings, getStrings } from '../src/i18n.js';
 
 const buildDirectory = path.resolve('build');
 const templatePath = path.join(buildDirectory, 'index.html');
@@ -53,7 +55,7 @@ function renderSection(section) {
   const steps = section.steps ? renderList(section.steps, true) : '';
   const bullets = section.bullets ? renderList(section.bullets) : '';
   const links = section.links
-    ? `<ul class="publishing-section__links">${section.links
+    ? `<ul class="publishing-section__links${section.linkGrid ? ' publishing-section__links--grid' : ''}">${section.links
         .map(
           (link) =>
             `<li><a href="${escapeHtml(link.href)}">${escapeHtml(link.label)}</a></li>`
@@ -70,7 +72,7 @@ function renderFaq(page) {
     return '';
   }
 
-  return `<section class="publishing-faq"><h2 class="publishing-section__title">Frequently asked questions</h2><dl>${page.faqs
+  return `<section class="publishing-faq"><h2 class="publishing-section__title">${escapeHtml(getPageStrings(page).faq)}</h2><dl>${page.faqs
     .map(
       (faq) =>
         `<dt>${escapeHtml(faq.question)}</dt><dd>${escapeHtml(faq.answer)}</dd>`
@@ -85,7 +87,9 @@ function renderRelatedPages(page) {
     return '';
   }
 
-  return `<nav class="publishing-related" aria-label="Related BPM resources"><h2 class="publishing-section__title">Related BPM resources</h2><div class="publishing-related__grid">${relatedPages
+  const relatedLabel = escapeHtml(getPageStrings(page).related);
+
+  return `<nav class="publishing-related" aria-label="${relatedLabel}"><h2 class="publishing-section__title">${relatedLabel}</h2><div class="publishing-related__grid">${relatedPages
     .map(
       (relatedPage) =>
         `<a class="publishing-related__link" href="${escapeHtml(relatedPage.path)}"><strong>${escapeHtml(relatedPage.heading)}</strong><span>${escapeHtml(relatedPage.description)}</span></a>`
@@ -94,43 +98,62 @@ function renderRelatedPages(page) {
 }
 
 function renderToolPlaceholder(page) {
-  if (page.category !== 'tool') {
+  if (page.category !== 'tool' && page.category !== 'tempo') {
     return '';
   }
 
-  return `<section class="tool-panel"><p><strong>${escapeHtml(page.heading)}</strong></p><p>The interactive tool loads when JavaScript is available. The complete guide remains readable below.</p></section>`;
+  return `<section class="tool-panel"><p><strong>${escapeHtml(page.heading)}</strong></p><p>${escapeHtml(getPageStrings(page).toolPlaceholder)}</p></section>`;
 }
 
 function renderPublishingPage(page) {
-  return `<main class="content publishing-page"><article><header class="publishing-header"><h1 class="publishing-header__title">${escapeHtml(page.heading)}</h1><p class="publishing-header__lede">${escapeHtml(page.lede)}</p><p class="publishing-header__updated">Updated ${escapeHtml(page.updatedDate)}</p></header>${renderToolPlaceholder(page)}${page.sections
+  const strings = getPageStrings(page);
+
+  return `<main class="content publishing-page"${page.lang ? ` lang="${page.lang}"` : ''}><article><header class="publishing-header"><h1 class="publishing-header__title">${escapeHtml(page.heading)}</h1><p class="publishing-header__lede">${escapeHtml(page.lede)}</p><p class="publishing-header__updated">${escapeHtml(strings.updated)} ${escapeHtml(page.updatedDate)}</p></header>${renderToolPlaceholder(page)}${page.sections
     .map(renderSection)
     .join('')}${renderFaq(page)}</article>${renderRelatedPages(page)}</main>`;
 }
 
-function renderPrimaryNavigation() {
-  const links = [
-    ['/', 'Listen'],
-    ['/upload', 'Audio URL'],
-    ['/tools/tap-tempo', 'Tap tempo'],
-    ['/tools/metronome', 'Metronome'],
-    ['/tools', 'All tools'],
-    ['/guides', 'Guides'],
-  ];
+function renderPrimaryNavigation(page) {
+  const strings = getPageStrings(page);
+  const locale = page.lang === 'nb' ? 'nb' : 'en';
+  const { languageSwitch } = getStrings(locale);
+  const alternate = getHreflangAlternates(page.path).find(
+    (entry) => entry.hreflang === languageSwitch.lang
+  );
+  const switchHref = alternate?.path ?? languageSwitch.fallback;
 
-  return `<nav class="site-nav" aria-label="Primary">${links
+  return `<nav class="site-nav" aria-label="${escapeHtml(strings.primaryNavLabel)}">${strings.nav
     .map(
       ([href, label]) =>
-        `<a class="site-nav__link" href="${href}">${label}</a>`
+        `<a class="site-nav__link" href="${href}">${escapeHtml(label)}</a>`
     )
-    .join('')}</nav>`;
+    .join('')}<a class="site-nav__link site-nav__lang" href="${switchHref}" hreflang="${languageSwitch.lang}" lang="${languageSwitch.lang}">${escapeHtml(languageSwitch.label)}</a></nav>`;
 }
 
-function renderRelatedNavigation() {
-  return '<aside class="related-nav" aria-label="Popular BPM resources"><h2>Popular resources</h2><a href="/tools/bpm-to-ms">BPM to ms</a><a href="/tools/bars-to-time">Bars to seconds</a><a href="/tools/bpm-converter">Half/double BPM</a><a href="/guides/genre-bpm-ranges">Genre BPM ranges</a><a href="/guides/beatmatching">Beatmatching</a><a href="/guides/bpm-reference-table">BPM reference table</a></aside>';
+function renderRelatedNavigation(page) {
+  const strings = getPageStrings(page);
+
+  return `<aside class="related-nav" aria-label="${escapeHtml(strings.popularLabel)}"><h2>${escapeHtml(strings.popularHeading)}</h2>${strings.popular
+    .map(([href, label]) => `<a href="${href}">${escapeHtml(label)}</a>`)
+    .join('')}</aside>`;
 }
 
 function renderStaticShell(page) {
-  return `<header class="site-header"><div class="site-brand"><a class="site-brand__link" href="/"><svg class="site-brand__mark" viewBox="0 0 40 40" aria-hidden="true"><path d="M5 23v-6M11 29V11M17 25V15M23 34V6M29 27V13M35 22v-4"></path></svg><span class="site-brand__copy"><span class="site-brand__name">BPM Techno</span><span class="site-brand__descriptor">Free · Offline · BPM tools for DJs</span></span></a></div></header><div class="body">${renderPrimaryNavigation()}${renderPublishingPage(page)}${renderRelatedNavigation()}</div><footer class="site-footer"><div class="site-footer__inner"><p class="site-footer__credit">Made for DJs in Norway by <a href="https://twitter.com/webmaxru/">Maxim Salnikov</a></p><nav class="site-footer__nav" aria-label="Legal and project"><a href="/about">About</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/contact">Contact</a><a href="/affiliate-disclosure">Affiliate disclosure</a></nav></div></footer>`;
+  const strings = getPageStrings(page);
+  const homePath = page.lang === 'nb' ? '/no' : '/';
+
+  return `<header class="site-header"><div class="site-brand"><a class="site-brand__link" href="${homePath}"><svg class="site-brand__mark" viewBox="0 0 40 40" aria-hidden="true"><path d="M5 23v-6M11 29V11M17 25V15M23 34V6M29 27V13M35 22v-4"></path></svg><span class="site-brand__copy"><span class="site-brand__name">BPM Techno</span><span class="site-brand__descriptor">${escapeHtml(strings.brandDescriptor)}</span></span></a></div></header><div class="body">${renderPrimaryNavigation(page)}${renderPublishingPage(page)}${renderRelatedNavigation(page)}</div><footer class="site-footer"><div class="site-footer__inner"><p class="site-footer__credit">${escapeHtml(strings.footerCredit)} <a href="https://twitter.com/webmaxru/">Maxim Salnikov</a></p><nav class="site-footer__nav" aria-label="${escapeHtml(strings.footerNavLabel)}">${strings.footerLinks
+    .map(([href, label]) => `<a href="${href}">${escapeHtml(label)}</a>`)
+    .join('')}</nav></div></footer>`;
+}
+
+function renderAlternateLinks(page) {
+  return getHreflangAlternates(page.path)
+    .map(
+      ({ hreflang, path: alternatePath }) =>
+        `    <link rel="alternate" hreflang="${hreflang}" href="${new URL(alternatePath, SITE_ORIGIN).toString()}" />\n`
+    )
+    .join('');
 }
 
 function setMetaContent(html, attribute, key, content) {
@@ -174,9 +197,12 @@ function createRouteHtml(templateHtml, page) {
     'twitter:description',
     page.description
   );
+  if (page.lang === 'nb') {
+    html = html.replace(/<html lang="[^"]*"/i, '<html lang="nb"');
+  }
   html = html.replace(
     '</head>',
-    `    <link rel="canonical" href="${canonicalUrl}" />\n    <script id="route-structured-data" type="application/ld+json">${JSON.stringify(createStructuredData(page))}</script>\n  </head>`
+    `    <link rel="canonical" href="${canonicalUrl}" />\n${renderAlternateLinks(page)}    <script id="route-structured-data" type="application/ld+json">${JSON.stringify(createStructuredData(page))}</script>\n  </head>`
   );
   html = html.replace(
     '<div id="root"></div>',
@@ -187,14 +213,20 @@ function createRouteHtml(templateHtml, page) {
 }
 
 function createSitemap() {
-  const urls = publishingPages
+  const urls = getAllPublishingPages()
     .map((page) => {
       const location = new URL(page.path, SITE_ORIGIN).toString();
-      return `  <url><loc>${location}</loc><lastmod>${page.updatedDate}</lastmod></url>`;
+      const alternates = getHreflangAlternates(page.path)
+        .map(
+          ({ hreflang, path: alternatePath }) =>
+            `<xhtml:link rel="alternate" hreflang="${hreflang}" href="${new URL(alternatePath, SITE_ORIGIN).toString()}"/>`
+        )
+        .join('');
+      return `  <url><loc>${location}</loc><lastmod>${page.updatedDate}</lastmod>${alternates}</url>`;
     })
     .join('\n');
 
-  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`;
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${urls}\n</urlset>\n`;
 }
 
 function validateStaticWebAppConfig(config) {
@@ -217,7 +249,7 @@ function validateStaticWebAppConfig(config) {
 
 const templateHtml = await readFile(templatePath, 'utf8');
 
-for (const route of STATIC_PUBLISHING_ROUTES) {
+for (const route of PRERENDERED_ROUTES) {
   const page = findPublishingPageByPath(route);
 
   if (!page) {
@@ -246,5 +278,5 @@ await copyFile(
 );
 
 console.log(
-  `Generated ${STATIC_PUBLISHING_ROUTES.length} prerendered routes and sitemap.xml.`
+  `Generated ${PRERENDERED_ROUTES.length} prerendered routes and sitemap.xml.`
 );

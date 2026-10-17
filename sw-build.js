@@ -5,7 +5,9 @@ let workboxConfig = {
   globPatterns: ["favicon.ico", "**/*.html", "assets/**/*", "fonts/*.woff2", "images/icons/*", "manifest.webmanifest"],
   globIgnores: [
     "**/*.map",
-    "**/*.txt"
+    "**/*.txt",
+    // Per-tempo pages are prerendered for search but not precached.
+    "bpm/*/index.html"
   ],
 
   swSrc: "src/sw/service-worker.js",

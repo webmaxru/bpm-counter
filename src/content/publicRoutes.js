@@ -1,3 +1,6 @@
+import { TEMPO_ROUTES } from './tempoPages.js';
+
+// Core routes: prerendered AND precached by the service worker.
 export const STATIC_PUBLISHING_ROUTES = Object.freeze([
   '/',
   '/about',
@@ -21,6 +24,23 @@ export const STATIC_PUBLISHING_ROUTES = Object.freeze([
   '/terms',
   '/contact',
   '/affiliate-disclosure',
+  '/bpm',
+  '/no',
+  '/no/verktoy',
+  '/no/verktoy/tap-tempo',
+  '/no/verktoy/bpm-til-ms',
+  '/no/verktoy/metronom',
+  '/no/verktoy/bpm-konverterer',
+]);
+
+// Per-tempo pages (/bpm/60 … /bpm/200): prerendered and in the sitemap, but
+// not precached, so installing the service worker does not download 141
+// extra HTML files. They are served from the network like any web page.
+export const NETWORK_ONLY_PUBLISHING_ROUTES = TEMPO_ROUTES;
+
+export const PRERENDERED_ROUTES = Object.freeze([
+  ...STATIC_PUBLISHING_ROUTES,
+  ...NETWORK_ONLY_PUBLISHING_ROUTES,
 ]);
 
 export const APP_SHELL_ROUTES = Object.freeze(['/']);

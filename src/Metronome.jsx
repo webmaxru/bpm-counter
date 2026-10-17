@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import ToolPageLayout from './ToolPageLayout';
 import './Metronome.css';
+import { getStrings } from './i18n';
 
 export const MIN_BPM = 30;
 export const MAX_BPM = 300;
@@ -62,9 +63,11 @@ function parseTempo(value) {
   return text !== '' && Number.isFinite(numeric) ? numeric : null;
 }
 
-function Metronome() {
-  const [bpm, setBpm] = useState(120);
-  const [tempoDraft, setTempoDraft] = useState('120');
+export function MetronomePanel({ initialBpm = 120, locale = 'en' }) {
+  const strings = getStrings(locale);
+  const text = strings.metronome;
+  const [bpm, setBpm] = useState(() => clampBpm(initialBpm));
+  const [tempoDraft, setTempoDraft] = useState(() => String(clampBpm(initialBpm)));
   const [beatsPerBar, setBeatsPerBar] = useState(4);
   const [running, setRunning] = useState(false);
   const [currentBeat, setCurrentBeat] = useState(-1);
@@ -217,9 +220,8 @@ function Metronome() {
   };
 
   return (
-    <ToolPageLayout pageId="metronome">
       <section className="tool-panel metronome" aria-labelledby="metronome-bpm-input">
-        <label htmlFor="metronome-bpm-input">Tempo in BPM</label>
+        <label htmlFor="metronome-bpm-input">{strings.tempoInput}</label>
         <input
           id="metronome-bpm-input"
           type="number"
@@ -243,11 +245,11 @@ function Metronome() {
           max={MAX_BPM}
           step="1"
           value={bpm}
-          aria-label="Tempo slider"
+          aria-label={text.slider}
           onChange={(event) => applyBpm(event.target.value)}
         />
 
-        <div className="metronome__steps" role="group" aria-label="Adjust tempo">
+        <div className="metronome__steps" role="group" aria-label={text.adjust}>
           <button type="button" onClick={() => adjust(-5)}>
             −5
           </button>
@@ -262,7 +264,7 @@ function Metronome() {
           </button>
         </div>
 
-        <label htmlFor="metronome-beats-select">Beats per bar</label>
+        <label htmlFor="metronome-beats-select">{text.beatsPerBar}</label>
         <select
           id="metronome-beats-select"
           value={beatsPerBar}
@@ -293,20 +295,26 @@ function Metronome() {
             aria-pressed={running}
             onClick={running ? stop : start}
           >
-            {running ? 'Stop' : 'Start metronome'}
+            {running ? text.stop : text.start}
           </button>
         ) : (
           <p role="alert">
-            This browser does not support the Web Audio API, so the metronome
-            cannot play clicks here.
+            {text.unsupported}
           </p>
         )}
         <p className="tool-panel__note" aria-live="polite">
           {running
-            ? `Playing ${bpm} BPM in ${beatsPerBar}/4.`
-            : `Ready at ${bpm} BPM, ${beatsPerBar} beats per bar.`}
+            ? text.playing(bpm, beatsPerBar)
+            : text.ready(bpm, beatsPerBar)}
         </p>
       </section>
+  );
+}
+
+function Metronome({ locale = 'en' }) {
+  return (
+    <ToolPageLayout pageId={locale === 'nb' ? 'metronome-nb' : 'metronome'}>
+      <MetronomePanel locale={locale} />
     </ToolPageLayout>
   );
 }

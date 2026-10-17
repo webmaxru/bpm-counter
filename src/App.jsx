@@ -15,7 +15,6 @@ import {
   Route,
   Link,
   Navigate,
-  NavLink,
 } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
 import { Workbox } from 'workbox-window';
@@ -31,6 +30,13 @@ import BarsToTime from './BarsToTime';
 import BpmToHz from './BpmToHz';
 import PitchRange from './PitchRange';
 import Metronome from './Metronome';
+import TempoPage from './TempoPage';
+import {
+  BrandDescriptor,
+  PopularNav,
+  SiteFooterContent,
+  SiteNav,
+} from './SiteChrome';
 import { isNativeApp, openExternalUrl } from './nativePlatform';
 
 function App() {
@@ -42,8 +48,6 @@ function App() {
   log.setDefaultLevel(isDebug ? 'info' : 'error');
 
   const [appInsights, setAppInsights] = useState(null);
-  const navLinkClassName = ({ isActive }) =>
-    isActive ? 'site-nav__link site-nav__link--active' : 'site-nav__link';
 
   useEffect(() => {
     let mounted = true;
@@ -180,34 +184,13 @@ function App() {
                 </svg>
                 <span className="site-brand__copy">
                   <span className="site-brand__name">BPM Techno</span>
-                  <span className="site-brand__descriptor">
-                    Free · Offline · BPM tools for DJs
-                  </span>
+                  <BrandDescriptor />
                 </span>
               </Link>
             </div>
           </header>
           <div className="body">
-            <nav className="site-nav" aria-label="Primary">
-              <NavLink className={navLinkClassName} end to="/">
-                Listen
-              </NavLink>
-              <NavLink className={navLinkClassName} to="/upload">
-                Audio file
-              </NavLink>
-              <NavLink className={navLinkClassName} to="/tools/tap-tempo">
-                Tap tempo
-              </NavLink>
-              <NavLink className={navLinkClassName} to="/tools/metronome">
-                Metronome
-              </NavLink>
-              <NavLink className={navLinkClassName} end to="/tools">
-                All tools
-              </NavLink>
-              <NavLink className={navLinkClassName} end to="/guides">
-                Guides
-              </NavLink>
-            </nav>
+            <SiteNav />
 
             <AppInsightsErrorBoundary
               onError={() => <h1>Something went wrong</h1>}
@@ -249,6 +232,26 @@ function App() {
                 <Route path="/tools" element={<PublishingPage pageId="tools-hub" />} />
                 <Route path="/guides" element={<PublishingPage pageId="guides-hub" />} />
                 <Route path="/guides/:slug" element={<GuidePage />} />
+                <Route path="/bpm" element={<PublishingPage pageId="bpm-hub" />} />
+                <Route path="/bpm/:tempo" element={<TempoPage />} />
+                <Route
+                  path="/no"
+                  element={
+                    <Home
+                      locale="nb"
+                      isDebug={isDebug}
+                      log={log}
+                      isMobile={isMobile}
+                      isForcedViz={isForcedViz}
+                      testBPM={testBPM}
+                    />
+                  }
+                />
+                <Route path="/no/verktoy" element={<PublishingPage pageId="tools-hub-nb" />} />
+                <Route path="/no/verktoy/tap-tempo" element={<TapTempo locale="nb" />} />
+                <Route path="/no/verktoy/bpm-til-ms" element={<BpmToMs locale="nb" />} />
+                <Route path="/no/verktoy/metronom" element={<Metronome locale="nb" />} />
+                <Route path="/no/verktoy/bpm-konverterer" element={<BpmConverter locale="nb" />} />
                 <Route
                   path="/"
                   element={
@@ -265,31 +268,11 @@ function App() {
               </Routes>
             </AppInsightsErrorBoundary>
 
-            <aside className="related-nav" aria-label="Popular BPM resources">
-              <h2>Popular resources</h2>
-              <Link to="/tools/bpm-to-ms">BPM to ms</Link>
-              <Link to="/tools/bars-to-time">Bars to seconds</Link>
-              <Link to="/tools/bpm-converter">Half/double BPM</Link>
-              <Link to="/guides/genre-bpm-ranges">Genre BPM ranges</Link>
-              <Link to="/guides/beatmatching">Beatmatching</Link>
-              <Link to="/guides/bpm-reference-table">BPM reference table</Link>
-            </aside>
+            <PopularNav />
           </div>
           <footer className="site-footer">
             {!isDebug ? (
-              <div className="site-footer__inner">
-                <p className="site-footer__credit">
-                  Made for DJs in Norway by{' '}
-                  <a href="https://twitter.com/webmaxru/">Maxim Salnikov</a>
-                </p>
-                <nav className="site-footer__nav" aria-label="Legal and project">
-                  <Link to="/about">About</Link>
-                  <Link to="/privacy">Privacy</Link>
-                  <Link to="/terms">Terms</Link>
-                  <Link to="/contact">Contact</Link>
-                  <Link to="/affiliate-disclosure">Affiliate disclosure</Link>
-                </nav>
-              </div>
+              <SiteFooterContent />
             ) : (
               <p className="site-footer__debug">Debugging mode</p>
             )}

@@ -3,14 +3,18 @@ export const SITE_ORIGIN = 'https://bpmtech.no';
 const BREADCRUMB_PARENTS = Object.freeze({
   '/tools/': { name: 'Tools', path: '/tools' },
   '/guides/': { name: 'Guides', path: '/guides' },
+  '/bpm/': { name: 'BPM by tempo', path: '/bpm' },
+  '/no/verktoy/': { name: 'Verktøy', path: '/no/verktoy' },
 });
 
 export function createBreadcrumbList(page, url) {
-  if (page.path === '/') {
+  const homePath = page.lang === 'nb' ? '/no' : '/';
+
+  if (page.path === homePath) {
     return null;
   }
 
-  const items = [{ name: 'BPM Techno', path: '/' }];
+  const items = [{ name: 'BPM Techno', path: homePath }];
   const parentPrefix = Object.keys(BREADCRUMB_PARENTS).find((prefix) =>
     page.path.startsWith(prefix)
   );
@@ -44,6 +48,7 @@ export function createStructuredData(page) {
       url,
       applicationCategory: 'MusicApplication',
       operatingSystem: 'Any',
+      ...(page.lang ? { inLanguage: page.lang } : {}),
       offers: {
         '@type': 'Offer',
         price: '0',

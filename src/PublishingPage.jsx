@@ -9,17 +9,49 @@ import {
 import { useContentTelemetry } from './useContentTelemetry';
 import NotFound from './NotFound';
 import AdSlot from './AdSlot';
+import { getInArticleSectionIndex, shouldShowMultiplex } from './adPlacement';
+import { getPageStrings } from './i18n';
 import './Publishing.css';
 
 export function PublishingHeader({ page }) {
+  const strings = getPageStrings(page);
+
   return (
     <header className="publishing-header">
       <h1 className="publishing-header__title">{page.heading}</h1>
       <p className="publishing-header__lede">{page.lede}</p>
       <p className="publishing-header__updated">
-        Updated {page.updatedDate}
+        {strings.updated} {page.updatedDate}
       </p>
     </header>
+  );
+}
+
+export function InArticleAd({ page }) {
+  return (
+    <AdSlot
+      key={`${page.id}-in-article`}
+      name="inArticle"
+      format="fluid"
+      layout="in-article"
+      label={getPageStrings(page).adLabel}
+    />
+  );
+}
+
+export function MultiplexAd({ page }) {
+  if (!shouldShowMultiplex(page)) {
+    return null;
+  }
+
+  return (
+    <AdSlot
+      key={`${page.id}-multiplex`}
+      name="multiplex"
+      format="autorelaxed"
+      minHeight={320}
+      label={getPageStrings(page).adLabel}
+    />
   );
 }
 
@@ -28,14 +60,7 @@ export function PublishingSections({ page, adAfterSection = -1 }) {
     <>
       {page.sections.map((section, index) => (
         <React.Fragment key={section.heading}>
-        {index === adAfterSection ? (
-          <AdSlot
-            key={`${page.id}-in-article`}
-            name="inArticle"
-            format="fluid"
-            layout="in-article"
-          />
-        ) : null}
+        {index === adAfterSection ? <InArticleAd page={page} /> : null}
         <section className="publishing-section">
           <h2 className="publishing-section__title">{section.heading}</h2>
 
@@ -60,7 +85,11 @@ export function PublishingSections({ page, adAfterSection = -1 }) {
           ) : null}
 
           {section.links ? (
-            <ul className="publishing-section__links">
+            <ul
+              className={`publishing-section__links${
+                section.linkGrid ? ' publishing-section__links--grid' : ''
+              }`}
+            >
               {section.links.map((link) => (
                 <li key={link.href}>
                   <a href={link.href}>{link.label}</a>
@@ -82,10 +111,10 @@ export function PublishingSections({ page, adAfterSection = -1 }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {section.table.rows.map((row) => (
-                    <tr key={row.join('-')}>
-                      {row.map((cell) => (
-                        <td key={cell}>{cell}</td>
+                  {section.table.rows.map((row, rowIndex) => (
+                    <tr key={`${rowIndex}-${row.join('-')}`}>
+                      {row.map((cell, cellIndex) => (
+                        <td key={`${cellIndex}-${cell}`}>{cell}</td>
                       ))}
                     </tr>
                   ))}
@@ -108,7 +137,7 @@ export function PublishingFaq({ page }) {
   return (
     <section className="publishing-faq">
       <h2 className="publishing-section__title">
-        Frequently asked questions
+        {getPageStrings(page).faq}
       </h2>
       <dl>
         {page.faqs.map((faq) => (
@@ -124,14 +153,15 @@ export function PublishingFaq({ page }) {
 
 export function RelatedPublishingPages({ page }) {
   const relatedPages = getRelatedPages(page);
+  const strings = getPageStrings(page);
 
   if (!relatedPages.length) {
     return null;
   }
 
   return (
-    <nav className="publishing-related" aria-label="Related BPM resources">
-      <h2 className="publishing-section__title">Related BPM resources</h2>
+    <nav className="publishing-related" aria-label={strings.related}>
+      <h2 className="publishing-section__title">{strings.related}</h2>
       <div className="publishing-related__grid">
         {relatedPages.map((relatedPage) => (
           <Link
@@ -152,24 +182,17 @@ export function PublishingArticle({ page }) {
   useContentTelemetry(page);
 
   return (
-    <main className="content publishing-page">
+    <main className="content publishing-page" lang={page.lang}>
       <Seo page={page} />
       <article>
         <PublishingHeader page={page} />
         <PublishingSections
           page={page}
-          adAfterSection={page.category === 'guide' ? 1 : -1}
+          adAfterSection={getInArticleSectionIndex(page)}
         />
         <PublishingFaq page={page} />
       </article>
-      {page.category === 'guide' ? (
-        <AdSlot
-          key={`${page.id}-multiplex`}
-          name="multiplex"
-          format="autorelaxed"
-          minHeight={320}
-        />
-      ) : null}
+      <MultiplexAd page={page} />
       <RelatedPublishingPages page={page} />
     </main>
   );
