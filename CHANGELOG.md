@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- agentprose script now loads from agentprose Cloud's evergreen 0.x channel (`https://agentprose.cloud/v/0/agentprose.min.js`) instead of jsDelivr `agentprose@0.1`, so library fixes arrive within about an hour without a deploy. Pin an exact version with `/v/0.1.0/` if needed.
+
 ### Added
 
 - agentprose script on every page (read-only WebMCP tools for AI agents, agentprose Cloud analytics and hosted search).
