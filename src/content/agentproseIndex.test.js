@@ -75,6 +75,7 @@ describe('agentprose script tag', () => {
     expect(tags).toHaveLength(1);
     expect(tags[0]).toContain('data-key="pk_JP9mt7CmqeRJR9HE"');
     expect(tags[0]).toContain('data-cloud="https://agentprose.cloud"');
+    expect(tags[0]).toContain('src="https://agentprose.cloud/v/0/agentprose.min.js"');
     expect(tags[0]).toMatch(/\sdefer\b/);
   });
 });
