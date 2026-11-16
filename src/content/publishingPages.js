@@ -106,6 +106,18 @@ export const publishingPages = Object.freeze([
         ],
       },
       {
+        heading: 'Core BPM detection library',
+        paragraphs: [
+          'The live BPM detector uses this open-source library.',
+        ],
+        links: [
+          {
+            href: 'https://www.realtime-bpm-analyzer.com',
+            label: 'realtime-bpm-analyzer',
+          },
+        ],
+      },
+      {
         heading: 'Tools supported by practical guidance',
         paragraphs: [
           'A BPM number only becomes useful when it helps you make a better musical decision. The guides explain how to interpret tempo, recognize common genre ranges, improve automatic detection, and correct a mix when two tracks match in speed but not in phase.',
