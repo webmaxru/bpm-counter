@@ -1,0 +1,56 @@
+name: Temporary BPM Tech credit validation
+on:
+  push:
+    branches: [pally/bpmtech-library-credit]
+permissions:
+  contents: write
+jobs:
+  credit-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: pally/bpmtech-library-credit
+      - name: Apply verified About-page credit
+        run: |
+          test "$(git hash-object src/content/publishingPages.js)" = 4e4952513a2934c16af66c3a6855694d1d051609
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib
+          p = Path('src/content/publishingPages.js')
+          text = p.read_text()
+          anchor = """      {
+              heading: 'Tools supported by practical guidance',"""
+          credit = """      {
+              heading: 'Core BPM detection library',
+              paragraphs: [
+                'The live BPM detector uses this open-source library.',
+              ],
+              links: [
+                {
+                  href: 'https://www.realtime-bpm-analyzer.com',
+                  label: 'realtime-bpm-analyzer',
+                },
+              ],
+            },
+      {
+              heading: 'Tools supported by practical guidance',"""
+          assert text.count(anchor) == 1
+          result = text.replace(anchor, credit, 1)
+          assert hashlib.sha256(result.encode()).hexdigest() == 'b77f3684f1dfdcdea4e8547c5ee3c7e0d21defe0e50913e0fac11798282544bb'
+          p.write_text(result)
+          PY
+          git diff --check
+          git diff -- src/content/publishingPages.js
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/content/publishingPages.js
+          git commit -m 'Credit realtime-bpm-analyzer on About page'
+          git push origin HEAD:pally/bpmtech-library-credit
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
