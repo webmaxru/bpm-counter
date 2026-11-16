@@ -19,22 +19,8 @@ jobs:
           import hashlib
           p = Path('src/content/publishingPages.js')
           text = p.read_text()
-          anchor = """      {
-              heading: 'Tools supported by practical guidance',"""
-          credit = """      {
-              heading: 'Core BPM detection library',
-              paragraphs: [
-                'The live BPM detector uses this open-source library.',
-              ],
-              links: [
-                {
-                  href: 'https://www.realtime-bpm-analyzer.com',
-                  label: 'realtime-bpm-analyzer',
-                },
-              ],
-            },
-      {
-              heading: 'Tools supported by practical guidance',"""
+          anchor = "      {\n        heading: 'Tools supported by practical guidance',"
+          credit = "      {\n        heading: 'Core BPM detection library',\n        paragraphs: [\n          'The live BPM detector uses this open-source library.',\n        ],\n        links: [\n          {\n            href: 'https://www.realtime-bpm-analyzer.com',\n            label: 'realtime-bpm-analyzer',\n          },\n        ],\n      },\n      {\n        heading: 'Tools supported by practical guidance',"
           assert text.count(anchor) == 1
           result = text.replace(anchor, credit, 1)
           assert hashlib.sha256(result.encode()).hexdigest() == 'b77f3684f1dfdcdea4e8547c5ee3c7e0d21defe0e50913e0fac11798282544bb'
