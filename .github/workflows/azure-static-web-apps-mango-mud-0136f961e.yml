@@ -23,6 +23,15 @@ jobs:
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
+        # Vite inlines VITE_* values at build time. They come from repository
+        # secrets because .env is never committed.
+        env:
+          VITE_APPINSIGHTS_CONNECTION_STRING: ${{ secrets.VITE_APPINSIGHTS_CONNECTION_STRING }}
+          VITE_GA4_MEASUREMENT_ID: ${{ secrets.VITE_GA4_MEASUREMENT_ID }}
+          VITE_ADSENSE_SLOT_IN_ARTICLE: ${{ secrets.VITE_ADSENSE_SLOT_IN_ARTICLE }}
+          VITE_ADSENSE_SLOT_MULTIPLEX: ${{ secrets.VITE_ADSENSE_SLOT_MULTIPLEX }}
+          VITE_POSTHOG_KEY: ${{ secrets.VITE_POSTHOG_KEY }}
+          VITE_POSTHOG_HOST: ${{ secrets.VITE_POSTHOG_HOST }}
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_MANGO_MUD_0136F961E }}
           repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)

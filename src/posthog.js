@@ -6,13 +6,15 @@ const posthogHost = import.meta.env.VITE_POSTHOG_HOST;
 export const isPostHogConfigured = Boolean(posthogKey && posthogHost);
 
 if (!isPostHogConfigured) {
-  if (import.meta.env.DEV) {
+  // Warn instead of throwing: .env is not committed, so tests, CI and fresh
+  // clones run without these variables.
+  if (import.meta.env.DEV && import.meta.env.MODE !== 'test') {
     const missingVariable = posthogKey
       ? 'VITE_POSTHOG_HOST'
       : 'VITE_POSTHOG_KEY';
 
-    throw new Error(
-      `${missingVariable} variable required by PostHog is missing or un-configured, this causes events to be silently missed. This error stops appearing once ${missingVariable} is configured`
+    console.warn(
+      `${missingVariable} is not configured, so PostHog events are not captured. Copy .env.example to .env and set it.`
     );
   }
 } else {

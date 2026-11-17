@@ -70,8 +70,8 @@ npm test
 
 ### Environment
 
-- `.env` sets `GENERATE_SOURCEMAP=false` only
-- **No `REACT_APP_*` vars** — App Insights connection string and GA4 measurement ID are hardcoded in source (`App.js`, `index.js`)
+- Build-time config uses `VITE_*` vars (App Insights, GA4, AdSense slots, PostHog); see `.env.example`
+- **Never commit `.env`** (it is gitignored). Copy `.env.example` to `.env` locally; CI workflows read the same names from GitHub repository secrets
 
 ### Query param feature flags
 
