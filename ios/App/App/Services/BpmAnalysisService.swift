@@ -5,6 +5,7 @@ import RealtimeBpmAnalyzer
 enum BpmAnalysisError: LocalizedError, Equatable {
     case cannotOpenFile
     case cannotDecodeAudio
+    case fileTooLong
     case noTempoFound
     case analysisFailed(String)
 
@@ -14,6 +15,8 @@ enum BpmAnalysisError: LocalizedError, Equatable {
             return "The selected audio file could not be opened."
         case .cannotDecodeAudio:
             return "Audio decoding failed."
+        case .fileTooLong:
+            return "That audio file is too long to analyze in memory. Trim it to about 10 minutes or shorter."
         case .noTempoFound:
             return "No clear tempo was found. Try a longer clip with a steadier beat."
         case .analysisFailed(let message):
@@ -23,6 +26,9 @@ enum BpmAnalysisError: LocalizedError, Equatable {
 }
 
 struct BpmAnalysisService: Sendable {
+    /// Cap decoded PCM so a long mix cannot OOM the process (~10 min mono float @ 48 kHz ≈ 110 MB/channel).
+    static let maximumAnalysisDuration: TimeInterval = 10 * 60
+
     func analyzeFile(
         at url: URL,
         mode: AnalysisResult.Mode,
@@ -44,10 +50,30 @@ struct BpmAnalysisService: Sendable {
                 throw BpmAnalysisError.cannotOpenFile
             }
 
+            let sampleRate = file.processingFormat.sampleRate
+            guard sampleRate > 0 else {
+                throw BpmAnalysisError.cannotDecodeAudio
+            }
+
+            let maximumFrames = AVAudioFrameCount(
+                min(
+                    Double(AVAudioFrameCount.max),
+                    Self.maximumAnalysisDuration * sampleRate
+                )
+            )
+            let fileLength = AVAudioFramePosition(file.length)
+            guard fileLength > 0 else {
+                throw BpmAnalysisError.cannotDecodeAudio
+            }
+            if fileLength > AVAudioFramePosition(maximumFrames) {
+                throw BpmAnalysisError.fileTooLong
+            }
+
+            let framesToRead = AVAudioFrameCount(fileLength)
             guard
                 let buffer = AVAudioPCMBuffer(
                     pcmFormat: file.processingFormat,
-                    frameCapacity: AVAudioFrameCount(file.length)
+                    frameCapacity: framesToRead
                 ),
                 let channels = buffer.floatChannelData
             else {
@@ -55,7 +81,7 @@ struct BpmAnalysisService: Sendable {
             }
 
             do {
-                try file.read(into: buffer)
+                try file.read(into: buffer, frameCount: framesToRead)
             } catch {
                 throw BpmAnalysisError.cannotDecodeAudio
             }
@@ -68,8 +94,11 @@ struct BpmAnalysisService: Sendable {
             var selectedChannel = 0
             var maximumEnergy = 0.0
             for channelIndex in 0..<Int(buffer.format.channelCount) {
-                let samples = UnsafeBufferPointer(start: channels[channelIndex], count: sampleCount)
-                let energy = samples.reduce(0.0) { total, sample in
+                let channelSamples = UnsafeBufferPointer(
+                    start: channels[channelIndex],
+                    count: sampleCount
+                )
+                let energy = channelSamples.reduce(0.0) { total, sample in
                     total + Double(sample) * Double(sample)
                 }
                 if energy > maximumEnergy {
@@ -77,12 +106,15 @@ struct BpmAnalysisService: Sendable {
                     selectedChannel = channelIndex
                 }
             }
-            let samples = UnsafeBufferPointer(start: channels[selectedChannel], count: sampleCount)
+            let samples = UnsafeBufferPointer(
+                start: channels[selectedChannel],
+                count: sampleCount
+            )
 
             do {
                 guard let reading = try analyzeChannelData(
                     samples,
-                    sampleRate: file.processingFormat.sampleRate,
+                    sampleRate: sampleRate,
                     options: options
                 ) else {
                     throw BpmAnalysisError.noTempoFound

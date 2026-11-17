@@ -1,4 +1,5 @@
 import AVFoundation
+import Combine
 import Foundation
 
 @MainActor
@@ -17,10 +18,34 @@ final class AudioCaptureService: ObservableObject {
     private var recorder: AVAudioRecorder?
     private var timer: Timer?
     private var recordingURL: URL?
+    private var interruptionObserver: NSObjectProtocol?
 
     var isRecording: Bool {
         if case .recording = state { return true }
         return false
+    }
+
+    var isBusy: Bool {
+        if case .preparing = state { return true }
+        return isRecording
+    }
+
+    init() {
+        interruptionObserver = NotificationCenter.default.addObserver(
+            forName: AVAudioSession.interruptionNotification,
+            object: AVAudioSession.sharedInstance(),
+            queue: .main
+        ) { [weak self] notification in
+            Task { @MainActor in
+                self?.handleInterruption(notification)
+            }
+        }
+    }
+
+    deinit {
+        if let interruptionObserver {
+            NotificationCenter.default.removeObserver(interruptionObserver)
+        }
     }
 
     func prepareSession() throws {
@@ -28,7 +53,8 @@ final class AudioCaptureService: ObservableObject {
         try session.setCategory(
             .playAndRecord,
             mode: .measurement,
-            options: [.defaultToSpeaker, .allowBluetoothHFP, .mixWithOthers]
+            // `.allowBluetooth` is available on Xcode 16; `.allowBluetoothHFP` needs newer SDKs.
+            options: [.defaultToSpeaker, .allowBluetooth, .mixWithOthers]
         )
         try session.setActive(true)
     }
@@ -48,6 +74,9 @@ final class AudioCaptureService: ObservableObject {
                 }
             }
         }
+
+        // Another start or cancel may have won while we awaited permission.
+        guard case .preparing = state else { return }
 
         guard granted else {
             state = .unauthorized
@@ -99,18 +128,48 @@ final class AudioCaptureService: ObservableObject {
     }
 
     func cancel() {
+        // Drop preparing starts as well as active recordings.
+        if case .preparing = state {
+            state = .idle
+            elapsedSeconds = 0
+            return
+        }
+
         let url = stopRecording()
         if let url {
             try? FileManager.default.removeItem(at: url)
         }
     }
 
+    private func handleInterruption(_ notification: Notification) {
+        guard
+            let info = notification.userInfo,
+            let typeValue = info[AVAudioSessionInterruptionTypeKey] as? UInt,
+            let type = AVAudioSession.InterruptionType(rawValue: typeValue)
+        else {
+            return
+        }
+
+        switch type {
+        case .began:
+            guard isRecording || state == .preparing else { return }
+            cancel()
+            state = .failed("Recording stopped because audio was interrupted.")
+        case .ended:
+            break
+        @unknown default:
+            break
+        }
+    }
+
     private func startTimer(from startedAt: Date) {
         timer?.invalidate()
-        timer = Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true) { [weak self] _ in
+        let timer = Timer(timeInterval: 0.2, repeats: true) { [weak self] _ in
             Task { @MainActor in
                 self?.elapsedSeconds = Date().timeIntervalSince(startedAt)
             }
         }
+        RunLoop.main.add(timer, forMode: .common)
+        self.timer = timer
     }
 }

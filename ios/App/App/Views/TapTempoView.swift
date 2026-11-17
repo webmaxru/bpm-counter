@@ -10,84 +10,88 @@ struct TapTempoView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 28) {
-                Spacer(minLength: 12)
+            ScrollView {
+                VStack(spacing: 28) {
+                    VStack(spacing: 8) {
+                        Text(displayedBpm.map { format($0) } ?? "--")
+                            .font(.system(size: 84, weight: .bold, design: .rounded))
+                            .foregroundStyle(BPMTheme.text)
+                            .minimumScaleFactor(0.5)
+                            .lineLimit(1)
+                            .contentTransition(.numericText())
+                            .accessibilityLabel(
+                                displayedBpm.map { "\($0) beats per minute" } ?? "No tempo yet"
+                            )
 
-                VStack(spacing: 8) {
-                    Text(displayedBpm.map { format($0) } ?? "--")
-                        .font(.system(size: 84, weight: .bold, design: .rounded))
-                        .foregroundStyle(BPMTheme.text)
-                        .contentTransition(.numericText())
-                        .accessibilityLabel(displayedBpm.map { "\($0) beats per minute" } ?? "No tempo yet")
-
-                    Text("BPM")
-                        .font(.title3.weight(.medium))
-                        .foregroundStyle(BPMTheme.textMuted)
-                }
-
-                Text(
-                    tapCount == 0
-                        ? "Tap along with the beat. Tempo resets after a short pause."
-                        : "Recent taps: \(tapCount) of \(TapTempoService.maxTaps)"
-                )
-                .font(.subheadline)
-                .foregroundStyle(BPMTheme.textMuted)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal)
-
-                Button("Tap the beat") {
-                    haptic.impactOccurred()
-                    engine.tap()
-                    tapCount = engine.tapTimes.count
-                    withAnimation(.snappy) {
-                        displayedBpm = engine.bpm
+                        Text("BPM")
+                            .font(.title3.weight(.medium))
+                            .foregroundStyle(BPMTheme.textMuted)
                     }
-                }
-                .buttonStyle(PrimaryButtonStyle())
-                .padding(.horizontal, 24)
+                    .padding(.top, 24)
 
-                HStack(spacing: 12) {
-                    Button("Reset") {
-                        engine.reset()
-                        tapCount = 0
-                        withAnimation {
-                            displayedBpm = nil
+                    Text(
+                        tapCount == 0
+                            ? "Tap along with the beat. Tempo resets after a short pause."
+                            : "Recent taps: \(tapCount) of \(TapTempoService.maxTaps)"
+                    )
+                    .font(.subheadline)
+                    .foregroundStyle(BPMTheme.textMuted)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
+
+                    Button("Tap the beat") {
+                        haptic.impactOccurred()
+                        engine.tap()
+                        tapCount = engine.tapTimes.count
+                        withAnimation(.snappy) {
+                            displayedBpm = engine.bpm
                         }
                     }
-                    .buttonStyle(PrimaryButtonStyle(filled: false))
-                    .disabled(tapCount == 0)
+                    .buttonStyle(PrimaryButtonStyle())
+                    .padding(.horizontal, 24)
 
-                    if let displayedBpm {
-                        let result = AnalysisResult(
-                            bpm: Int(displayedBpm.rounded()),
-                            bpmExact: displayedBpm,
-                            confidence: nil,
-                            candidates: [],
-                            mode: .tap,
-                            sourceName: nil
-                        )
-                        ShareLink(item: result.shareText) {
-                            Label("Share", systemImage: "square.and.arrow.up")
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 16)
+                    HStack(spacing: 12) {
+                        Button("Reset") {
+                            engine.reset()
+                            tapCount = 0
+                            withAnimation {
+                                displayedBpm = nil
+                            }
                         }
-                        .buttonStyle(.plain)
-                        .foregroundStyle(BPMTheme.text)
-                        .background(
-                            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                .strokeBorder(BPMTheme.textFaint.opacity(0.35), lineWidth: 1)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                        .fill(BPMTheme.surfaceStrong)
-                                )
-                        )
-                    }
-                }
-                .padding(.horizontal, 24)
+                        .buttonStyle(PrimaryButtonStyle(filled: false))
+                        .disabled(tapCount == 0)
 
-                Spacer()
+                        if let displayedBpm {
+                            let result = AnalysisResult(
+                                bpm: Int(displayedBpm.rounded()),
+                                bpmExact: displayedBpm,
+                                confidence: nil,
+                                candidates: [],
+                                mode: .tap,
+                                sourceName: nil
+                            )
+                            ShareLink(item: result.shareText) {
+                                Label("Share", systemImage: "square.and.arrow.up")
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 16)
+                            }
+                            .buttonStyle(.plain)
+                            .foregroundStyle(BPMTheme.text)
+                            .background(
+                                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                    .strokeBorder(BPMTheme.textFaint.opacity(0.35), lineWidth: 1)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                            .fill(BPMTheme.surfaceStrong)
+                                    )
+                            )
+                        }
+                    }
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 24)
+                }
+                .frame(maxWidth: .infinity)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(BPMTheme.backgroundGradient.ignoresSafeArea())
             .navigationTitle("Tap tempo")
             .onAppear { haptic.prepare() }

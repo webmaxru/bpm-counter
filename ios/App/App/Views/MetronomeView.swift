@@ -1,66 +1,88 @@
 import SwiftUI
+import UIKit
 
 struct MetronomeView: View {
-    @StateObject private var metronome = MetronomeEngine()
+    @EnvironmentObject private var capture: AudioCaptureService
+    @EnvironmentObject private var metronome: MetronomeEngine
     @State private var draft = "120"
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 28) {
-                Spacer(minLength: 8)
+            ScrollView {
+                VStack(spacing: 28) {
+                    Text(String(format: "%.0f", metronome.bpm))
+                        .font(.system(size: 84, weight: .bold, design: .rounded))
+                        .foregroundStyle(BPMTheme.text)
+                        .minimumScaleFactor(0.5)
+                        .lineLimit(1)
+                        .monospacedDigit()
+                        .padding(.top, 24)
 
-                Text(String(format: "%.0f", metronome.bpm))
-                    .font(.system(size: 84, weight: .bold, design: .rounded))
-                    .foregroundStyle(BPMTheme.text)
-                    .monospacedDigit()
-
-                Text("BPM")
-                    .font(.title3.weight(.medium))
-                    .foregroundStyle(BPMTheme.textMuted)
-
-                beatDots
-
-                Slider(
-                    value: $metronome.bpm,
-                    in: MetronomeEngine.minBpm...MetronomeEngine.maxBpm,
-                    step: 1
-                )
-                .accessibilityLabel("Tempo")
-                .accessibilityValue("\(Int(metronome.bpm.rounded())) beats per minute")
-                .tint(BPMTheme.signal)
-                .padding(.horizontal, 28)
-                .onChange(of: metronome.bpm) { _, newValue in
-                    draft = String(format: "%.0f", newValue)
-                }
-
-                HStack(spacing: 12) {
-                    TextField("BPM", text: $draft)
-                        .keyboardType(.numbersAndPunctuation)
-                        .textFieldStyle(.roundedBorder)
-                        .onSubmit { commitDraft() }
-
-                    Stepper("Beats \(metronome.beatsPerBar)", value: $metronome.beatsPerBar, in: 1...8)
-                        .labelsHidden()
-                    Text("\(metronome.beatsPerBar)/4")
+                    Text("BPM")
+                        .font(.title3.weight(.medium))
                         .foregroundStyle(BPMTheme.textMuted)
-                        .frame(minWidth: 44)
-                }
-                .padding(.horizontal, 28)
 
-                Button(metronome.isRunning ? "Stop" : "Start") {
-                    commitDraft()
-                    if metronome.isRunning {
-                        metronome.stop()
-                    } else {
-                        metronome.start()
+                    beatDots
+
+                    Slider(
+                        value: $metronome.bpm,
+                        in: MetronomeEngine.minBpm...MetronomeEngine.maxBpm,
+                        step: 1
+                    )
+                    .accessibilityLabel("Tempo")
+                    .accessibilityValue("\(Int(metronome.bpm.rounded())) beats per minute")
+                    .tint(BPMTheme.signal)
+                    .padding(.horizontal, 28)
+                    .onChange(of: metronome.bpm) { _, newValue in
+                        draft = String(format: "%.0f", newValue)
                     }
-                }
-                .buttonStyle(PrimaryButtonStyle(filled: !metronome.isRunning))
-                .padding(.horizontal, 28)
 
-                Spacer()
+                    HStack(spacing: 12) {
+                        TextField("BPM", text: $draft)
+                            .keyboardType(.numbersAndPunctuation)
+                            .textFieldStyle(.roundedBorder)
+                            .onSubmit { commitDraft() }
+
+                        Button("Set") {
+                            commitDraft()
+                            UIApplication.shared.sendAction(
+                                #selector(UIResponder.resignFirstResponder),
+                                to: nil,
+                                from: nil,
+                                for: nil
+                            )
+                        }
+                        .buttonStyle(PrimaryButtonStyle(filled: false))
+
+                        Stepper(
+                            "Beats \(metronome.beatsPerBar)",
+                            value: $metronome.beatsPerBar,
+                            in: 1...8
+                        )
+                        .labelsHidden()
+                        Text("\(metronome.beatsPerBar)/4")
+                            .foregroundStyle(BPMTheme.textMuted)
+                            .frame(minWidth: 44)
+                    }
+                    .padding(.horizontal, 28)
+
+                    Button(metronome.isRunning ? "Stop" : "Start") {
+                        commitDraft()
+                        if metronome.isRunning {
+                            metronome.stop()
+                        } else {
+                            if capture.isBusy {
+                                capture.cancel()
+                            }
+                            metronome.start()
+                        }
+                    }
+                    .buttonStyle(PrimaryButtonStyle(filled: !metronome.isRunning))
+                    .padding(.horizontal, 28)
+                    .padding(.bottom, 24)
+                }
+                .frame(maxWidth: .infinity)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(BPMTheme.backgroundGradient.ignoresSafeArea())
             .navigationTitle("Metronome")
             .onDisappear { metronome.stop() }

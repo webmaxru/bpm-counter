@@ -14,7 +14,7 @@ app). The Capacitor web-wrapper shell has been removed.
 - Display name: `BPM Techno`
 - Default bundle ID: `no.bpmtech.app`
 - Version: `4.0.0`
-- Minimum iOS version: iOS 15
+- Minimum iOS version: iOS 17
 - Device families: iPhone and iPad
 
 Register `no.bpmtech.app` in Apple Developer and App Store Connect before the
@@ -41,8 +41,9 @@ device and audio is not uploaded.
 
 ## Local development
 
-A Mac with Xcode 16+ (Swift 5.9+) is required for native compilation. Swift
-Package Manager pulls
+A Mac with Xcode 16+ (Swift 5.9+) is required for native compilation. The app
+targets iOS 17 so SwiftUI APIs such as `NavigationStack` and `ShareLink` are
+available without compatibility shims. Swift Package Manager pulls
 [dlepaux/realtime-bpm-analyzer-swift](https://github.com/dlepaux/realtime-bpm-analyzer-swift)
 (`from: 6.3.0`).
 
@@ -61,10 +62,9 @@ sync.
 
 ## GitHub Actions
 
-`.github/workflows/ios-ci.yml` always verifies native metadata on Ubuntu.
-The unsigned simulator `xcodebuild` runs on `macos-15` for pushes to `main`
-and for manual **workflow_dispatch** runs (hosted macOS runners have been
-capacity-constrained on pull requests).
+`.github/workflows/ios-ci.yml` verifies native metadata on Ubuntu, then runs an
+unsigned simulator `xcodebuild` on `macos-15` for pull requests, pushes to
+`main`, and manual **workflow_dispatch** runs.
 
 `.github/workflows/ios-release.yml` is manually dispatched. It imports signing
 material into a temporary keychain, archives and exports a signed IPA, stores

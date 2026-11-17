@@ -1,6 +1,6 @@
 # BPM Techno — native iOS
 
-SwiftUI app for iPhone and iPad. Tempo detection uses
+SwiftUI app for iPhone and iPad (iOS 17+). Tempo detection uses
 [Realtime BPM Analyzer for Swift](https://www.realtime-bpm-analyzer.com/guide/swift)
 (`RealtimeBpmAnalyzer` via Swift Package Manager).
 

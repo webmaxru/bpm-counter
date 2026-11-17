@@ -25,14 +25,23 @@ const project = await read('ios/App/App.xcodeproj/project.pbxproj');
 for (const expected of [
   'PRODUCT_BUNDLE_IDENTIFIER = no.bpmtech.app;',
   'MARKETING_VERSION = 4.0.0;',
-  'IPHONEOS_DEPLOYMENT_TARGET = 15.0;',
+  'IPHONEOS_DEPLOYMENT_TARGET = 17.0;',
   'repositoryURL = "https://github.com/dlepaux/realtime-bpm-analyzer-swift";',
   'productName = RealtimeBpmAnalyzer;',
   'BPMTechnoApp.swift in Sources',
+  'PrivacyInfo.xcprivacy in Resources',
 ]) {
   if (!project.includes(expected)) {
     failures.push(`Xcode project is missing: ${expected}`);
   }
+}
+
+const privacyManifest = await read('ios/App/App/PrivacyInfo.xcprivacy');
+if (!privacyManifest.includes('NSPrivacyAccessedAPICategorySystemBootTime')) {
+  failures.push('PrivacyInfo.xcprivacy must declare SystemBootTime access for tap-tempo timing.');
+}
+if (!privacyManifest.includes('35F9.1')) {
+  failures.push('PrivacyInfo.xcprivacy must use reason 35F9.1 for elapsed-time measurement.');
 }
 
 if (project.includes('CapApp-SPM') || project.includes('capacitor-swift-pm')) {

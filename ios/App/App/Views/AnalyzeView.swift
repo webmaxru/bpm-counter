@@ -4,7 +4,8 @@ import UIKit
 import UniformTypeIdentifiers
 
 struct AnalyzeView: View {
-    @StateObject private var capture = AudioCaptureService()
+    @EnvironmentObject private var capture: AudioCaptureService
+    @EnvironmentObject private var metronome: MetronomeEngine
     @State private var result: AnalysisResult?
     @State private var isAnalyzing = false
     @State private var errorMessage: String?
@@ -43,7 +44,7 @@ struct AnalyzeView: View {
                             .background(BPMTheme.surface, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                     }
 
-                    Text("Tempo is detected on this device with Realtime BPM Analyzer for Swift. Audio is never uploaded.")
+                    Text("Tempo is detected on this device with Realtime BPM Analyzer for Swift. Audio is never uploaded. Files longer than 10 minutes are rejected.")
                         .font(.footnote)
                         .foregroundStyle(BPMTheme.textFaint)
                 }
@@ -68,6 +69,11 @@ struct AnalyzeView: View {
                 allowsMultipleSelection: false
             ) { selection in
                 handleImport(selection)
+            }
+            .onDisappear {
+                if capture.isBusy {
+                    capture.cancel()
+                }
             }
         }
     }
@@ -115,12 +121,13 @@ struct AnalyzeView: View {
                     }
                     .buttonStyle(PrimaryButtonStyle(filled: false))
                 } else {
-                    Button("Start recording") {
+                    Button(capture.state == .preparing ? "Starting…" : "Start recording") {
                         errorMessage = nil
+                        metronome.stop()
                         Task { await capture.startRecording() }
                     }
                     .buttonStyle(PrimaryButtonStyle())
-                    .disabled(isAnalyzing)
+                    .disabled(isAnalyzing || capture.state == .preparing)
                 }
             }
 
@@ -155,7 +162,7 @@ struct AnalyzeView: View {
                 showImporter = true
             }
             .buttonStyle(PrimaryButtonStyle(filled: false))
-            .disabled(isAnalyzing || capture.isRecording)
+            .disabled(isAnalyzing || capture.isBusy)
         }
         .padding(20)
         .background(cardBackground)
