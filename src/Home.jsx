@@ -32,6 +32,8 @@ import NativeShareButton from './NativeShareButton';
 import AdSlot from './AdSlot';
 import { getInArticleSectionIndex, shouldShowMultiplex } from './adPlacement';
 import { getStrings } from './i18n';
+import posthog, { isPostHogConfigured } from './posthog';
+import posthogLog from './posthogLog';
 
 
 function Home(props) {
@@ -204,6 +206,12 @@ function Home(props) {
         if (isMountedRef.current) {
           setIsShowingInit(false);
           startedSuccessfully = true;
+          if (isPostHogConfigured) {
+            posthog.capture('microphone_analysis_started');
+            posthogLog.info('microphone analysis started', {
+              analysis_mode: 'microphone',
+            });
+          }
         }
       } else {
         toast.error(text.audioUnavailable);
@@ -339,6 +347,12 @@ function Home(props) {
           threshold: null,
         },
       });
+      if (isPostHogConfigured) {
+        posthog.capture('microphone_bpm_detected', {
+          bpm,
+          confidence: readingConfidence,
+        });
+      }
 
       // Start another detection pass (replaces continuousAnalysis restart)
       bpmAnalyzer.reset();

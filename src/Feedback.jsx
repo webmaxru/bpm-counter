@@ -7,6 +7,7 @@ import './custom-hint.css';
 import ReactGA from 'react-ga4';
 import { TelemetryContext } from './TelemetryContext';
 import { getStrings } from './i18n';
+import posthog, { isPostHogConfigured } from './posthog';
 
 class Feedback extends React.Component {
   // P2 #19: Use Context instead of prop drilling
@@ -68,6 +69,13 @@ class Feedback extends React.Component {
       if (!response.ok) {
         this.props.log.error(`HTTP error. Status: ${response.status}`);
         throw new Error(`HTTP error. Status: ${response.status}`);
+      }
+
+      if (isPostHogConfigured) {
+        posthog.capture('feedback_submitted', {
+          analysis_type: this.props.type,
+          is_correct: isCorrect,
+        });
       }
     } catch (err) {
       toast.error(text.failed);

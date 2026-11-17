@@ -15,6 +15,7 @@
     "audiomotion-analyzer": "^3.5.0",
     "bpm-detective": "^2.0.5",
     "loglevel": "^1.7.1",
+    "posthog-js": "^1.450.0",
     "react": "^19.0.0",
     "react-device-detect": "^2.2.3",
     "react-dom": "^19.0.0",
