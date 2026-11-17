@@ -287,6 +287,19 @@ function Home(props) {
         return;
       }
 
+      if (to.status === 'stopped' && to.error) {
+        const error = new Error(to.error.message);
+        error.name = to.error.name;
+        cleanupAudio();
+        setIsResultReady(false);
+        setInterimBPM(``);
+        setIsListening(false);
+        setIsShowingInit(true);
+        log.error(`${error.name}: ${error.message}`);
+        appInsights?.trackException({ exception: error });
+        return;
+      }
+
       if (to.status !== 'locked' || !to.reading) {
         return;
       }
