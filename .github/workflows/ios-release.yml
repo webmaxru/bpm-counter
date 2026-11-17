@@ -17,6 +17,9 @@ on:
         required: true
         default: true
         type: boolean
+  push:
+    tags:
+      - "v*"
 
 permissions:
   contents: read
@@ -26,8 +29,46 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  validate-assets:
+    name: Validate App Store assets
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Verify iOS project metadata
+        run: npm run ios:verify
+
+      - name: Check App Store readiness
+        run: npm run store-assets:check
+
+      - name: Upload store metadata package
+        uses: actions/upload-artifact@v4
+        with:
+          name: bpm-techno-app-store-metadata
+          path: |
+            store-assets/apple-app-store/graphics/
+            store-assets/apple-app-store/screenshots/
+            store-assets/apple-app-store/listing-en-US.txt
+            store-assets/apple-app-store/app-store-connect-submission.txt
+            store-assets/apple-app-store/metadata/
+            APP_STORE_LAUNCH.md
+          if-no-files-found: error
+          retention-days: 30
+
   archive:
     name: Sign, archive, and upload
+    needs: validate-assets
     runs-on: macos-26
     timeout-minutes: 45
     env:
@@ -55,6 +96,34 @@ jobs:
           npm ci --ignore-scripts
           npm run ios:branding
           npm run ios:verify
+          npm run store-assets:check
+
+      - name: Resolve release inputs
+        id: release_inputs
+        env:
+          DISPATCH_VERSION: ${{ inputs.version }}
+          DISPATCH_BUILD_NUMBER: ${{ inputs.build_number }}
+          DISPATCH_UPLOAD: ${{ inputs.upload_to_testflight }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            VERSION="$DISPATCH_VERSION"
+            BUILD_NUMBER="${DISPATCH_BUILD_NUMBER:-${{ github.run_number }}}"
+            UPLOAD="$DISPATCH_UPLOAD"
+          else
+            VERSION="${REF_NAME#v}"
+            BUILD_NUMBER="${{ github.run_number }}"
+            UPLOAD="true"
+          fi
+
+          if [[ ! "$VERSION" =~ ^[0-9]+(\.[0-9]+){1,3}$ ]]; then
+            echo "::error::Version '$VERSION' is not a valid marketing version."
+            exit 1
+          fi
+
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "build_number=$BUILD_NUMBER" >> "$GITHUB_OUTPUT"
+          echo "upload_to_testflight=$UPLOAD" >> "$GITHUB_OUTPUT"
 
       - name: Resolve Swift packages
         run: |
@@ -65,7 +134,7 @@ jobs:
 
       - name: Verify signing inputs
         env:
-          UPLOAD_TO_TESTFLIGHT: ${{ inputs.upload_to_testflight }}
+          UPLOAD_TO_TESTFLIGHT: ${{ steps.release_inputs.outputs.upload_to_testflight }}
         run: |
           required=(
             APPLE_TEAM_ID
@@ -135,15 +204,10 @@ jobs:
 
       - name: Resolve release values
         env:
-          REQUESTED_BUILD_NUMBER: ${{ inputs.build_number }}
+          VERSION: ${{ steps.release_inputs.outputs.version }}
+          BUILD_NUMBER: ${{ steps.release_inputs.outputs.build_number }}
         run: |
-          if [[ -n "$REQUESTED_BUILD_NUMBER" ]]; then
-            BUILD_NUMBER="$REQUESTED_BUILD_NUMBER"
-          else
-            BUILD_NUMBER="${{ github.run_number }}"
-          fi
-
-          echo "IOS_MARKETING_VERSION=${{ inputs.version }}" >> "$GITHUB_ENV"
+          echo "IOS_MARKETING_VERSION=$VERSION" >> "$GITHUB_ENV"
           echo "IOS_BUILD_NUMBER=$BUILD_NUMBER" >> "$GITHUB_ENV"
           echo "IOS_ARCHIVE_PATH=$RUNNER_TEMP/BPMTechno.xcarchive" >> "$GITHUB_ENV"
           echo "IOS_EXPORT_PATH=$RUNNER_TEMP/export" >> "$GITHUB_ENV"
@@ -181,13 +245,13 @@ jobs:
       - name: Upload signed IPA artifact
         uses: actions/upload-artifact@v4
         with:
-          name: bpm-techno-ios-${{ inputs.version }}-${{ github.run_number }}
+          name: bpm-techno-ios-${{ steps.release_inputs.outputs.version }}-${{ github.run_number }}
           path: ${{ runner.temp }}/export/*.ipa
           if-no-files-found: error
           retention-days: 14
 
       - name: Upload to TestFlight
-        if: inputs.upload_to_testflight
+        if: steps.release_inputs.outputs.upload_to_testflight == 'true'
         run: |
           mkdir -p "$HOME/.appstoreconnect/private_keys"
           API_KEY_PATH="$HOME/.appstoreconnect/private_keys/AuthKey_$APP_STORE_CONNECT_API_KEY_ID.p8"

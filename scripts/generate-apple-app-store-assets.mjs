@@ -1,9 +1,8 @@
-import { mkdir } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { chromium } from '@playwright/test';
-import { captureStoreScreenshots } from './store-screenshot-capture.mjs';
 
 const repositoryRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -23,27 +22,35 @@ const brandingSource = path.join(
   'source',
   'branding.html',
 );
-const productionOrigin = 'https://bpmtech.no';
-const captureOrigin = process.env.STORE_ASSET_ORIGIN ?? productionOrigin;
+const nativeScreensSource = path.join(
+  outputRoot,
+  'source',
+  'native-screens.html',
+);
 
 const devices = [
   {
     id: 'iphone-6.9-inch',
     viewport: { width: 440, height: 956 },
     deviceScaleFactor: 3,
-    isMobile: true,
-    hasTouch: true,
   },
   {
     id: 'ipad-13-inch',
     viewport: { width: 1032, height: 1376 },
     deviceScaleFactor: 2,
-    isMobile: true,
-    hasTouch: true,
   },
 ];
 
+const screens = [
+  '01-analyze-result',
+  '02-record-analyze',
+  '03-file-analyze',
+  '04-tap-tempo',
+  '05-metronome',
+];
+
 await mkdir(graphicsRoot, { recursive: true });
+await mkdir(screenshotRoot, { recursive: true });
 
 const browser = await chromium.launch({ headless: true });
 
@@ -63,14 +70,56 @@ try {
   });
   await context.close();
 
-  await captureStoreScreenshots({
-    browser,
-    devices,
-    origin: captureOrigin,
-    outputRoot: screenshotRoot,
-  });
+  for (const device of devices) {
+    const deviceDirectory = path.join(screenshotRoot, device.id);
+    await mkdir(deviceDirectory, { recursive: true });
+
+    const deviceContext = await browser.newContext({
+      viewport: device.viewport,
+      deviceScaleFactor: device.deviceScaleFactor,
+      isMobile: true,
+      hasTouch: true,
+    });
+    const devicePage = await deviceContext.newPage();
+
+    for (const screenId of screens) {
+      const screenUrl = new URL(pathToFileURL(nativeScreensSource).href);
+      screenUrl.searchParams.set('screen', screenId);
+      await devicePage.goto(screenUrl.href);
+      await devicePage.evaluate(() => document.fonts.ready);
+      await devicePage.waitForTimeout(120);
+      await devicePage.screenshot({
+        path: path.join(deviceDirectory, `${screenId}.png`),
+        animations: 'disabled',
+      });
+    }
+
+    await deviceContext.close();
+  }
+
+  const manifest = {
+    generatedAt: new Date().toISOString(),
+    source: 'store-assets/apple-app-store/source/native-screens.html',
+    note: 'Native SwiftUI marketing comps for App Store Connect. Replace with simulator captures before final review if chrome differs.',
+    devices: devices.map((device) => ({
+      id: device.id,
+      pixelSize: {
+        width: device.viewport.width * device.deviceScaleFactor,
+        height: device.viewport.height * device.deviceScaleFactor,
+      },
+      screens,
+    })),
+  };
+
+  await writeFile(
+    path.join(screenshotRoot, 'manifest.json'),
+    `${JSON.stringify(manifest, null, 2)}\n`,
+    'utf8',
+  );
 } finally {
   await browser.close();
 }
 
-console.log('Generated Apple App Store icon and screenshots.');
+console.log(
+  'Generated Apple App Store icon and native SwiftUI marketing screenshots.',
+);

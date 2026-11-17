@@ -1,0 +1,35 @@
+{
+  "generatedAt": "2026-11-17T21:21:31.397Z",
+  "source": "store-assets/apple-app-store/source/native-screens.html",
+  "note": "Native SwiftUI marketing comps for App Store Connect. Replace with simulator captures before final review if chrome differs.",
+  "devices": [
+    {
+      "id": "iphone-6.9-inch",
+      "pixelSize": {
+        "width": 1320,
+        "height": 2868
+      },
+      "screens": [
+        "01-analyze-result",
+        "02-record-analyze",
+        "03-file-analyze",
+        "04-tap-tempo",
+        "05-metronome"
+      ]
+    },
+    {
+      "id": "ipad-13-inch",
+      "pixelSize": {
+        "width": 2064,
+        "height": 2752
+      },
+      "screens": [
+        "01-analyze-result",
+        "02-record-analyze",
+        "03-file-analyze",
+        "04-tap-tempo",
+        "05-metronome"
+      ]
+    }
+  ]
+}

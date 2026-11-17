@@ -1,0 +1,666 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BPM Techno native App Store screens</title>
+    <style>
+      :root {
+        --ink: #071c2b;
+        --ink-soft: #0a2638;
+        --surface: #0c3046;
+        --surface-strong: #113e57;
+        --text: #f7f3ed;
+        --text-muted: #b9cfd8;
+        --text-faint: #87a9b7;
+        --accent: #ffb36b;
+        --accent-strong: #ff8b5c;
+        --signal: #69ded5;
+        --danger: #ff8b7a;
+        --safe-top: 54px;
+        --safe-bottom: 34px;
+        --tab-height: 52px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        background: #000;
+        color: var(--text);
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      body {
+        overflow: hidden;
+      }
+
+      .phone {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+        background:
+          linear-gradient(
+            180deg,
+            rgba(41, 126, 151, 0.28) 0%,
+            var(--ink) 42%,
+            rgba(255, 139, 92, 0.08) 100%
+          );
+      }
+
+      .status-bar {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 20;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: var(--safe-top);
+        padding: 14px 28px 0;
+        font-size: 15px;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        color: var(--text);
+        pointer-events: none;
+      }
+
+      .status-icons {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+      }
+
+      .status-icons span {
+        display: inline-block;
+        height: 11px;
+        border-radius: 2px;
+        background: var(--text);
+      }
+
+      .status-icons .signal {
+        width: 18px;
+        clip-path: polygon(0 100%, 25% 70%, 25% 100%, 50% 45%, 50% 100%, 75% 20%, 75% 100%, 100% 0, 100% 100%);
+      }
+
+      .status-icons .wifi {
+        width: 15px;
+        height: 12px;
+        border: 2px solid var(--text);
+        border-top: 0;
+        border-radius: 0 0 10px 10px;
+        background: transparent;
+      }
+
+      .status-icons .battery {
+        width: 24px;
+        height: 11px;
+        border: 1.5px solid var(--text);
+        border-radius: 3px;
+        position: relative;
+      }
+
+      .status-icons .battery::after {
+        content: '';
+        position: absolute;
+        inset: 1.5px 8px 1.5px 1.5px;
+        background: var(--text);
+        border-radius: 1px;
+      }
+
+      .status-icons .battery::before {
+        content: '';
+        position: absolute;
+        right: -4px;
+        top: 2.5px;
+        width: 2px;
+        height: 5px;
+        background: var(--text);
+        border-radius: 0 1px 1px 0;
+      }
+
+      .nav {
+        position: absolute;
+        top: var(--safe-top);
+        left: 0;
+        right: 0;
+        z-index: 15;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 20px 12px;
+      }
+
+      .nav-title {
+        font-size: 17px;
+        font-weight: 600;
+      }
+
+      .nav-action {
+        width: 32px;
+        height: 32px;
+        display: grid;
+        place-items: center;
+        color: var(--accent);
+        font-size: 18px;
+      }
+
+      .content {
+        position: absolute;
+        inset: calc(var(--safe-top) + 44px) 0 calc(var(--safe-bottom) + var(--tab-height)) 0;
+        overflow: hidden;
+        padding: 8px 20px 20px;
+      }
+
+      .screen {
+        display: none;
+        height: 100%;
+      }
+
+      .screen.active {
+        display: block;
+      }
+
+      h1 {
+        margin: 0 0 10px;
+        font-size: 34px;
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        line-height: 1.05;
+      }
+
+      .lede {
+        margin: 0 0 24px;
+        color: var(--text-muted);
+        font-size: 16px;
+        line-height: 1.4;
+      }
+
+      .card {
+        background: rgba(12, 48, 70, 0.92);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 18px;
+        padding: 20px;
+        margin-bottom: 16px;
+      }
+
+      .card-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0 0 10px;
+        font-size: 17px;
+        font-weight: 600;
+      }
+
+      .card-copy {
+        margin: 0 0 16px;
+        color: var(--text-muted);
+        font-size: 15px;
+        line-height: 1.35;
+      }
+
+      .btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        min-height: 52px;
+        border-radius: 14px;
+        font-size: 17px;
+        font-weight: 600;
+        border: none;
+      }
+
+      .btn-primary {
+        background: var(--accent);
+        color: var(--ink);
+      }
+
+      .btn-secondary {
+        background: var(--surface-strong);
+        color: var(--text);
+        border: 1px solid rgba(135, 169, 183, 0.35);
+      }
+
+      .btn-row {
+        display: flex;
+        gap: 12px;
+      }
+
+      .result {
+        text-align: center;
+        padding: 24px;
+        margin-bottom: 16px;
+        border-radius: 20px;
+        background: var(--ink-soft);
+        border: 1px solid rgba(105, 222, 213, 0.22);
+      }
+
+      .result-mode {
+        margin: 0 0 8px;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 1.2px;
+        color: var(--signal);
+      }
+
+      .result-bpm {
+        margin: 0;
+        font-size: 72px;
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+        line-height: 1;
+      }
+
+      .result-unit {
+        margin: 4px 0 10px;
+        font-size: 20px;
+        font-weight: 500;
+        color: var(--text-muted);
+      }
+
+      .result-meta {
+        margin: 0 0 14px;
+        color: var(--text-faint);
+        font-size: 14px;
+      }
+
+      .chips {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-bottom: 14px;
+      }
+
+      .chip {
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: var(--surface-strong);
+        color: var(--text-muted);
+        font-size: 12px;
+        font-weight: 500;
+      }
+
+      .share {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 44px;
+        border-radius: 12px;
+        background: var(--signal);
+        color: var(--ink);
+        font-size: 15px;
+        font-weight: 600;
+      }
+
+      .footnote {
+        margin: 8px 0 0;
+        color: var(--text-faint);
+        font-size: 13px;
+        line-height: 1.4;
+      }
+
+      .timer {
+        margin: 0 0 14px;
+        font-size: 36px;
+        font-weight: 600;
+        color: var(--signal);
+        font-variant-numeric: tabular-nums;
+      }
+
+      .center-stack {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding-top: 28px;
+      }
+
+      .big-bpm {
+        margin: 0;
+        font-size: 84px;
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+        line-height: 1;
+      }
+
+      .unit {
+        margin: 8px 0 18px;
+        font-size: 20px;
+        font-weight: 500;
+        color: var(--text-muted);
+      }
+
+      .hint {
+        margin: 0 0 28px;
+        max-width: 280px;
+        color: var(--text-muted);
+        font-size: 15px;
+        line-height: 1.4;
+      }
+
+      .slider-track {
+        width: calc(100% - 56px);
+        height: 4px;
+        margin: 8px 28px 28px;
+        border-radius: 999px;
+        background: rgba(185, 207, 216, 0.25);
+        position: relative;
+      }
+
+      .slider-track::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 58%;
+        border-radius: inherit;
+        background: var(--signal);
+      }
+
+      .slider-track::after {
+        content: '';
+        position: absolute;
+        left: calc(58% - 14px);
+        top: 50%;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: #fff;
+        transform: translateY(-50%);
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+      }
+
+      .dots {
+        display: flex;
+        gap: 14px;
+        margin-bottom: 28px;
+      }
+
+      .dot {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: var(--surface-strong);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+      }
+
+      .dot.on {
+        background: var(--signal);
+        box-shadow: 0 0 0 4px rgba(105, 222, 213, 0.18);
+      }
+
+      .tab-bar {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 20;
+        height: calc(var(--safe-bottom) + var(--tab-height));
+        padding: 8px 12px var(--safe-bottom);
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        background: rgba(7, 28, 43, 0.94);
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(16px);
+      }
+
+      .tab {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        color: var(--text-faint);
+        font-size: 10px;
+        font-weight: 500;
+      }
+
+      .tab.active {
+        color: var(--accent);
+      }
+
+      .tab-icon {
+        width: 24px;
+        height: 24px;
+        display: grid;
+        place-items: center;
+        font-size: 18px;
+      }
+
+      .home-indicator {
+        position: absolute;
+        left: 50%;
+        bottom: 8px;
+        width: 134px;
+        height: 5px;
+        border-radius: 999px;
+        background: rgba(247, 243, 237, 0.55);
+        transform: translateX(-50%);
+        z-index: 30;
+      }
+
+      /* iPad / wider layouts */
+      @media (min-width: 700px) {
+        :root {
+          --safe-top: 24px;
+          --safe-bottom: 20px;
+          --tab-height: 58px;
+        }
+
+        .content {
+          max-width: 720px;
+          margin: 0 auto;
+          left: 0;
+          right: 0;
+        }
+
+        .nav {
+          max-width: 760px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 100%;
+        }
+
+        .tab-bar {
+          padding-left: 18%;
+          padding-right: 18%;
+        }
+
+        h1 {
+          font-size: 40px;
+        }
+
+        .big-bpm,
+        .result-bpm {
+          font-size: 96px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="phone">
+      <div class="status-bar">
+        <div>9:41</div>
+        <div class="status-icons">
+          <span class="signal"></span>
+          <span class="wifi"></span>
+          <span class="battery"></span>
+        </div>
+      </div>
+
+      <div class="nav">
+        <div style="width: 32px"></div>
+        <div class="nav-title" id="nav-title">BPM Techno</div>
+        <div class="nav-action" id="nav-action">☰</div>
+      </div>
+
+      <div class="content">
+        <!-- 01 Analyze with result -->
+        <section class="screen" data-screen="01-analyze-result" id="screen-01">
+          <h1>Native tempo tools</h1>
+          <p class="lede">
+            Record a clip or open a track. Analysis uses the same Realtime BPM Analyzer engine as the web app.
+          </p>
+          <div class="result">
+            <p class="result-mode">RECORDING</p>
+            <p class="result-bpm">128</p>
+            <p class="result-unit">BPM</p>
+            <p class="result-meta">Confidence 92% · Microphone recording</p>
+            <div class="chips">
+              <span class="chip">64 · half</span>
+              <span class="chip">256 · double</span>
+            </div>
+            <div class="share">Share BPM</div>
+          </div>
+          <div class="card">
+            <p class="card-title">🎙 Record &amp; analyze</p>
+            <p class="card-copy">Capture at least a few bars, then stop to read the tempo.</p>
+            <div class="btn btn-primary">Start recording</div>
+          </div>
+          <p class="footnote">
+            Tempo is detected on this device with Realtime BPM Analyzer for Swift. Audio is never uploaded.
+          </p>
+        </section>
+
+        <!-- 02 Recording in progress -->
+        <section class="screen" data-screen="02-record-analyze" id="screen-02">
+          <h1>Native tempo tools</h1>
+          <p class="lede">Capture a short clip from speakers or monitors, then analyze on-device.</p>
+          <div class="card">
+            <p class="card-title">🎙 Record &amp; analyze</p>
+            <p class="card-copy">Capture at least a few bars, then stop to read the tempo.</p>
+            <p class="timer">0:18</p>
+            <div class="btn-row">
+              <div class="btn btn-primary">Stop &amp; analyze</div>
+              <div class="btn btn-secondary" style="flex: 0 0 110px">Cancel</div>
+            </div>
+          </div>
+          <div class="card">
+            <p class="card-title">📁 Analyze a file</p>
+            <p class="card-copy">MP3, WAV, M4A, AAC, FLAC, and CAF are supported.</p>
+            <div class="btn btn-secondary">Choose audio file</div>
+          </div>
+        </section>
+
+        <!-- 03 File analyze result -->
+        <section class="screen" data-screen="03-file-analyze" id="screen-03">
+          <h1>Native tempo tools</h1>
+          <p class="lede">Import a local track with the system document picker. Nothing leaves the device.</p>
+          <div class="result">
+            <p class="result-mode">FILE</p>
+            <p class="result-bpm">140</p>
+            <p class="result-unit">BPM</p>
+            <p class="result-meta">Confidence 88% · peak-time-drop.wav</p>
+            <div class="chips">
+              <span class="chip">70 · half</span>
+              <span class="chip">280 · double</span>
+            </div>
+            <div class="share">Share BPM</div>
+          </div>
+          <div class="card">
+            <p class="card-title">📁 Analyze a file</p>
+            <p class="card-copy">MP3, WAV, M4A, AAC, FLAC, and CAF are supported.</p>
+            <div class="btn btn-secondary">Choose audio file</div>
+          </div>
+        </section>
+
+        <!-- 04 Tap tempo -->
+        <section class="screen" data-screen="04-tap-tempo" id="screen-04">
+          <div class="center-stack">
+            <p class="big-bpm">126</p>
+            <p class="unit">BPM</p>
+            <p class="hint">Recent taps: 8 of 12</p>
+            <div class="btn btn-primary" style="max-width: 360px">Tap the beat</div>
+            <div class="btn-row" style="width: 100%; max-width: 360px; margin-top: 12px">
+              <div class="btn btn-secondary">Reset</div>
+              <div class="btn btn-secondary">Share</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 05 Metronome -->
+        <section class="screen" data-screen="05-metronome" id="screen-05">
+          <div class="center-stack">
+            <p class="big-bpm">120</p>
+            <p class="unit">BPM</p>
+            <div class="dots">
+              <span class="dot on"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </div>
+          </div>
+          <div class="slider-track" aria-hidden="true"></div>
+          <div style="padding: 0 28px">
+            <div class="btn btn-primary">Stop</div>
+            <p class="footnote" style="text-align: center; margin-top: 16px">
+              Native metronome with haptic accents. Recording pauses while the click is running.
+            </p>
+          </div>
+        </section>
+      </div>
+
+      <div class="tab-bar" id="tab-bar">
+        <div class="tab" data-tab="analyze">
+          <div class="tab-icon">〰</div>
+          Analyze
+        </div>
+        <div class="tab" data-tab="tap">
+          <div class="tab-icon">✋</div>
+          Tap
+        </div>
+        <div class="tab" data-tab="metronome">
+          <div class="tab-icon">♩</div>
+          Metronome
+        </div>
+      </div>
+      <div class="home-indicator"></div>
+    </div>
+
+    <script>
+      const screens = {
+        '01-analyze-result': { tab: 'analyze', title: 'BPM Techno', action: true },
+        '02-record-analyze': { tab: 'analyze', title: 'BPM Techno', action: true },
+        '03-file-analyze': { tab: 'analyze', title: 'BPM Techno', action: true },
+        '04-tap-tempo': { tab: 'tap', title: 'Tap tempo', action: false },
+        '05-metronome': { tab: 'metronome', title: 'Metronome', action: false },
+      };
+
+      function showScreen(id) {
+        const meta = screens[id];
+        if (!meta) throw new Error(`Unknown screen: ${id}`);
+
+        document.querySelectorAll('.screen').forEach((el) => {
+          el.classList.toggle('active', el.dataset.screen === id);
+        });
+
+        document.getElementById('nav-title').textContent = meta.title;
+        document.getElementById('nav-action').style.visibility = meta.action
+          ? 'visible'
+          : 'hidden';
+
+        document.querySelectorAll('.tab').forEach((el) => {
+          el.classList.toggle('active', el.dataset.tab === meta.tab);
+        });
+      }
+
+      const params = new URLSearchParams(location.search);
+      showScreen(params.get('screen') || '01-analyze-result');
+      window.__showNativeStoreScreen = showScreen;
+    </script>
+  </body>
+</html>
