@@ -135,8 +135,13 @@ function Home(props) {
         const context = new window.AudioContext();
         audioContextRef.current = context;
 
+        // Disable browser DSP so the analyzer hears the raw signal (v6 mic guidance)
         const stream = await navigator.mediaDevices.getUserMedia({
-          audio: true,
+          audio: {
+            echoCancellation: false,
+            noiseSuppression: false,
+            autoGainControl: false,
+          },
         });
 
         if (!isMountedRef.current) {
@@ -217,7 +222,8 @@ function Home(props) {
     }
   };
 
-  const [threshold, setThreshold] = useState(0);
+  // v6: peaks `threshold` is gone; `confidence` is the calibrated chance the reading is right
+  const [confidence, setConfidence] = useState(0);
   const [primaryBPM, setPrimaryBPM] = useState(testBPM || ``);
   const [secondaryBPM, setSecondaryBPM] = useState(``);
   const [interimBPM, setInterimBPM] = useState(``);
@@ -243,10 +249,16 @@ function Home(props) {
     const input = context.createMediaStreamSource(stream);
     audioInputRef.current = input;
 
+    // Migration v5→v6 (https://www.realtime-bpm-analyzer.com/guide/migration-v6):
+    // - continuousAnalysis + stabilizationTime → peaks restartAfterSeconds (seconds)
+    // - Default engine is now tempogram; tempogram follows tempo changes itself
+    //   (16s half-life), so we omit peaks-only restartAfterSeconds and use reset()
+    //   after lock for another continuous pass (same UX as before).
+    // - liveInput lets the analyzer follow the mic clock and treat lost input as silence.
+    const [track] = stream.getAudioTracks();
     const bpmAnalyzer = await createRealtimeBpmAnalyzer(context, {
       debug: props.isDebug,
-      continuousAnalysis: true,
-      stabilizationTime: 10000,
+      liveInput: track,
     });
     bpmAnalyzerRef.current = bpmAnalyzer;
 
@@ -256,49 +268,79 @@ function Home(props) {
       return;
     }
 
-    input.connect(bpmAnalyzer.node);
+    input.connect(bpmAnalyzer.input);
 
-    bpmAnalyzer.on('bpm', (data) => {
-      if (isMountedRef.current && data.bpm && data.bpm.length) {
-        setInterimBPM(`${data.bpm[0].tempo}`);
-
-        log.info(data.bpm);
-        log.info(`Threshold, ${data.threshold}`);
+    // v5 `bpm` → v6 `reading` (one tempo + candidates, not Tempo[])
+    bpmAnalyzer.on('reading', (reading) => {
+      if (isMountedRef.current && reading?.bpm != null) {
+        setInterimBPM(`${reading.bpm}`);
+        log.info(reading);
+        if (reading.confidence != null) {
+          log.info(`Confidence, ${reading.confidence}`);
+        }
       }
     });
 
-    bpmAnalyzer.on('bpmStable', (data) => {
+    // v5 `bpmStable` → v6 `statechange` with to.status === 'locked'
+    bpmAnalyzer.on('statechange', ({ to }) => {
       if (!isMountedRef.current) {
         return;
       }
 
-      if (data.bpm && data.bpm.length) {
-        setIsResultReady(true);
-        setThreshold(Math.round(data.threshold * 100) / 100);
-
-        setPrimaryBPM(`${data.bpm[0].tempo}`);
-        if (data.bpm.length > 1) {
-          setSecondaryBPM(`${data.bpm[1].tempo}`);
-        }
-
+      if (to.status === 'stopped' && to.error) {
+        const error = new Error(to.error.message);
+        error.name = to.error.name;
+        cleanupAudio();
+        setIsResultReady(false);
         setInterimBPM(``);
-
-        ReactGA.event('detect', {
-          mode: 'realtime',
-          bpm: data.bpm[0].tempo,
-          threshold: data.threshold,
-        });
-        // P1 #6: Consistent event schema across detect events
-        appInsights?.trackEvent({
-          name: 'detect',
-          properties: {
-            mode: 'realtime',
-            bpm: data.bpm[0].tempo,
-            threshold: data.threshold,
-          },
-        });
+        setIsListening(false);
+        setIsShowingInit(true);
+        log.error(`${error.name}: ${error.message}`);
+        appInsights?.trackException({ exception: error });
+        return;
       }
 
+      if (to.status !== 'locked' || !to.reading) {
+        return;
+      }
+
+      const { bpm, confidence: readingConfidence, candidates } = to.reading;
+
+      setIsResultReady(true);
+      setConfidence(
+        readingConfidence == null
+          ? 0
+          : Math.round(readingConfidence * 100) / 100
+      );
+
+      setPrimaryBPM(`${bpm}`);
+      const alternate = candidates?.find(
+        (candidate) =>
+          candidate.relation === 'half' || candidate.relation === 'double'
+      );
+      if (alternate) {
+        setSecondaryBPM(`${alternate.bpm}`);
+      }
+
+      setInterimBPM(``);
+
+      ReactGA.event('detect', {
+        mode: 'realtime',
+        bpm,
+        confidence: readingConfidence,
+      });
+      // P1 #6: Consistent event schema; threshold removed in v6 → confidence
+      appInsights?.trackEvent({
+        name: 'detect',
+        properties: {
+          mode: 'realtime',
+          bpm,
+          confidence: readingConfidence,
+          threshold: null,
+        },
+      });
+
+      // Start another detection pass (replaces continuousAnalysis restart)
       bpmAnalyzer.reset();
     });
 
@@ -372,7 +414,7 @@ function Home(props) {
             </p>
             <h2
               className="bpm-display"
-              style={{ '--bpm-confidence': threshold + 0.4 }}
+              style={{ '--bpm-confidence': confidence + 0.4 }}
             >
               {isResultReady ? primaryBPM : null}
             </h2>
