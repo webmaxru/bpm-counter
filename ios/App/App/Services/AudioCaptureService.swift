@@ -28,7 +28,7 @@ final class AudioCaptureService: ObservableObject {
         try session.setCategory(
             .playAndRecord,
             mode: .measurement,
-            options: [.defaultToSpeaker, .allowBluetooth, .mixWithOthers]
+            options: [.defaultToSpeaker, .allowBluetoothHFP, .mixWithOthers]
         )
         try session.setActive(true)
     }
