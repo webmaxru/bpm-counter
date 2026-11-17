@@ -1,0 +1,57 @@
+name: Microsoft Store CI
+
+on:
+  pull_request:
+    paths:
+      - 'store-assets/microsoft-store/**'
+      - 'scripts/generate-microsoft-store-assets.mjs'
+      - 'scripts/package-microsoft-store.mjs'
+      - 'scripts/check-microsoft-store-readiness.mjs'
+      - 'scripts/store-screenshot-capture.mjs'
+      - '.github/workflows/microsoft-store-ci.yml'
+      - '.github/workflows/microsoft-store-release.yml'
+      - 'MICROSOFT_STORE_RELEASE.md'
+      - 'package.json'
+      - 'package-lock.json'
+  push:
+    branches:
+      - main
+    paths:
+      - 'store-assets/microsoft-store/**'
+      - 'scripts/generate-microsoft-store-assets.mjs'
+      - 'scripts/package-microsoft-store.mjs'
+      - 'scripts/check-microsoft-store-readiness.mjs'
+      - 'scripts/store-screenshot-capture.mjs'
+      - '.github/workflows/microsoft-store-ci.yml'
+      - '.github/workflows/microsoft-store-release.yml'
+      - 'MICROSOFT_STORE_RELEASE.md'
+      - 'package.json'
+      - 'package-lock.json'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: microsoft-store-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  readiness:
+    name: Validate Store assets and pipeline
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Microsoft Store readiness check
+        run: npm run microsoft-store:check

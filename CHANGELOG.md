@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Microsoft Store packaging and Partner Center release pipeline:
+  regenerated desktop screenshots/branding, `microsoft-store:package` via
+  PWABuilder, readiness check, and GitHub Actions package/publish workflow.
+  See `MICROSOFT_STORE_RELEASE.md`.
 - agentprose script on every page (read-only WebMCP tools for AI agents, agentprose Cloud analytics and hosted search).
 - `/agentprose.json`, one Markdown file per page under `/agentprose/posts/` and `/llms.txt`, generated at build time from the page content.
 - Page "Updated" dates are now machine-readable `<time datetime>` elements.

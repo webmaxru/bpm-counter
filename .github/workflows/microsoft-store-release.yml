@@ -1,0 +1,192 @@
+name: Microsoft Store Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      modern_version:
+        description: Modern MSIX package version (four-part)
+        required: true
+        default: "3.0.0.0"
+        type: string
+      classic_version:
+        description: Classic APPX package version (must be lower than modern)
+        required: true
+        default: "2.1.0.0"
+        type: string
+      regenerate_assets:
+        description: Regenerate branding and desktop screenshots from production before packaging
+        required: true
+        default: true
+        type: boolean
+      publish_to_store:
+        description: Publish generated packages to Partner Center with msstore CLI
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: microsoft-store-release
+  cancel-in-progress: false
+
+jobs:
+  package:
+    name: Package PWA for Microsoft Store
+    runs-on: windows-latest
+    timeout-minutes: 45
+    env:
+      MS_STORE_PUBLISHER_ID: ${{ secrets.MS_STORE_PUBLISHER_ID }}
+      MS_STORE_MODERN_VERSION: ${{ inputs.modern_version }}
+      MS_STORE_CLASSIC_VERSION: ${{ inputs.classic_version }}
+      AZURE_AD_TENANT_ID: ${{ secrets.AZURE_AD_TENANT_ID }}
+      AZURE_AD_APPLICATION_CLIENT_ID: ${{ secrets.AZURE_AD_APPLICATION_CLIENT_ID }}
+      AZURE_AD_APPLICATION_SECRET: ${{ secrets.AZURE_AD_APPLICATION_SECRET }}
+      SELLER_ID: ${{ secrets.SELLER_ID }}
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browser
+        if: inputs.regenerate_assets
+        run: npx playwright install chromium
+
+      - name: Regenerate Microsoft Store assets
+        if: inputs.regenerate_assets
+        run: npm run store-assets:microsoft
+
+      - name: Verify Store readiness
+        run: npm run microsoft-store:check
+
+      - name: Verify packaging inputs
+        shell: bash
+        env:
+          PUBLISH_TO_STORE: ${{ inputs.publish_to_store }}
+        run: |
+          if [[ -z "$MS_STORE_PUBLISHER_ID" ]]; then
+            echo "::error::MS_STORE_PUBLISHER_ID secret is not configured."
+            exit 1
+          fi
+
+          if [[ "$PUBLISH_TO_STORE" == "true" ]]; then
+            required=(
+              AZURE_AD_TENANT_ID
+              AZURE_AD_APPLICATION_CLIENT_ID
+              AZURE_AD_APPLICATION_SECRET
+              SELLER_ID
+            )
+            for variable in "${required[@]}"; do
+              if [[ -z "${!variable}" ]]; then
+                echo "::error::$variable is required when publish_to_store=true."
+                exit 1
+              fi
+            done
+          fi
+
+      - name: Generate PWABuilder Store packages
+        run: npm run microsoft-store:package
+
+      - name: Extract package zip
+        shell: pwsh
+        run: |
+          $zip = Get-ChildItem -Path "store-assets/microsoft-store/packages" -Filter "bpm-techno-msstore-*.zip" |
+            Sort-Object LastWriteTime -Descending |
+            Select-Object -First 1
+          if (-not $zip) {
+            throw "Generated Microsoft Store zip not found."
+          }
+
+          $extractRoot = Join-Path "store-assets/microsoft-store/packages" "extracted"
+          New-Item -ItemType Directory -Force -Path $extractRoot | Out-Null
+          Expand-Archive -Path $zip.FullName -DestinationPath $extractRoot -Force
+
+          $msix = Get-ChildItem -Path $extractRoot -Recurse -Filter "*.msixbundle" |
+            Where-Object { $_.Name -notmatch "sideload" } |
+            Select-Object -First 1
+          $classic = Get-ChildItem -Path $extractRoot -Recurse -Filter "*.classic.appxbundle" |
+            Select-Object -First 1
+          if (-not $classic) {
+            $classic = Get-ChildItem -Path $extractRoot -Recurse -Filter "*.appxbundle" |
+              Where-Object { $_.Name -match "classic" } |
+              Select-Object -First 1
+          }
+
+          if (-not $msix) {
+            throw "Modern .msixbundle was not found inside $($zip.Name)."
+          }
+
+          Write-Host "Modern package: $($msix.FullName)"
+          if ($classic) {
+            Write-Host "Classic package: $($classic.FullName)"
+          } else {
+            Write-Warning "Classic .appxbundle was not found; continuing with modern package only."
+          }
+
+          "MS_STORE_MSIX=$($msix.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          if ($classic) {
+            "MS_STORE_CLASSIC=$($classic.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          }
+
+      - name: Upload package artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: bpm-techno-msstore-${{ inputs.modern_version }}-${{ github.run_number }}
+          path: |
+            store-assets/microsoft-store/packages/*.zip
+            store-assets/microsoft-store/packages/pwaAppInfo.json
+            store-assets/microsoft-store/packages/pwabuilder-request-*.json
+            store-assets/microsoft-store/packages/extracted/*.msixbundle
+            store-assets/microsoft-store/packages/extracted/*.classic.appxbundle
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload listing asset artifact
+        if: inputs.regenerate_assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: bpm-techno-msstore-listing-assets-${{ github.run_number }}
+          path: |
+            store-assets/microsoft-store/branding/**
+            store-assets/microsoft-store/screenshots/**
+            store-assets/microsoft-store/listing-en-US.txt
+            store-assets/microsoft-store/partner-center-submission.txt
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Configure Microsoft Store CLI
+        if: inputs.publish_to_store
+        uses: microsoft/microsoft-store-apppublisher@v1.1
+
+      - name: Authenticate Partner Center
+        if: inputs.publish_to_store
+        shell: pwsh
+        run: |
+          msstore reconfigure `
+            --tenantId $env:AZURE_AD_TENANT_ID `
+            --sellerId $env:SELLER_ID `
+            --clientId $env:AZURE_AD_APPLICATION_CLIENT_ID `
+            --clientSecret $env:AZURE_AD_APPLICATION_SECRET
+
+      - name: Publish packages to Partner Center
+        if: inputs.publish_to_store
+        shell: pwsh
+        run: |
+          $productId = "9NQ4M5SC9PQ9"
+          Write-Host "Publishing modern package to $productId"
+          msstore publish "$env:MS_STORE_MSIX" -id $productId
+
+          if ($env:MS_STORE_CLASSIC) {
+            Write-Host "Publishing classic package to $productId"
+            msstore publish "$env:MS_STORE_CLASSIC" -id $productId
+          }
