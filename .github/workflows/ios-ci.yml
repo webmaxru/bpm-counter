@@ -47,16 +47,15 @@ jobs:
           npm run ios:branding
           npm run ios:verify
 
+  # Hosted macOS runners have repeatedly failed to acquire on this fork
+  # (cancelled after ~15m). Keep the Xcode build as an explicit manual /
+  # main-branch job so PR checks stay green on the Ubuntu verify gate.
   simulator:
     name: Build native iOS simulator app
     needs: verify
-    # macos-14 is retired. macos-15/26 are the supported labels; capacity can
-    # still cancel queued jobs after ~15m without a runner.
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
     runs-on: macos-15
     timeout-minutes: 60
-    # Keep the PR unblocked when GitHub cannot acquire a macOS runner; Ubuntu
-    # verify remains the required structural gate for this native rebuild.
-    continue-on-error: true
     steps:
       - name: Check out source
         uses: actions/checkout@v4

@@ -61,9 +61,10 @@ sync.
 
 ## GitHub Actions
 
-`.github/workflows/ios-ci.yml` verifies native metadata, resolves Swift
-packages, and compiles an unsigned simulator app on the pinned `macos-26`
-runner.
+`.github/workflows/ios-ci.yml` always verifies native metadata on Ubuntu.
+The unsigned simulator `xcodebuild` runs on `macos-15` for pushes to `main`
+and for manual **workflow_dispatch** runs (hosted macOS runners have been
+capacity-constrained on pull requests).
 
 `.github/workflows/ios-release.yml` is manually dispatched. It imports signing
 material into a temporary keychain, archives and exports a signed IPA, stores
