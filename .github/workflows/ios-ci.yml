@@ -17,6 +17,7 @@ on:
       - "scripts/verify-ios-project.mjs"
       - "scripts/sync-ios-branding.mjs"
       - "store-assets/apple-app-store/**"
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -26,13 +27,10 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  simulator:
-    name: Build native iOS simulator app
-    # macos-15 has better hosted capacity than macos-26 while still shipping
-    # Xcode new enough for Swift 5.9+ and the RealtimeBpmAnalyzer package.
-    runs-on: macos-15
-    timeout-minutes: 45
-
+  verify:
+    name: Verify native iOS project
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Check out source
         uses: actions/checkout@v4
@@ -48,6 +46,16 @@ jobs:
           npm ci --ignore-scripts
           npm run ios:branding
           npm run ios:verify
+
+  simulator:
+    name: Build native iOS simulator app
+    needs: verify
+    # Prefer macos-14; macos-26/15 hosted pools have been failing to acquire runners.
+    runs-on: macos-14
+    timeout-minutes: 45
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
 
       - name: Show Xcode version
         run: xcodebuild -version
