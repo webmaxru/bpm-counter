@@ -18,7 +18,7 @@ Do NOT use APIs or patterns from newer versions of these libraries:
 | `react` | `^17.0.2` | Uses `ReactDOM.render()`, NOT `createRoot()` (React 18) |
 | `react-router-dom` | `^5.3.0` | Uses `<Switch>`, `<Route>`, `withRouter`. NOT v6 (`<Routes>`, `useNavigate`) |
 | `react-scripts` | `^5.0.1` | CRA 5 (Webpack 5 under the hood) |
-| `realtime-bpm-analyzer` | `^5.0.1` | v5 API using `AudioWorklet` via `createRealtimeBpmAnalyzer()` |
+| `realtime-bpm-analyzer` | `^6.3.0` | v6 API using `AudioWorklet` via `createRealtimeBpmAnalyzer()` (`reading` / `statechange`, default tempogram) |
 | `rollup` | `^2.56.3` | Rollup 2 legacy plugin format — NOT Rollup 3+ |
 | `react-toastify` | `^8.0.2` | v8 API |
 

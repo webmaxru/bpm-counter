@@ -3,7 +3,7 @@
  *
  * Generates WAV test files with a synthesised 4/4 kick-drum pattern at
  * specific BPM values.  Used to validate the real-time BPM detection
- * pipeline (realtime-bpm-analyzer v5 + AudioWorklet).
+ * pipeline (realtime-bpm-analyzer v6 + AudioWorklet).
  *
  * Run:  node scripts/generate-test-audio.js
  *
@@ -21,7 +21,8 @@ const __dirname = path.dirname(__filename);
 const SAMPLE_RATE = 44100;
 const BIT_DEPTH = 16;
 const NUM_CHANNELS = 1;
-const DURATION_SEC = 45; // long enough for stabilizationTime: 10 000 ms
+// Tempogram earliest lock ~11.5s of audio; peaks locked from ~10s. Keep headroom.
+const DURATION_SEC = 45;
 const TARGET_BPMS = [80, 90, 100, 110, 120, 130, 140];
 const OUT_DIR = path.join(__dirname, '..', 'public', 'samples');
 

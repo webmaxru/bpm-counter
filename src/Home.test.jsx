@@ -20,7 +20,7 @@ vi.mock('realtime-bpm-analyzer', () => ({
   createRealtimeBpmAnalyzer: vi.fn().mockImplementation(() => {
     mockAnalyzerHandlers = {};
     mockAnalyzer = {
-      node: { connect: vi.fn() },
+      input: { connect: vi.fn() },
       on: vi.fn((event, handler) => {
         mockAnalyzerHandlers[event] = handler;
       }),
@@ -78,7 +78,7 @@ describe('Home', () => {
     createRealtimeBpmAnalyzer.mockImplementation(() => {
       mockAnalyzerHandlers = {};
       mockAnalyzer = {
-        node: { connect: vi.fn() },
+        input: { connect: vi.fn() },
         on: vi.fn((event, handler) => {
           mockAnalyzerHandlers[event] = handler;
         }),
@@ -119,7 +119,11 @@ describe('Home', () => {
 
     await waitFor(() => {
       expect(navigator.mediaDevices.getUserMedia).toHaveBeenCalledWith({
-        audio: true,
+        audio: {
+          echoCancellation: false,
+          noiseSuppression: false,
+          autoGainControl: false,
+        },
       });
     });
   });
@@ -145,8 +149,10 @@ describe('Home', () => {
     expect(navigator.mediaDevices.getUserMedia).toHaveBeenCalledOnce();
 
     await act(async () => {
+      const track = { stop: vi.fn() };
       resolveStream({
-        getTracks: () => [{ stop: vi.fn() }],
+        getTracks: () => [track],
+        getAudioTracks: () => [track],
       });
     });
 
@@ -187,13 +193,14 @@ describe('Home', () => {
     fireEvent.click(screen.getByRole('button', { name: /Start listening/i }));
 
     await waitFor(() => {
-      expect(mockAnalyzerHandlers.bpm).toBeDefined();
+      expect(mockAnalyzerHandlers.reading).toBeDefined();
     });
 
     act(() => {
-      mockAnalyzerHandlers.bpm({
-        bpm: [{ tempo: 125 }],
-        threshold: 0.4,
+      mockAnalyzerHandlers.reading({
+        bpm: 125,
+        confidence: 0.4,
+        candidates: [{ bpm: 125, relation: 'top' }],
       });
     });
 
@@ -202,19 +209,30 @@ describe('Home', () => {
     expect(screen.queryByText('BPM')).not.toBeInTheDocument();
   });
 
-  it('displays detected BPM when analyzer fires bpmStable event', async () => {
+  it('displays detected BPM when analyzer locks (statechange)', async () => {
     renderWithRouter(<Home {...defaultProps} />);
 
     fireEvent.click(screen.getByRole('button', { name: /Start listening/i }));
 
     await waitFor(() => {
-      expect(mockAnalyzerHandlers.bpmStable).toBeDefined();
+      expect(mockAnalyzerHandlers.statechange).toBeDefined();
     });
 
     act(() => {
-      mockAnalyzerHandlers.bpmStable({
-        bpm: [{ tempo: 128 }, { tempo: 64 }],
-        threshold: 0.85,
+      mockAnalyzerHandlers.statechange({
+        from: { status: 'settling' },
+        to: {
+          status: 'locked',
+          reading: {
+            bpm: 128,
+            confidence: 0.85,
+            candidates: [
+              { bpm: 128, relation: 'top' },
+              { bpm: 64, relation: 'half' },
+            ],
+          },
+        },
+        reason: 'locked',
       });
     });
 
@@ -255,8 +273,10 @@ describe('Home', () => {
 
   it('stops microphone capture and the analyzer on unmount', async () => {
     const stopTrack = vi.fn();
+    const track = { stop: stopTrack };
     navigator.mediaDevices.getUserMedia.mockResolvedValueOnce({
-      getTracks: () => [{ stop: stopTrack }],
+      getTracks: () => [track],
+      getAudioTracks: () => [track],
     });
 
     const { unmount } = renderWithRouter(<Home {...defaultProps} />);
@@ -306,13 +326,21 @@ describe('Home', () => {
     fireEvent.click(screen.getByRole('button', { name: /Start lytting/i }));
 
     await waitFor(() => {
-      expect(mockAnalyzerHandlers.bpmStable).toBeDefined();
+      expect(mockAnalyzerHandlers.statechange).toBeDefined();
     });
 
     act(() => {
-      mockAnalyzerHandlers.bpmStable({
-        bpm: [{ tempo: 128 }],
-        threshold: 0.85,
+      mockAnalyzerHandlers.statechange({
+        from: { status: 'settling' },
+        to: {
+          status: 'locked',
+          reading: {
+            bpm: 128,
+            confidence: 0.85,
+            candidates: [{ bpm: 128, relation: 'top' }],
+          },
+        },
+        reason: 'locked',
       });
     });
 

@@ -60,9 +60,12 @@ window.webkitAudioContext = MockAudioContext;
 
 // Mock MediaDevices
 // Use a beforeEach pattern because mockReset clears vi.fn() impls
-const mockGetUserMedia = vi.fn().mockResolvedValue({
-  getTracks: () => [{ stop: vi.fn() }],
+const mockAudioTrack = () => ({ stop: vi.fn() });
+const mockMediaStream = (track = mockAudioTrack()) => ({
+  getTracks: () => [track],
+  getAudioTracks: () => [track],
 });
+const mockGetUserMedia = vi.fn().mockResolvedValue(mockMediaStream());
 Object.defineProperty(navigator, 'mediaDevices', {
   value: {
     getUserMedia: mockGetUserMedia,
@@ -72,9 +75,7 @@ Object.defineProperty(navigator, 'mediaDevices', {
 
 // Re-apply getUserMedia mock before each test (mockReset clears vi.fn() impls)
 beforeEach(() => {
-  mockGetUserMedia.mockResolvedValue({
-    getTracks: () => [{ stop: vi.fn() }],
-  });
+  mockGetUserMedia.mockResolvedValue(mockMediaStream());
 });
 
 // Mock performance.getEntriesByType (used in App.js)

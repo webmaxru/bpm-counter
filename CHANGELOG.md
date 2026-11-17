@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Upgraded `realtime-bpm-analyzer` from v5 to v6.3.0: `reading` / `statechange` events, `analyzer.input`, default tempogram engine, `confidence` instead of peaks `threshold`, and mic `liveInput` per the [v6 migration guide](https://www.realtime-bpm-analyzer.com/guide/migration-v6).
 - agentprose script now loads from agentprose Cloud's evergreen 0.x channel (`https://agentprose.cloud/v/0/agentprose.min.js`) instead of jsDelivr `agentprose@0.1`, so library fixes arrive within about an hour without a deploy. Pin an exact version with `/v/0.1.0/` if needed.
 
 ### Added

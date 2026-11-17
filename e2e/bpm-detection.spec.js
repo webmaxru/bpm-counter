@@ -4,9 +4,9 @@ import { test, expect, chromium, devices } from '@playwright/test';
 import { generateTrack } from '../scripts/generate-test-audio.js';
 
 // BPM values with reliable detection from synthetic kick/hi-hat WAV files.
-// These deterministic patterns reliably converge through Chromium's fake
-// capture pipeline. Lower synthetic tempos are unstable in the v5 analyzer.
-const BPM_VALUES = [130, 140];
+// v6 tempogram locks 100–140 within ±3 through Chromium's fake capture
+// pipeline (~12.5s). v5 peaks could not reliably detect below 120.
+const BPM_VALUES = [100, 110, 120, 130, 140];
 const TOLERANCE = 3; // +/-3 BPM
 const BASE_URL = 'http://localhost:3000';
 const TEST_DURATION_SECONDS = 60;
@@ -59,7 +59,8 @@ test.describe('BPM detection via fake audio capture', () => {
       try {
         await page.goto(BASE_URL + '/?viz=true');
 
-        if (expectedBpm === 130) {
+        if (expectedBpm === 100) {
+          // Double-click race guard: start must ignore a second press while pending
           await page.evaluate(() => {
             const startButton = [...document.querySelectorAll('button')].find(
               (button) => button.textContent.includes('Start listening')
@@ -107,7 +108,7 @@ test.describe('BPM detection via fake audio capture', () => {
         await expect(page.locator('.home-tool .affiliate-card')).toHaveCount(0);
         await expect(page.locator('.affiliate-card')).toBeVisible();
 
-        if (expectedBpm === 130) {
+        if (expectedBpm === 100) {
           await page
             .getByRole('link', { name: 'Tap tempo', exact: true })
             .click();
