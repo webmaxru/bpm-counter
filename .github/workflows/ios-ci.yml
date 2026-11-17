@@ -28,8 +28,10 @@ concurrency:
 jobs:
   simulator:
     name: Build native iOS simulator app
-    runs-on: macos-26
-    timeout-minutes: 30
+    # macos-15 has better hosted capacity than macos-26 while still shipping
+    # Xcode new enough for Swift 5.9+ and the RealtimeBpmAnalyzer package.
+    runs-on: macos-15
+    timeout-minutes: 45
 
     steps:
       - name: Check out source
