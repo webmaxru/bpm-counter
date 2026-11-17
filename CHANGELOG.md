@@ -11,12 +11,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Upgraded `realtime-bpm-analyzer` from v5 to v6.3.0: `reading` / `statechange` events, `analyzer.input`, default tempogram engine, `confidence` instead of peaks `threshold`, and mic `liveInput` per the [v6 migration guide](https://www.realtime-bpm-analyzer.com/guide/migration-v6).
 - agentprose script now loads from agentprose Cloud's evergreen 0.x channel (`https://agentprose.cloud/v/0/agentprose.min.js`) instead of jsDelivr `agentprose@0.1`, so library fixes arrive within about an hour without a deploy. Pin an exact version with `/v/0.1.0/` if needed.
+- Rebuilt the iOS app as native SwiftUI. Capacitor web-wrapper shell removed.
+- On-device tempo detection now uses Realtime BPM Analyzer for Swift
+  (`analyzeChannelData`) for recorded clips and local audio files.
 
 ### Added
 
 - agentprose script on every page (read-only WebMCP tools for AI agents, agentprose Cloud analytics and hosted search).
 - `/agentprose.json`, one Markdown file per page under `/agentprose/posts/` and `/llms.txt`, generated at build time from the page content.
 - Page "Updated" dates are now machine-readable `<time datetime>` elements.
+- Native iOS record-and-analyze flow, file importer, tap tempo with haptics,
+  metronome, and Share Sheet support (app version 4.0.0).
+
 
 ## [0.1.0] - 2026-10-17
 

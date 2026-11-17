@@ -7,14 +7,6 @@ const read = (relativePath) => readFile(path.join(root, relativePath), 'utf8');
 const readBinary = (relativePath) => readFile(path.join(root, relativePath));
 const failures = [];
 
-const config = JSON.parse(await read('capacitor.config.json'));
-if (config.appId !== 'no.bpmtech.app') {
-  failures.push('Capacitor appId must be no.bpmtech.app.');
-}
-if (config.webDir !== 'build') {
-  failures.push('Capacitor must bundle the production build directory.');
-}
-
 const infoPlist = await read('ios/App/App/Info.plist');
 if (!infoPlist.includes('<key>NSMicrophoneUsageDescription</key>')) {
   failures.push('Info.plist is missing the microphone usage description.');
@@ -22,16 +14,42 @@ if (!infoPlist.includes('<key>NSMicrophoneUsageDescription</key>')) {
 if (!infoPlist.includes('<key>ITSAppUsesNonExemptEncryption</key>')) {
   failures.push('Info.plist is missing export-compliance metadata.');
 }
+if (infoPlist.includes('<key>UIMainStoryboardFile</key>')) {
+  failures.push('Info.plist still references a main storyboard; native SwiftUI should not.');
+}
+if (infoPlist.includes('CAPACITOR_DEBUG')) {
+  failures.push('Info.plist still contains Capacitor debug metadata.');
+}
 
 const project = await read('ios/App/App.xcodeproj/project.pbxproj');
 for (const expected of [
   'PRODUCT_BUNDLE_IDENTIFIER = no.bpmtech.app;',
-  'MARKETING_VERSION = 3.0.0;',
+  'MARKETING_VERSION = 4.0.0;',
   'IPHONEOS_DEPLOYMENT_TARGET = 15.0;',
+  'repositoryURL = "https://github.com/dlepaux/realtime-bpm-analyzer-swift";',
+  'productName = RealtimeBpmAnalyzer;',
+  'BPMTechnoApp.swift in Sources',
 ]) {
   if (!project.includes(expected)) {
     failures.push(`Xcode project is missing: ${expected}`);
   }
+}
+
+if (project.includes('CapApp-SPM') || project.includes('capacitor-swift-pm')) {
+  failures.push('Xcode project still references Capacitor packages.');
+}
+
+const appEntry = await read('ios/App/App/BPMTechnoApp.swift');
+if (!appEntry.includes('@main') || !appEntry.includes('BPMTechnoApp')) {
+  failures.push('Native SwiftUI app entry point is missing.');
+}
+
+const analyzer = await read('ios/App/App/Services/BpmAnalysisService.swift');
+if (!analyzer.includes('import RealtimeBpmAnalyzer')) {
+  failures.push('BpmAnalysisService does not import RealtimeBpmAnalyzer.');
+}
+if (!analyzer.includes('analyzeChannelData')) {
+  failures.push('BpmAnalysisService does not call analyzeChannelData.');
 }
 
 const digest = (buffer) => createHash('sha256').update(buffer).digest('hex');
@@ -65,5 +83,5 @@ if (failures.length) {
   failures.forEach((failure) => console.error(`- ${failure}`));
   process.exitCode = 1;
 } else {
-  console.log('iOS project configuration is complete and internally consistent.');
+  console.log('Native iOS project configuration is complete and internally consistent.');
 }

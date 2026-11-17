@@ -4,23 +4,19 @@ on:
   pull_request:
     paths:
       - ".github/workflows/ios-ci.yml"
-      - "capacitor.config.json"
       - "ios/**"
-      - "package.json"
-      - "package-lock.json"
-      - "scripts/**"
-      - "src/**"
+      - "scripts/verify-ios-project.mjs"
+      - "scripts/sync-ios-branding.mjs"
+      - "store-assets/apple-app-store/**"
   push:
     branches:
       - main
     paths:
       - ".github/workflows/ios-ci.yml"
-      - "capacitor.config.json"
       - "ios/**"
-      - "package.json"
-      - "package-lock.json"
-      - "scripts/**"
-      - "src/**"
+      - "scripts/verify-ios-project.mjs"
+      - "scripts/sync-ios-branding.mjs"
+      - "store-assets/apple-app-store/**"
 
 permissions:
   contents: read
@@ -31,7 +27,7 @@ concurrency:
 
 jobs:
   simulator:
-    name: Build iOS simulator app
+    name: Build native iOS simulator app
     runs-on: macos-26
     timeout-minutes: 30
 
@@ -45,20 +41,21 @@ jobs:
           node-version: 22
           cache: npm
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run web tests
-        run: npm test
-
-      - name: Build and synchronize iOS
-        run: npm run ios:sync
-
-      - name: Verify iOS project
-        run: npm run ios:verify
+      - name: Sync branding and verify project
+        run: |
+          npm ci --ignore-scripts
+          npm run ios:branding
+          npm run ios:verify
 
       - name: Show Xcode version
         run: xcodebuild -version
+
+      - name: Resolve Swift packages
+        run: |
+          xcodebuild \
+            -resolvePackageDependencies \
+            -project ios/App/App.xcodeproj \
+            -scheme App
 
       - name: Build for iOS Simulator
         run: |

@@ -4,63 +4,66 @@ For the team-wide versus app-specific credential model and instructions for
 reusing this setup in future apps, see
 [`APPLE_APP_STORE_REUSE.md`](APPLE_APP_STORE_REUSE.md).
 
-BPM Techno ships on iOS as a Capacitor 8 application that bundles the Vite
-production build. It does not load the public website as its application
-shell.
+BPM Techno ships on iOS as a **native SwiftUI** application. Tempo detection uses
+[`RealtimeBpmAnalyzer`](https://www.realtime-bpm-analyzer.com/guide/swift) for
+Swift (the offline `analyzeChannelData` port of the same library as the web
+app). The Capacitor web-wrapper shell has been removed.
 
 ## App identity
 
 - Display name: `BPM Techno`
 - Default bundle ID: `no.bpmtech.app`
-- Version: `3.0.0`
+- Version: `4.0.0`
 - Minimum iOS version: iOS 15
 - Device families: iPhone and iPad
 
 Register `no.bpmtech.app` in Apple Developer and App Store Connect before the
-first signed build. If another bundle ID is required, update
-`capacitor.config.json` and both Xcode build configurations. The release
-workflow can override the build setting with the `IOS_BUNDLE_ID` repository
-variable, but the checked-in value should still match the registered app.
+first signed build. If another bundle ID is required, update both Xcode build
+configurations. The release workflow can override the build setting with the
+`IOS_BUNDLE_ID` repository variable, but the checked-in value should still match
+the registered app.
 
 ## Native functionality
 
-The iOS build adds native value to the web BPM tools:
-
-- Live microphone analysis with an iOS `AVAudioSession` configured for
-  measurement, speaker output, Bluetooth input, and coexistence with other
-  audio.
-- Local MP3, WAV, M4A, AAC, or FLAC selection through the iOS document picker.
-- Haptic feedback for tap tempo.
-- Native iOS Share Sheet for BPM results.
-- External merchant and social links opened with Capacitor Browser.
-- Bundled application files and a native launch screen for offline startup.
+- **Record & analyze**: capture a short microphone clip, then run on-device BPM
+  analysis with Realtime BPM Analyzer for Swift. The Swift library is offline /
+  whole-buffer analysis (not a live Web Audio graph), so recording a clip is
+  the native equivalent of the web live detector.
+- **File analysis**: local MP3, WAV, M4A, AAC, FLAC, or CAF via the document
+  picker, decoded with `AVAudioFile` and analyzed with `analyzeChannelData`.
+- Optional peaks vs tempogram engine toggle.
+- Tap tempo with haptic feedback.
+- Native metronome.
+- Native Share Sheet for BPM results.
 
 The microphone permission text states that rhythm analysis happens on the
 device and audio is not uploaded.
 
 ## Local development
 
-A Mac with Xcode 26 and Node.js 22 is required for native compilation.
+A Mac with Xcode 16+ (Swift 5.9+) is required for native compilation. Swift
+Package Manager pulls
+[dlepaux/realtime-bpm-analyzer-swift](https://github.com/dlepaux/realtime-bpm-analyzer-swift)
+(`from: 6.3.0`).
 
 ```shell
-npm ci
-npm run ios:sync
-npm run ios:verify
+npm run ios:prepare
 npm run ios:open
 ```
 
 Select the `App` scheme in Xcode and run it on an iPhone or iPad simulator.
-Microphone behavior, Bluetooth routing, haptics, the document picker, and the
-Share Sheet must also be checked on physical hardware.
+Microphone recording, file import, haptics, and the Share Sheet must also be
+checked on physical hardware.
 
-`npm run ios:sync` rebuilds the web app, updates Capacitor plugins and bundled
-assets, and synchronizes the 1024 x 1024 store icon into Xcode.
+`npm run ios:branding` synchronizes the 1024 × 1024 store icon into Xcode.
+`npm run ios:verify` checks bundle ID, version, Swift package wiring, and icon
+sync.
 
 ## GitHub Actions
 
-`.github/workflows/ios-ci.yml` runs the complete web test suite, builds the
-bundled app, verifies native metadata, and compiles an unsigned simulator app
-on the pinned `macos-26` runner.
+`.github/workflows/ios-ci.yml` verifies native metadata, resolves Swift
+packages, and compiles an unsigned simulator app on the pinned `macos-26`
+runner.
 
 `.github/workflows/ios-release.yml` is manually dispatched. It imports signing
 material into a temporary keychain, archives and exports a signed IPA, stores
@@ -144,11 +147,11 @@ produce only the signed IPA artifact.
 
 1. Create the App Store Connect record with the same bundle ID.
 2. Confirm the App Privacy answers against the production analytics and
-   advertising configuration.
-3. Test microphone denial, airplane-mode launch, local file import, sharing,
-   affiliate disclosure, rotation, iPad multitasking, and large text.
-4. Recapture App Store screenshots from the final native build if safe areas
-   or permission flows visibly differ from the generated web screenshots.
-5. In review notes, describe local microphone processing, native document
-   import, haptics, Share Sheet support, and the external Amazon affiliate
-   links.
+   advertising configuration for the web product (the native app does not embed
+   ads or remote analytics by default).
+3. Test microphone denial, airplane-mode launch, local file import, recording
+   analysis, sharing, rotation, iPad multitasking, and large text.
+4. Recapture App Store screenshots from the native SwiftUI UI.
+5. In review notes, describe on-device Realtime BPM Analyzer analysis, microphone
+   recording for tempo detection, native document import, haptics, Share Sheet
+   support, and that audio is not uploaded.
