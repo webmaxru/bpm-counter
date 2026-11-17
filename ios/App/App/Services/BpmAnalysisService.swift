@@ -65,11 +65,23 @@ struct BpmAnalysisService: Sendable {
                 throw BpmAnalysisError.cannotDecodeAudio
             }
 
-            let left = UnsafeBufferPointer(start: channels[0], count: sampleCount)
+            var selectedChannel = 0
+            var maximumEnergy = 0.0
+            for channelIndex in 0..<Int(buffer.format.channelCount) {
+                let samples = UnsafeBufferPointer(start: channels[channelIndex], count: sampleCount)
+                let energy = samples.reduce(0.0) { total, sample in
+                    total + Double(sample) * Double(sample)
+                }
+                if energy > maximumEnergy {
+                    maximumEnergy = energy
+                    selectedChannel = channelIndex
+                }
+            }
+            let samples = UnsafeBufferPointer(start: channels[selectedChannel], count: sampleCount)
 
             do {
                 guard let reading = try analyzeChannelData(
-                    left,
+                    samples,
                     sampleRate: file.processingFormat.sampleRate,
                     options: options
                 ) else {

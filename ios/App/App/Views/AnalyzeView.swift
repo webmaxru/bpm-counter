@@ -210,6 +210,7 @@ struct AnalyzeView: View {
     private func analyze(url: URL, mode: AnalysisResult.Mode, sourceName: String) async {
         isAnalyzing = true
         errorMessage = nil
+        result = nil
         defer { isAnalyzing = false }
 
         do {

@@ -28,12 +28,13 @@ final class AudioCaptureService: ObservableObject {
         try session.setCategory(
             .playAndRecord,
             mode: .measurement,
-            options: [.defaultToSpeaker, .allowBluetoothHFP, .mixWithOthers]
+            options: [.defaultToSpeaker, .allowBluetooth, .mixWithOthers]
         )
         try session.setActive(true)
     }
 
     func startRecording() async {
+        guard state != .preparing, !isRecording else { return }
         state = .preparing
         elapsedSeconds = 0
 

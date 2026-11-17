@@ -25,6 +25,8 @@ struct MetronomeView: View {
                     in: MetronomeEngine.minBpm...MetronomeEngine.maxBpm,
                     step: 1
                 )
+                .accessibilityLabel("Tempo")
+                .accessibilityValue("\(Int(metronome.bpm.rounded())) beats per minute")
                 .tint(BPMTheme.signal)
                 .padding(.horizontal, 28)
                 .onChange(of: metronome.bpm) { _, newValue in
@@ -33,7 +35,7 @@ struct MetronomeView: View {
 
                 HStack(spacing: 12) {
                     TextField("BPM", text: $draft)
-                        .keyboardType(.decimalPad)
+                        .keyboardType(.numbersAndPunctuation)
                         .textFieldStyle(.roundedBorder)
                         .onSubmit { commitDraft() }
 
