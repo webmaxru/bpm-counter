@@ -1,1 +1,3 @@
-CAPACITOR_DEBUG = true
+// Native Debug overrides. Kept so the Xcode project continues to resolve
+// the shared debug.xcconfig path used by local and CI builds.
+DEBUG_INFORMATION_FORMAT = dwarf

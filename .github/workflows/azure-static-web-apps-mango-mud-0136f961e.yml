@@ -26,6 +26,8 @@ jobs:
         # Vite inlines VITE_* values at build time. They come from repository
         # secrets because .env is never committed.
         env:
+          # The deploy action reads this env var (not a with: input) when the token is absent.
+          SKIP_DEPLOY_ON_MISSING_SECRETS: true
           VITE_APPINSIGHTS_CONNECTION_STRING: ${{ secrets.VITE_APPINSIGHTS_CONNECTION_STRING }}
           VITE_GA4_MEASUREMENT_ID: ${{ secrets.VITE_GA4_MEASUREMENT_ID }}
           VITE_ADSENSE_SLOT_IN_ARTICLE: ${{ secrets.VITE_ADSENSE_SLOT_IN_ARTICLE }}
@@ -51,6 +53,8 @@ jobs:
       - name: Close Pull Request
         id: closepullrequest
         uses: Azure/static-web-apps-deploy@v1
+        env:
+          SKIP_DEPLOY_ON_MISSING_SECRETS: true
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_MANGO_MUD_0136F961E }}
           action: "close"
