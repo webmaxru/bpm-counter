@@ -18,6 +18,13 @@ on:
       - ".github/workflows/android-ci.yml"
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: android-ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   verify:
     name: Verify native Android project
@@ -40,12 +47,14 @@ jobs:
         with:
           distribution: temurin
           java-version: "17"
+      # Avoid the obsolete `tools` package that setup-android@v3 still tries by default.
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
-      - name: Accept licenses
-        run: yes | sdkmanager --licenses >/dev/null || true
-      - name: Install platform 36
-        run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
+        with:
+          packages: ""
+      - name: Install Android platform 36
+        run: |
+          sdkmanager "platforms;android-36" "build-tools;36.0.0" "platform-tools"
       - name: Assemble debug
         working-directory: android
         run: ./gradlew :app:assembleDebug --no-daemon
