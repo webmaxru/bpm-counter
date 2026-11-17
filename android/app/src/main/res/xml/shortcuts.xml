@@ -1,14 +1,39 @@
-<shortcuts xmlns:android='http://schemas.android.com/apk/res/android'>
-    <shortcut android:shortcutId='shortcut0' android:enabled='true' android:icon='@drawable/shortcut_0' android:shortcutShortLabel='@string/shortcut_short_name_0' android:shortcutLongLabel='@string/shortcut_name_0'>
-        <intent android:action='android.intent.action.MAIN' android:targetPackage='no.bpmtech.twa' android:targetClass='no.bpmtech.twa.LauncherActivity' android:data='/upload?utm_source=android_shortcut' />
-        <categories android:name='android.intent.category.LAUNCHER' />
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="analyze"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/shortcut_analyze_short"
+        android:shortcutLongLabel="@string/shortcut_analyze_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="no.bpmtech.twa"
+            android:targetClass="no.bpmtech.twa.MainActivity"
+            android:data="https://bpmtech.no/?tab=analyze" />
     </shortcut>
-    <shortcut android:shortcutId='shortcut1' android:enabled='true' android:icon='@drawable/shortcut_1' android:shortcutShortLabel='@string/shortcut_short_name_1' android:shortcutLongLabel='@string/shortcut_name_1'>
-        <intent android:action='android.intent.action.MAIN' android:targetPackage='no.bpmtech.twa' android:targetClass='no.bpmtech.twa.LauncherActivity' android:data='/tools/tap-tempo?utm_source=android_shortcut' />
-        <categories android:name='android.intent.category.LAUNCHER' />
+    <shortcut
+        android:shortcutId="tap"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/shortcut_tap_short"
+        android:shortcutLongLabel="@string/shortcut_tap_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="no.bpmtech.twa"
+            android:targetClass="no.bpmtech.twa.MainActivity"
+            android:data="https://bpmtech.no/?tab=tap" />
     </shortcut>
-    <shortcut android:shortcutId='shortcut2' android:enabled='true' android:icon='@drawable/shortcut_2' android:shortcutShortLabel='@string/shortcut_short_name_2' android:shortcutLongLabel='@string/shortcut_name_2'>
-        <intent android:action='android.intent.action.MAIN' android:targetPackage='no.bpmtech.twa' android:targetClass='no.bpmtech.twa.LauncherActivity' android:data='/tools/bpm-to-ms?utm_source=android_shortcut' />
-        <categories android:name='android.intent.category.LAUNCHER' />
+    <shortcut
+        android:shortcutId="metronome"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/shortcut_metronome_short"
+        android:shortcutLongLabel="@string/shortcut_metronome_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="no.bpmtech.twa"
+            android:targetClass="no.bpmtech.twa.MainActivity"
+            android:data="https://bpmtech.no/?tab=metronome" />
     </shortcut>
 </shortcuts>
