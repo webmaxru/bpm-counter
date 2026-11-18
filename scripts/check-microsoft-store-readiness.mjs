@@ -1,7 +1,6 @@
-import { access, readFile, readdir, stat } from 'node:fs/promises';
+import { access, open, readFile, readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createRequire } from 'node:module';
 
 const repositoryRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -46,12 +45,40 @@ const expectedScreenshots = [
   '05-half-double-time.png',
 ];
 
+const PNG_SIGNATURE = Buffer.from([
+  0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
+]);
+
 async function exists(relativePath) {
   try {
     await access(path.join(repositoryRoot, relativePath));
     return true;
   } catch {
     return false;
+  }
+}
+
+async function readPngSize(filePath) {
+  const handle = await open(filePath, 'r');
+  try {
+    const header = Buffer.alloc(24);
+    const { bytesRead } = await handle.read(header, 0, 24, 0);
+    if (bytesRead < 24) {
+      throw new Error('file is shorter than a PNG IHDR header');
+    }
+    if (!header.subarray(0, 8).equals(PNG_SIGNATURE)) {
+      throw new Error('missing PNG signature');
+    }
+    const chunkType = header.toString('ascii', 12, 16);
+    if (chunkType !== 'IHDR') {
+      throw new Error(`expected IHDR chunk, found ${chunkType}`);
+    }
+    return {
+      width: header.readUInt32BE(16),
+      height: header.readUInt32BE(20),
+    };
+  } finally {
+    await handle.close();
   }
 }
 
@@ -105,14 +132,6 @@ if (/Produce some beats using any player, launchpad/i.test(listing)) {
   );
 }
 
-let sharpAvailable = false;
-try {
-  createRequire(import.meta.url)('sharp');
-  sharpAvailable = true;
-} catch {
-  // optional
-}
-
 for (const [folder, fileName, width, height] of brandingAssets) {
   const relativePath = path.join(
     'store-assets/microsoft-store/branding',
@@ -130,14 +149,17 @@ for (const [folder, fileName, width, height] of brandingAssets) {
     failures.push(`Branding asset looks too small: ${relativePath}`);
   }
 
-  if (sharpAvailable) {
-    const { default: sharp } = await import('sharp');
-    const meta = await sharp(filePath).metadata();
+  try {
+    const meta = await readPngSize(filePath);
     if (meta.width !== width || meta.height !== height) {
       failures.push(
         `Wrong pixel size for ${relativePath}: got ${meta.width}x${meta.height}, expected ${width}x${height}`,
       );
     }
+  } catch (error) {
+    failures.push(
+      `Could not read PNG dimensions for ${relativePath}: ${error.message}`,
+    );
   }
 }
 
@@ -163,14 +185,17 @@ if (!screenshotEntries) {
       );
     }
 
-    if (sharpAvailable) {
-      const { default: sharp } = await import('sharp');
-      const meta = await sharp(filePath).metadata();
+    try {
+      const meta = await readPngSize(filePath);
       if (meta.width < 1366 || meta.height < 768) {
         failures.push(
           `Screenshot ${fileName} is below Store minimum desktop size (${meta.width}x${meta.height}).`,
         );
       }
+    } catch (error) {
+      failures.push(
+        `Could not read PNG dimensions for screenshots/desktop/${fileName}: ${error.message}`,
+      );
     }
   }
 
@@ -197,6 +222,52 @@ if (
 ) {
   failures.push(
     'microsoft-store-release.yml does not run the PWABuilder packaging script.',
+  );
+}
+
+const jobEnvMatch = releaseWorkflow.match(
+  /jobs:\s*\n\s*package:[\s\S]*?\n\s*steps:/,
+);
+if (jobEnvMatch) {
+  const jobHeader = jobEnvMatch[0];
+  for (const secretName of [
+    'AZURE_AD_TENANT_ID',
+    'AZURE_AD_APPLICATION_CLIENT_ID',
+    'AZURE_AD_APPLICATION_SECRET',
+    'SELLER_ID',
+    'MS_STORE_PUBLISHER_ID',
+  ]) {
+    if (jobHeader.includes(secretName)) {
+      failures.push(
+        `microsoft-store-release.yml exposes ${secretName} at job scope; keep Partner Center secrets step-scoped.`,
+      );
+    }
+  }
+}
+
+if (
+  /msstore publish .*MS_STORE_MSIX[\s\S]*msstore publish .*MS_STORE_CLASSIC/.test(
+    releaseWorkflow,
+  )
+) {
+  failures.push(
+    'microsoft-store-release.yml still publishes modern and classic packages with separate msstore publish calls.',
+  );
+}
+if (
+  !releaseWorkflow.includes('submission update') ||
+  !releaseWorkflow.includes('submission publish')
+) {
+  failures.push(
+    'microsoft-store-release.yml must update one submission with both bundles, then commit once.',
+  );
+}
+if (
+  !/Classic \.appxbundle was not found/.test(releaseWorkflow) ||
+  /continuing with modern package only/.test(releaseWorkflow)
+) {
+  failures.push(
+    'microsoft-store-release.yml must fail when the classic package is missing.',
   );
 }
 

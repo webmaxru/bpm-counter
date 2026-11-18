@@ -35,7 +35,9 @@ npm run microsoft-store:package  ──►  .zip with .msixbundle + .classic.app
         │
         ├──────────►  artifact / manual Partner Center upload
         │
-        └──────────►  msstore publish (optional, needs Entra secrets)
+        └──────────►  one Partner Center submission (optional)
+                      modern + classic bundles uploaded together,
+                      draft preserved when present, then committed once
                               │
                               ▼
                      Partner Center certification
@@ -43,6 +45,8 @@ npm run microsoft-store:package  ──►  .zip with .msixbundle + .classic.app
                               ▼
                      Upload listing screenshots + copy
 ```
+Partner Center Entra secrets stay step-scoped so `npm ci` never sees them.
+
 
 ## 1. Partner Center identity
 

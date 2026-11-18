@@ -82,10 +82,14 @@ CERTIFICATION NOTES
 
 GITHUB ACTIONS SECRETS REQUIRED FOR AUTOMATED PUBLISH
 
-- MS_STORE_PUBLISHER_ID
+- MS_STORE_PUBLISHER_ID (needed for packaging; scoped only to verify/package steps)
 - AZURE_AD_TENANT_ID
 - AZURE_AD_APPLICATION_CLIENT_ID
 - AZURE_AD_APPLICATION_SECRET
 - SELLER_ID
+
+Automated publish attaches both bundles to one Partner Center submission
+(preserving an existing draft when present), uploads them in a single zip, and
+commits once. It does not call `msstore publish` separately per package.
 
 See MICROSOFT_STORE_RELEASE.md for the full ordered checklist.
