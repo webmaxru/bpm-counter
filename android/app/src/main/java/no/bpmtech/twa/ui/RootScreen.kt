@@ -1,5 +1,6 @@
 package no.bpmtech.twa.ui
 
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.GraphicEq
@@ -12,6 +13,7 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -21,6 +23,11 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import no.bpmtech.twa.theme.BpmColors
 
+data class TabNavigationRequest(
+    val tab: String,
+    val id: Long,
+)
+
 enum class AppDestination(val route: String, val label: String) {
     Analyze("analyze", "Analyze"),
     Tap("tap", "Tap"),
@@ -28,15 +35,22 @@ enum class AppDestination(val route: String, val label: String) {
 }
 
 @Composable
-fun RootScreen(initialTab: String? = null) {
+fun RootScreen(navigationRequest: TabNavigationRequest? = null) {
     val navController = rememberNavController()
-    val start = when (initialTab?.lowercase()) {
-        "tap" -> AppDestination.Tap.route
-        "metronome" -> AppDestination.Metronome.route
-        else -> AppDestination.Analyze.route
-    }
+    val start = routeForTab(navigationRequest?.tab) ?: AppDestination.Analyze.route
     val backStack by navController.currentBackStackEntryAsState()
     val currentRoute = backStack?.destination?.route ?: start
+
+    LaunchedEffect(navigationRequest?.id) {
+        val route = routeForTab(navigationRequest?.tab) ?: return@LaunchedEffect
+        navController.navigate(route) {
+            popUpTo(navController.graph.findStartDestination().id) {
+                saveState = true
+            }
+            launchSingleTop = true
+            restoreState = true
+        }
+    }
 
     Scaffold(
         containerColor = BpmColors.Ink,
@@ -81,7 +95,9 @@ fun RootScreen(initialTab: String? = null) {
         NavHost(
             navController = navController,
             startDestination = start,
-            modifier = Modifier.padding(padding),
+            modifier = Modifier
+                .padding(padding)
+                .consumeWindowInsets(padding),
         ) {
             composable(AppDestination.Analyze.route) { AnalyzeScreen() }
             composable(AppDestination.Tap.route) { TapTempoScreen() }
@@ -89,3 +105,11 @@ fun RootScreen(initialTab: String? = null) {
         }
     }
 }
+
+private fun routeForTab(tab: String?): String? =
+    when (tab?.lowercase()) {
+        "tap" -> AppDestination.Tap.route
+        "metronome" -> AppDestination.Metronome.route
+        "analyze" -> AppDestination.Analyze.route
+        else -> null
+    }

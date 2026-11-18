@@ -15,9 +15,11 @@ import androidx.core.view.WindowCompat
 import no.bpmtech.twa.theme.BpmColors
 import no.bpmtech.twa.theme.BpmTechnoTheme
 import no.bpmtech.twa.ui.RootScreen
+import no.bpmtech.twa.ui.TabNavigationRequest
 
 class MainActivity : ComponentActivity() {
-    private var initialTab by mutableStateOf<String?>(null)
+    private var navigationRequest by mutableStateOf<TabNavigationRequest?>(null)
+    private var navigationSequence = 0L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,7 +28,7 @@ class MainActivity : ComponentActivity() {
             isAppearanceLightStatusBars = false
             isAppearanceLightNavigationBars = false
         }
-        initialTab = tabFromIntent(intent)
+        applyNavigationIntent(intent)
 
         setContent {
             BpmTechnoTheme(darkTheme = true) {
@@ -34,7 +36,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = BpmColors.Ink,
                 ) {
-                    RootScreen(initialTab = initialTab)
+                    RootScreen(navigationRequest = navigationRequest)
                 }
             }
         }
@@ -43,7 +45,13 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        initialTab = tabFromIntent(intent)
+        applyNavigationIntent(intent)
+    }
+
+    private fun applyNavigationIntent(intent: Intent?) {
+        val tab = tabFromIntent(intent) ?: return
+        navigationSequence += 1
+        navigationRequest = TabNavigationRequest(tab = tab, id = navigationSequence)
     }
 
     private fun tabFromIntent(intent: Intent?): String? {

@@ -1,6 +1,7 @@
 package no.bpmtech.twa.services
 
 import android.content.Context
+import android.media.AudioFormat
 import android.media.MediaCodec
 import android.media.MediaExtractor
 import android.media.MediaFormat
@@ -19,36 +20,47 @@ data class DecodedAudio(
  */
 object AudioDecoder {
     private const val TIMEOUT_US = 10_000L
-    private const val MAX_DURATION_SECONDS = 10 * 60
+    private const val MAX_DURATION_SECONDS = 3 * 60
+    private const val TARGET_ANALYSIS_RATE = 44_100.0
+    private const val MAX_ANALYSIS_SAMPLES =
+        (TARGET_ANALYSIS_RATE * MAX_DURATION_SECONDS).toInt()
 
     fun decodeMono(context: Context, uri: Uri): DecodedAudio {
         val extractor = MediaExtractor()
+        var codec: MediaCodec? = null
         try {
             extractor.setDataSource(context, uri, null)
             val trackIndex = selectAudioTrack(extractor)
                 ?: throw AudioDecodeException("No audio track found in the selected file.")
             extractor.selectTrack(trackIndex)
 
-            val format = extractor.getTrackFormat(trackIndex)
-            val mime = format.getString(MediaFormat.KEY_MIME)
+            val trackFormat = extractor.getTrackFormat(trackIndex)
+            val mime = trackFormat.getString(MediaFormat.KEY_MIME)
                 ?: throw AudioDecodeException("Unsupported audio format.")
-            val sampleRate = format.getInteger(MediaFormat.KEY_SAMPLE_RATE).toDouble()
-            val channelCount = if (format.containsKey(MediaFormat.KEY_CHANNEL_COUNT)) {
-                format.getInteger(MediaFormat.KEY_CHANNEL_COUNT)
+
+            codec = MediaCodec.createDecoderByType(mime)
+            codec.configure(trackFormat, null, null, 0)
+            codec.start()
+
+            var sampleRate = if (trackFormat.containsKey(MediaFormat.KEY_SAMPLE_RATE)) {
+                trackFormat.getInteger(MediaFormat.KEY_SAMPLE_RATE).toDouble()
+            } else {
+                TARGET_ANALYSIS_RATE
+            }
+            var channelCount = if (trackFormat.containsKey(MediaFormat.KEY_CHANNEL_COUNT)) {
+                trackFormat.getInteger(MediaFormat.KEY_CHANNEL_COUNT)
             } else {
                 1
             }
+            var pcmEncoding = AudioFormat.ENCODING_PCM_16BIT
 
-            val codec = MediaCodec.createDecoderByType(mime)
-            codec.configure(format, null, null, 0)
-            codec.start()
-
-            val pcmChunks = ArrayList<FloatArray>()
+            // Single growable buffer avoids retaining pcmChunks + a second full-track copy.
+            var samples = FloatArray(min(MAX_ANALYSIS_SAMPLES, sampleRate.toInt() * 8))
             var totalSamples = 0
-            val maxSamples = (sampleRate * MAX_DURATION_SECONDS).toInt()
             val bufferInfo = MediaCodec.BufferInfo()
             var inputDone = false
             var outputDone = false
+            var hitLimit = false
 
             while (!outputDone) {
                 if (!inputDone) {
@@ -80,9 +92,19 @@ object AudioDecoder {
                 }
 
                 when (val outputIndex = codec.dequeueOutputBuffer(bufferInfo, TIMEOUT_US)) {
-                    MediaCodec.INFO_TRY_AGAIN_LATER,
-                    MediaCodec.INFO_OUTPUT_FORMAT_CHANGED,
-                    -> Unit
+                    MediaCodec.INFO_TRY_AGAIN_LATER -> Unit
+                    MediaCodec.INFO_OUTPUT_FORMAT_CHANGED -> {
+                        val outputFormat = codec.outputFormat
+                        if (outputFormat.containsKey(MediaFormat.KEY_SAMPLE_RATE)) {
+                            sampleRate = outputFormat.getInteger(MediaFormat.KEY_SAMPLE_RATE).toDouble()
+                        }
+                        if (outputFormat.containsKey(MediaFormat.KEY_CHANNEL_COUNT)) {
+                            channelCount = outputFormat.getInteger(MediaFormat.KEY_CHANNEL_COUNT)
+                        }
+                        if (outputFormat.containsKey(MediaFormat.KEY_PCM_ENCODING)) {
+                            pcmEncoding = outputFormat.getInteger(MediaFormat.KEY_PCM_ENCODING)
+                        }
+                    }
 
                     else -> {
                         if (outputIndex >= 0) {
@@ -94,19 +116,31 @@ object AudioDecoder {
                                     bufferInfo.offset,
                                     bufferInfo.size,
                                     channelCount,
+                                    pcmEncoding,
                                 )
                                 if (chunk.isNotEmpty()) {
-                                    val remaining = maxSamples - totalSamples
+                                    val remaining = MAX_ANALYSIS_SAMPLES - totalSamples
                                     if (remaining <= 0) {
+                                        hitLimit = true
                                         outputDone = true
                                     } else {
-                                        val clipped = if (chunk.size > remaining) {
-                                            chunk.copyOf(remaining)
-                                        } else {
-                                            chunk
+                                        val toCopy = min(chunk.size, remaining)
+                                        if (totalSamples + toCopy > samples.size) {
+                                            val next = FloatArray(
+                                                min(
+                                                    MAX_ANALYSIS_SAMPLES,
+                                                    maxOf(samples.size * 2, totalSamples + toCopy),
+                                                ),
+                                            )
+                                            System.arraycopy(samples, 0, next, 0, totalSamples)
+                                            samples = next
                                         }
-                                        pcmChunks.add(clipped)
-                                        totalSamples += clipped.size
+                                        System.arraycopy(chunk, 0, samples, totalSamples, toCopy)
+                                        totalSamples += toCopy
+                                        if (toCopy < chunk.size) {
+                                            hitLimit = true
+                                            outputDone = true
+                                        }
                                     }
                                 }
                             }
@@ -119,21 +153,23 @@ object AudioDecoder {
                 }
             }
 
-            codec.stop()
-            codec.release()
-
             if (totalSamples == 0) {
                 throw AudioDecodeException("Audio decoding produced no samples.")
             }
-
-            val samples = FloatArray(totalSamples)
-            var offset = 0
-            for (chunk in pcmChunks) {
-                System.arraycopy(chunk, 0, samples, offset, chunk.size)
-                offset += chunk.size
+            if (hitLimit && totalSamples < MAX_ANALYSIS_SAMPLES / 4) {
+                throw AudioDecodeException(
+                    "That audio file is too long to analyze in memory. Trim it to about ${MAX_DURATION_SECONDS / 60} minutes or shorter.",
+                )
             }
 
-            return DecodedAudio(samples = samples, sampleRate = sampleRate)
+            val mono = if (totalSamples == samples.size) samples else samples.copyOf(totalSamples)
+            val analysisRate = if (sampleRate > TARGET_ANALYSIS_RATE * 1.1) {
+                // Downsample high-rate inputs so analyzer working set stays bounded.
+                downsample(mono, sampleRate, TARGET_ANALYSIS_RATE)
+            } else {
+                DecodedAudio(mono, sampleRate)
+            }
+            return analysisRate
         } catch (error: AudioDecodeException) {
             throw error
         } catch (error: Exception) {
@@ -142,6 +178,14 @@ object AudioDecoder {
                 error,
             )
         } finally {
+            try {
+                codec?.stop()
+            } catch (_: Exception) {
+            }
+            try {
+                codec?.release()
+            } catch (_: Exception) {
+            }
             extractor.release()
         }
     }
@@ -161,28 +205,70 @@ object AudioDecoder {
         offset: Int,
         size: Int,
         channelCount: Int,
+        pcmEncoding: Int,
     ): FloatArray {
         val ordered = buffer.order(ByteOrder.nativeOrder())
         ordered.position(offset)
         ordered.limit(offset + size)
-
-        val shortCount = size / 2
-        if (shortCount == 0) return FloatArray(0)
-
         val channels = channelCount.coerceAtLeast(1)
-        val frameCount = shortCount / channels
-        val mono = FloatArray(frameCount)
-        var shortIndex = 0
-        for (frame in 0 until frameCount) {
-            var sum = 0f
-            for (channel in 0 until channels) {
-                if (shortIndex >= shortCount) break
-                sum += ordered.getShort(offset + shortIndex * 2) / 32768f
-                shortIndex++
+
+        return when (pcmEncoding) {
+            AudioFormat.ENCODING_PCM_FLOAT -> {
+                val floatCount = size / 4
+                if (floatCount == 0) return FloatArray(0)
+                val frameCount = floatCount / channels
+                val mono = FloatArray(frameCount)
+                var index = 0
+                for (frame in 0 until frameCount) {
+                    var sum = 0f
+                    for (channel in 0 until channels) {
+                        if (index >= floatCount) break
+                        sum += ordered.getFloat(offset + index * 4)
+                        index++
+                    }
+                    mono[frame] = sum / channels
+                }
+                mono
             }
-            mono[frame] = sum / channels
+
+            else -> {
+                val shortCount = size / 2
+                if (shortCount == 0) return FloatArray(0)
+                val frameCount = shortCount / channels
+                val mono = FloatArray(frameCount)
+                var shortIndex = 0
+                for (frame in 0 until frameCount) {
+                    var sum = 0f
+                    for (channel in 0 until channels) {
+                        if (shortIndex >= shortCount) break
+                        sum += ordered.getShort(offset + shortIndex * 2) / 32768f
+                        shortIndex++
+                    }
+                    mono[frame] = sum / channels
+                }
+                mono
+            }
         }
-        return mono
+    }
+
+    private fun downsample(
+        samples: FloatArray,
+        sourceRate: Double,
+        targetRate: Double,
+    ): DecodedAudio {
+        if (sourceRate <= targetRate || samples.isEmpty()) {
+            return DecodedAudio(samples, sourceRate)
+        }
+        val ratio = sourceRate / targetRate
+        val outCount = min(MAX_ANALYSIS_SAMPLES, (samples.size / ratio).toInt().coerceAtLeast(1))
+        val out = FloatArray(outCount)
+        var sourceIndex = 0.0
+        for (i in 0 until outCount) {
+            val index = sourceIndex.toInt().coerceIn(0, samples.lastIndex)
+            out[i] = samples[index]
+            sourceIndex += ratio
+        }
+        return DecodedAudio(out, targetRate)
     }
 }
 

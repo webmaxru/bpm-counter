@@ -200,7 +200,10 @@ fun AnalyzeScreen() {
                     style = MaterialTheme.typography.bodyMedium,
                     color = BpmColors.TextMuted,
                 )
-                if (capture.isRecording) {
+                val isRecording = captureState is AudioCaptureService.State.Recording
+                val limitReached = captureState as? AudioCaptureService.State.LimitReached
+                val hasCapture = isRecording || limitReached != null
+                if (isRecording) {
                     Text(
                         text = formatElapsed(elapsed),
                         style = MaterialTheme.typography.displayLarge.copy(fontSize = 36.sp),
@@ -209,9 +212,9 @@ fun AnalyzeScreen() {
                     )
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    if (capture.isRecording) {
+                    if (hasCapture) {
                         PrimaryButton(
-                            text = "Stop & analyze",
+                            text = if (limitReached != null) "Analyze recording" else "Stop & analyze",
                             onClick = {
                                 scope.launch {
                                     isAnalyzing = true
@@ -244,6 +247,7 @@ fun AnalyzeScreen() {
                         SecondaryButton(
                             text = "Cancel",
                             onClick = { capture.cancel() },
+                            enabled = !isAnalyzing,
                             modifier = Modifier.weight(1f),
                         )
                     } else {
@@ -257,7 +261,7 @@ fun AnalyzeScreen() {
                                     permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
                                 }
                             },
-                            enabled = !isAnalyzing,
+                            enabled = !isAnalyzing && captureState !is AudioCaptureService.State.Preparing,
                             modifier = Modifier.fillMaxWidth(),
                         )
                     }
@@ -265,6 +269,13 @@ fun AnalyzeScreen() {
                 if (captureState is AudioCaptureService.State.Unauthorized) {
                     Text(
                         text = "Microphone access is required to record. Enable it in Settings.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = BpmColors.Danger,
+                    )
+                }
+                if (limitReached != null) {
+                    Text(
+                        limitReached.message,
                         style = MaterialTheme.typography.bodyMedium,
                         color = BpmColors.Danger,
                     )
@@ -294,7 +305,10 @@ fun AnalyzeScreen() {
                         errorMessage = null
                         fileLauncher.launch(arrayOf("audio/*"))
                     },
-                    enabled = !isAnalyzing && captureState !is AudioCaptureService.State.Recording,
+                    enabled = !isAnalyzing &&
+                        captureState !is AudioCaptureService.State.Recording &&
+                        captureState !is AudioCaptureService.State.LimitReached &&
+                        captureState !is AudioCaptureService.State.Preparing,
                     modifier = Modifier.fillMaxWidth(),
                 )
             }

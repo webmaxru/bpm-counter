@@ -11,13 +11,16 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -59,7 +62,7 @@ fun MetronomeScreen() {
     val beatsPerBar by metronome.beatsPerBar.collectAsState()
     val isRunning by metronome.isRunning.collectAsState()
     val currentBeat by metronome.currentBeat.collectAsState()
-    var draft by remember { mutableStateOf("120") }
+    var draft by remember { mutableStateOf(formatMetronomeBpm(120.0)) }
     val focusManager = LocalFocusManager.current
 
     DisposableEffect(Unit) {
@@ -68,7 +71,7 @@ fun MetronomeScreen() {
 
     fun commitDraft() {
         draft.toDoubleOrNull()?.let { metronome.setBpm(it) }
-        draft = "%.0f".format(metronome.bpm.value)
+        draft = formatMetronomeBpm(metronome.bpm.value)
         focusManager.clearFocus()
     }
 
@@ -86,13 +89,15 @@ fun MetronomeScreen() {
                 .fillMaxSize()
                 .background(BpmColors.BackgroundBrush)
                 .padding(padding)
+                .imePadding()
+                .verticalScroll(rememberScrollState())
                 .padding(horizontal = 28.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(24.dp),
         ) {
             Spacer(Modifier.height(8.dp))
             Text(
-                text = "%.0f".format(bpm),
+                text = formatMetronomeBpm(bpm),
                 style = MaterialTheme.typography.displayLarge.copy(fontSize = 84.sp),
                 color = BpmColors.Text,
                 fontWeight = FontWeight.Bold,
@@ -125,7 +130,7 @@ fun MetronomeScreen() {
                 value = bpm.toFloat(),
                 onValueChange = {
                     metronome.setBpm(it.toDouble())
-                    draft = "%.0f".format(metronome.bpm.value)
+                    draft = formatMetronomeBpm(metronome.bpm.value)
                 },
                 valueRange = MetronomeEngine.MIN_BPM.toFloat()..MetronomeEngine.MAX_BPM.toFloat(),
                 colors = SliderDefaults.colors(
@@ -169,7 +174,7 @@ fun MetronomeScreen() {
                         contentDescription = "Fewer beats per bar"
                     },
                 ) {
-                    Text("−", color = BpmColors.Text)
+                    Text("−", color = BpmColors.Text, fontSize = 28.sp)
                 }
                 Text(
                     text = "$beatsPerBar/4",
@@ -182,7 +187,7 @@ fun MetronomeScreen() {
                         contentDescription = "More beats per bar"
                     },
                 ) {
-                    Text("+", color = BpmColors.Text)
+                    Text("+", color = BpmColors.Text, fontSize = 28.sp)
                 }
             }
 
@@ -205,7 +210,14 @@ fun MetronomeScreen() {
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
-            Spacer(Modifier.weight(1f))
+            Spacer(Modifier.height(24.dp))
         }
     }
 }
+
+private fun formatMetronomeBpm(value: Double): String =
+    if (kotlin.math.abs(value - value.toLong()) < 0.05) {
+        "%.0f".format(value)
+    } else {
+        "%.1f".format(value)
+    }
