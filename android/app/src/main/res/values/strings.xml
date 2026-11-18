@@ -1,50 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    Copyright 2021 Google Inc. All Rights Reserved.
-
-     Licensed under the Apache License, Version 2.0 (the "License");
-     you may not use this file except in compliance with the License.
-     You may obtain a copy of the License at
-
-         http://www.apache.org/licenses/LICENSE-2.0
-
-     Unless required by applicable law or agreed to in writing, software
-     distributed under the License is distributed on an "AS IS" BASIS,
-     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-     See the License for the specific language governing permissions and
-     limitations under the License.
--->
 <resources>
-  
-
-  <!--
-    The "fullscreen" and "fullscreen-sticky" TWA manifest values correspond to "immersive" and "sticky-immersive"
-    AndroidManifest values.
-  -->
-  
-    <string-array name="display_override">
-    
-      
-        <item>minimal-ui</item>
-      
-    
-    </string-array>
-  
-
-  <!--
-    This variable below expresses the relationship between the app and the site,
-    as documented in the TWA documentation at
-    https://developers.google.com/web/updates/2017/10/using-twa#set_up_digital_asset_links_in_an_android_app
-    and is injected into the AndroidManifest.xml
-  -->
-  <string name="assetStatements">
-    [{
-        \"relation\": [\"delegate_permission/common.handle_all_urls\"],
-        \"target\": {
-            \"namespace\": \"web\",
-            \"site\": \"https://bpmtech.no\"
-        }
-    }]
-    
-  </string>  
+    <string name="app_name">BPM Techno</string>
+    <string name="shortcut_analyze_short">Analyze</string>
+    <string name="shortcut_analyze_long">Record &amp; analyze BPM</string>
+    <string name="shortcut_tap_short">Tap Tempo</string>
+    <string name="shortcut_tap_long">Tap tempo</string>
+    <string name="shortcut_metronome_short">Metronome</string>
+    <string name="shortcut_metronome_long">Metronome</string>
+    <string name="mic_permission_rationale">Microphone access is used only to record a short clip for on-device BPM analysis. Audio is never uploaded.</string>
 </resources>

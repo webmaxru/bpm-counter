@@ -1,5 +1,15 @@
 MICROSOFT STORE LISTING - ENGLISH (UNITED STATES)
 
+PRODUCT TITLE (reserved name — keep unless you reserve a new name)
+
+Live BPM Counter
+
+
+SHORT TITLE
+
+BPM Techno — live BPM tools for DJs
+
+
 SHORT DESCRIPTION
 
 Measure live music tempo, tap a beat, analyze an audio URL, and convert BPM to milliseconds with private, offline-ready tools for DJs.
@@ -64,9 +74,20 @@ Free to use with no account or subscription
 Responsive interface for desktop, laptop, tablet, and touch input
 
 
+SEARCH TERMS
+
+bpm
+dj
+beats
+mix
+techno
+tempo
+tap tempo
+
+
 SCREENSHOT CAPTIONS
 
-01-listen-idle.png
+01-live-bpm-counter.png
 Detect the BPM of music playing nearby while audio stays on your device.
 
 02-audio-url-analyzer.png
@@ -75,5 +96,15 @@ Estimate tempo from a direct, browser-accessible MP3 or WAV URL.
 03-tap-tempo.png
 Tap along with the beat to calculate BPM from your timing.
 
-04-bpm-to-ms.png
+04-bpm-to-milliseconds.png
 Convert BPM into precise note durations for delays, sequencing, and effects.
+
+05-half-double-time.png
+Compare half-time and double-time readings when the detected tempo feels off.
+
+
+STORE CONTACTS
+
+Website: https://bpmtech.no
+Privacy policy: https://bpmtech.no/privacy.html
+Support: mailto:salnikov@gmail.com
