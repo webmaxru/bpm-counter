@@ -117,24 +117,32 @@ if (identity.packageName && identity.packageName !== 'no.bpmtech.twa') {
   );
 }
 
-if (identity.versionCode !== 4) {
-  failures.push(`Expected versionCode 4, found ${identity.versionCode}.`);
-}
-
-if (identity.versionName !== '4.0.0') {
-  failures.push(`Expected versionName 4.0.0, found ${identity.versionName}.`);
-}
-
 const gradle = await readFile(
   path.join(repositoryRoot, 'android/app/build.gradle'),
   'utf8',
 ).catch(() => '');
 
+const gradleVersionCodeMatch = gradle.match(/versionCode\s+(\d+)/);
+const gradleVersionNameMatch = gradle.match(/versionName\s+['"]([^'"]+)['"]/);
+const gradleVersionCode = gradleVersionCodeMatch
+  ? Number(gradleVersionCodeMatch[1])
+  : null;
+const gradleVersionName = gradleVersionNameMatch?.[1] ?? null;
+
 if (!gradle.includes("applicationId 'no.bpmtech.twa'")) {
   failures.push('android/app/build.gradle is missing applicationId no.bpmtech.twa.');
 }
-if (!gradle.includes('versionCode 4') || !gradle.includes("versionName '4.0.0'")) {
-  failures.push('android/app/build.gradle version is not 4 / 4.0.0.');
+if (gradleVersionCode === null || !gradleVersionName) {
+  failures.push(
+    'android/app/build.gradle is missing a parsable versionCode / versionName.',
+  );
+} else if (
+  identity.versionCode !== gradleVersionCode ||
+  identity.versionName !== gradleVersionName
+) {
+  failures.push(
+    `package-identity.json version ${identity.versionName} (${identity.versionCode}) does not match Gradle ${gradleVersionName} (${gradleVersionCode}).`,
+  );
 }
 if (!gradle.includes('ANDROID_KEYSTORE_FILE')) {
   failures.push('Release signing env wiring is missing from android/app/build.gradle.');

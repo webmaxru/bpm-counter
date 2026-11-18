@@ -24,12 +24,26 @@ const assetLinks = JSON.parse(
   await read("public/.well-known/assetlinks.json"),
 );
 
+const parseGradleVersion = (source) => {
+  const versionCodeMatch = source.match(/versionCode\s+(\d+)/);
+  const versionNameMatch = source.match(
+    /versionName\s+['"]([^'"]+)['"]/,
+  );
+  return {
+    versionCode: versionCodeMatch ? Number(versionCodeMatch[1]) : null,
+    versionName: versionNameMatch?.[1] ?? null,
+  };
+};
+
+const gradleVersion = parseGradleVersion(buildSource);
+const playIdentity = JSON.parse(
+  await read("store-assets/google-play/package-identity.json"),
+);
+
 const requiredBuildSnippets = [
   ["applicationId 'no.bpmtech.twa'", "package ID"],
   ["compileSdk 36", "compile SDK 36"],
   ["targetSdk 36", "target SDK 36"],
-  ["versionCode 4", "version code 4"],
-  ["versionName '4.0.0'", "version name 4.0.0"],
   [
     "io.github.dlepaux:realtime-bpm-analyzer:6.3.0",
     "realtime-bpm-analyzer 6.3.0 dependency",
@@ -43,6 +57,19 @@ for (const [snippet, label] of requiredBuildSnippets) {
   if (!buildSource.includes(snippet)) {
     failures.push(`app/build.gradle is missing ${label}.`);
   }
+}
+
+if (gradleVersion.versionCode === null || !gradleVersion.versionName) {
+  failures.push(
+    "app/build.gradle is missing a parsable versionCode / versionName.",
+  );
+} else if (
+  playIdentity.versionCode !== gradleVersion.versionCode ||
+  playIdentity.versionName !== gradleVersion.versionName
+) {
+  failures.push(
+    `Play package-identity.json version ${playIdentity.versionName} (${playIdentity.versionCode}) does not match Gradle ${gradleVersion.versionName} (${gradleVersion.versionCode}).`,
+  );
 }
 
 if (
@@ -122,6 +149,6 @@ if (failures.length) {
   process.exitCode = 1;
 } else {
   console.log(
-    "Native Android project verified: no.bpmtech.twa v4.0.0, API 36, realtime-bpm-analyzer 6.3.0, Compose entry, Asset Links.",
+    `Native Android project verified: no.bpmtech.twa v${gradleVersion.versionName} (code ${gradleVersion.versionCode}), API 36, realtime-bpm-analyzer 6.3.0, Compose entry, Asset Links.`,
   );
 }

@@ -44,10 +44,10 @@ For **this** product the Play listing already exists — use
    Upload key certificate**. Request an upload-key reset only if the key is
    lost; do not change the package ID.
 2. Bump `versionName` / `versionCode` in `android/app/build.gradle` when
-   shipping a new binary. Update `store-assets/google-play/package-identity.json`
-   and the version expectations in `scripts/verify-android-project.mjs` and
-   `scripts/check-google-play-readiness.mjs` in the same commit, then run
-   `npm run android:verify` and `npm run google-play:check`.
+   shipping a new binary, and keep
+   `store-assets/google-play/package-identity.json` in sync in the same commit.
+   `npm run android:verify` and `npm run google-play:check` assert those two
+   sources match each other (they no longer hard-code a release number).
 3. Refresh listing graphics if the UI changed:
    `npm run store-assets:google-play`.
 4. Dispatch **Android Play Store Release** (or push `android-vX.Y.Z`).

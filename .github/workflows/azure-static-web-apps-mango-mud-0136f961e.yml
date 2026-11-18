@@ -26,6 +26,7 @@ on:
       - "scripts/*-google-play-*.mjs"
       - "scripts/*-microsoft-store*.mjs"
       - "scripts/*-app-store-*.mjs"
+      - "scripts/store-screenshot-capture.mjs"
   # Intentionally no paths-ignore on pull_request: `closed` must always run so
   # staging environments are cleaned up even if the final commit is store-only.
   pull_request:
