@@ -3,10 +3,10 @@ GOOGLE PLAY CONSOLE SUBMISSION HANDOFF
 PACKAGE
 
 Package ID: no.bpmtech.twa
-Version name: 3.0.0
-Version code: 3
+Version name: 4.0.0
+Version code: 4
 App category: Music & Audio
-Suggested tags: DJ, Music, Audio, Tools
+Suggested tags: DJ, Music, Audio, Tools, Metronome
 
 
 STORE CONTACTS
@@ -18,7 +18,7 @@ Support email: REQUIRED - enter the developer support email already associated w
 
 APP CONTENT
 
-Contains ads: Yes
+Contains ads: No (native Compose build has no AdSense / affiliate UI)
 App access: All functionality is available without an account or special access
 Target audience: 13 and older
 Designed for children: No
@@ -32,47 +32,37 @@ Subscriptions: None
 
 DATA SAFETY DRAFT
 
-Live microphone audio:
-- Processed on the device
-- Not collected
+Microphone audio:
+- Collected: No
+- Processed on the device for BPM analysis while recording
 - Not shared
+- Not uploaded
 
-Remote audio URLs:
-- Requested directly by the user's browser from the selected host
-- Audio is decoded in browser memory
-- Audio is not stored by BPM Techno
+Imported audio files:
+- Decoded in app memory for analysis
+- Not stored by BPM Techno beyond the current analysis session
+- Not uploaded
 
 Analytics and diagnostics:
-- App activity may be collected for analytics
-- Diagnostics and performance data may be collected
-- Device or other identifiers may be collected by Google Analytics and Microsoft Application Insights
-- Approximate location may be derived from network information by analytics providers
-- Data is encrypted in transit
-- Data is used for analytics, app functionality, fraud prevention, security, and diagnostics
-
-Optional result feedback:
-- Detected BPM, analysis mode, and the user's accuracy rating may be collected
-- Audio is not included
+- The native app does not embed Google Analytics, PostHog, or Application Insights
+- Declare “No data collected” for analytics unless you later add SDKs
 
 Account creation:
 - The app does not create user accounts
 - An account-deletion URL is not applicable
 
-Review the final Data Safety answers against the production Google Analytics,
-Application Insights, consent, and advertising configuration before submission.
+Review the final Data Safety answers against the production build before submission.
 
 
-MONETIZATION AND POLICY NOTES
+PERMISSIONS
 
-- Declare that the app contains ads because it includes clearly labeled affiliate recommendations and may display Google ads after approval.
-- Amazon links are for physical products and open external merchant pages.
-- No Google Play Billing integration is required for those physical-product links.
-- Keep advertising visually distinct from navigation and application controls.
+- RECORD_AUDIO — used only for optional clip recording
+- VIBRATE — tap-tempo haptic feedback
 
 
 DEVICE-FAMILY ASSETS INCLUDED
 
-- Phone screenshots: 5
+- Phone screenshots: 5 (native Compose UI)
 - 7-inch tablet screenshots: 5
 - 10-inch tablet screenshots: 5
 - Chromebook screenshots: 5
@@ -84,3 +74,18 @@ Not included because the app does not target these form factors:
 - Android TV
 - Android Automotive OS
 - Android XR
+
+
+RELEASE PIPELINE
+
+- Signed AAB: GitHub Actions workflow `android-release.yml`
+- Listing asset check: `npm run google-play:check`
+- Asset regeneration: `npm run store-assets:google-play`
+- Playbook: `PLAY_STORE_RELEASE.md`
+
+
+SIGNING / ASSET LINKS
+
+Play App Signing uses Google’s app-signing key. Keep Digital Asset Links fingerprints
+in `public/.well-known/assetlinks.json` aligned with the Play App Signing certificate
+(and any upload-key certificate you still publish for local verification).

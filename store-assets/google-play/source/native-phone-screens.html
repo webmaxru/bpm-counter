@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Saira:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --ink: #071c2b;
+        --ink-soft: #0a2638;
+        --surface: #0c3046;
+        --surface-strong: #113e57;
+        --text: #f7f3ed;
+        --text-muted: #b9cfd8;
+        --text-faint: #87a9b7;
+        --accent: #ffb36b;
+        --signal: #69ded5;
+        --danger: #ff8b7a;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: var(--ink);
+        color: var(--text);
+        font-family: 'Saira', sans-serif;
+      }
+
+      body {
+        background:
+          linear-gradient(
+            180deg,
+            rgba(41, 126, 151, 0.28) 0%,
+            var(--ink) 42%,
+            rgba(255, 139, 92, 0.08) 100%
+          );
+      }
+
+      .screen {
+        display: none;
+        width: 100%;
+        height: 100%;
+        flex-direction: column;
+        min-height: 0;
+      }
+
+      body[data-screen='analyze'] .screen-analyze,
+      body[data-screen='analyze-result'] .screen-analyze-result,
+      body[data-screen='recording'] .screen-recording,
+      body[data-screen='tap'] .screen-tap,
+      body[data-screen='metronome'] .screen-metronome {
+        display: flex;
+      }
+
+      .top-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex: 0 0 auto;
+        padding: 14px 16px 6px;
+        font-size: 18px;
+        font-weight: 700;
+      }
+
+      .top-bar span.muted {
+        color: var(--text-faint);
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .content {
+        flex: 1 1 auto;
+        min-height: 0;
+        padding: 4px 16px 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        overflow: hidden;
+      }
+
+      .eyebrow {
+        color: var(--text-muted);
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      .headline {
+        margin: 0;
+        font-size: 26px;
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        line-height: 1.05;
+      }
+
+      .lede {
+        margin: 0;
+        color: var(--text-muted);
+        font-size: 13px;
+        line-height: 1.35;
+      }
+
+      .card {
+        border: 1px solid rgba(247, 243, 237, 0.08);
+        border-radius: 16px;
+        background: rgba(12, 48, 70, 0.92);
+        padding: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        flex: 0 0 auto;
+      }
+
+      .result-card {
+        border: 1px solid rgba(105, 222, 213, 0.22);
+        border-radius: 20px;
+        background: var(--ink-soft);
+        padding: 18px 16px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        text-align: center;
+      }
+
+      .card h2 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 700;
+      }
+
+      .card p,
+      .result-card p {
+        margin: 0;
+        color: var(--text-muted);
+        font-size: 13px;
+        line-height: 1.35;
+      }
+
+      .mode-label {
+        color: var(--signal);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+      }
+
+      .tempo {
+        font-size: 64px;
+        font-weight: 700;
+        letter-spacing: -0.05em;
+        line-height: 0.92;
+      }
+
+      .tempo-sm {
+        font-size: 36px;
+        font-weight: 700;
+        color: var(--signal);
+        letter-spacing: -0.04em;
+      }
+
+      .tempo-unit {
+        color: var(--text-muted);
+        font-size: 16px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+      }
+
+      .faint {
+        color: var(--text-faint);
+        font-size: 13px;
+      }
+
+      .btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 46px;
+        border-radius: 12px;
+        font-size: 15px;
+        font-weight: 700;
+      }
+
+      .btn-primary {
+        background: var(--accent);
+        color: var(--ink);
+      }
+
+      .btn-signal {
+        background: var(--signal);
+        color: var(--ink);
+      }
+
+      .btn-secondary {
+        border: 1px solid rgba(135, 169, 183, 0.35);
+        color: var(--text);
+      }
+
+      .row {
+        display: flex;
+        gap: 10px;
+      }
+
+      .row > * {
+        flex: 1;
+      }
+
+      .nav {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        flex: 0 0 auto;
+        padding: 8px 12px 16px;
+        background: var(--ink-soft);
+        border-top: 1px solid rgba(247, 243, 237, 0.06);
+      }
+
+      .nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 3px;
+        color: var(--text-faint);
+        font-size: 11px;
+        font-weight: 600;
+      }
+
+      .nav-item.active {
+        color: var(--accent);
+      }
+
+      .nav-icon {
+        width: 20px;
+        height: 20px;
+        border-radius: 6px;
+        background: var(--surface-strong);
+      }
+
+      .nav-item.active .nav-icon {
+        background: rgba(255, 179, 107, 0.22);
+      }
+
+      .center {
+        align-items: center;
+        text-align: center;
+        justify-content: center;
+      }
+
+      .beats {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+      }
+
+      .beat {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: var(--surface-strong);
+        border: 1px solid rgba(105, 222, 213, 0.35);
+      }
+
+      .beat.active {
+        background: var(--accent);
+        transform: scale(1.15);
+      }
+
+      .slider {
+        height: 4px;
+        border-radius: 999px;
+        background: var(--surface-strong);
+        position: relative;
+        width: 100%;
+      }
+
+      .slider::before {
+        content: '';
+        position: absolute;
+        inset: 0 auto 0 0;
+        width: 42%;
+        background: var(--signal);
+        border-radius: inherit;
+      }
+
+      .slider::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 42%;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: var(--signal);
+        transform: translate(-50%, -50%);
+      }
+
+      .footer-note {
+        color: var(--text-faint);
+        font-size: 12px;
+        line-height: 1.35;
+        margin: 0;
+      }
+
+      @media (min-width: 700px) {
+        .headline {
+          font-size: 34px;
+        }
+
+        .tempo {
+          font-size: 84px;
+        }
+
+        .content {
+          max-width: 560px;
+          margin: 0 auto;
+          width: 100%;
+        }
+      }
+
+      @media (min-width: 1100px) and (orientation: landscape) {
+        body {
+          display: grid;
+          place-items: center;
+        }
+
+        .screen {
+          width: min(420px, 36vw);
+          height: min(840px, 90vh);
+          border-radius: 28px;
+          overflow: hidden;
+          border: 1px solid rgba(247, 243, 237, 0.08);
+          box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+          background:
+            linear-gradient(
+              180deg,
+              rgba(41, 126, 151, 0.28) 0%,
+              var(--ink) 42%,
+              rgba(255, 139, 92, 0.08) 100%
+            );
+        }
+      }
+    </style>
+  </head>
+  <body data-screen="analyze">
+    <section class="screen screen-analyze">
+      <div class="top-bar">BPM Techno <span class="muted">options</span></div>
+      <div class="content">
+        <div>
+          <h1 class="headline">Native tempo tools</h1>
+          <p class="lede">
+            Record a clip or open a track. Analysis uses the same Realtime BPM Analyzer engine as the web app.
+          </p>
+        </div>
+        <div class="card">
+          <h2>Record &amp; analyze</h2>
+          <p>Capture at least a few bars, then stop to read the tempo.</p>
+          <div class="btn btn-primary">Start recording</div>
+        </div>
+        <div class="card">
+          <h2>Analyze a file</h2>
+          <p>MP3, WAV, M4A, AAC, FLAC, and OGG are supported.</p>
+          <div class="btn btn-secondary">Choose audio file</div>
+        </div>
+        <p class="footer-note">
+          Tempo is detected on this device with Realtime BPM Analyzer. Audio is never uploaded.
+        </p>
+      </div>
+      <nav class="nav">
+        <div class="nav-item active"><span class="nav-icon"></span>Analyze</div>
+        <div class="nav-item"><span class="nav-icon"></span>Tap</div>
+        <div class="nav-item"><span class="nav-icon"></span>Metronome</div>
+      </nav>
+    </section>
+
+    <section class="screen screen-analyze-result">
+      <div class="top-bar">BPM Techno <span class="muted">options</span></div>
+      <div class="content">
+        <div class="result-card">
+          <div class="mode-label">Recording analysis</div>
+          <div class="tempo">128</div>
+          <div class="tempo-unit">BPM</div>
+          <p class="faint">Confidence 92%</p>
+          <p class="faint">Microphone recording</p>
+          <div class="btn btn-signal" style="width: 100%; margin-top: 6px">Share BPM</div>
+        </div>
+        <div class="card">
+          <h2>Record &amp; analyze</h2>
+          <p>Capture at least a few bars, then stop to read the tempo.</p>
+          <div class="btn btn-primary">Start recording</div>
+        </div>
+      </div>
+      <nav class="nav">
+        <div class="nav-item active"><span class="nav-icon"></span>Analyze</div>
+        <div class="nav-item"><span class="nav-icon"></span>Tap</div>
+        <div class="nav-item"><span class="nav-icon"></span>Metronome</div>
+      </nav>
+    </section>
+
+    <section class="screen screen-recording">
+      <div class="top-bar">BPM Techno <span class="muted">options</span></div>
+      <div class="content">
+        <div>
+          <h1 class="headline">Native tempo tools</h1>
+          <p class="lede">
+            Record a clip or open a track. Analysis uses the same Realtime BPM Analyzer engine as the web app.
+          </p>
+        </div>
+        <div class="card">
+          <h2>Record &amp; analyze</h2>
+          <p>Capture at least a few bars, then stop to read the tempo.</p>
+          <div class="tempo-sm">0:18</div>
+          <div class="row">
+            <div class="btn btn-primary">Stop &amp; analyze</div>
+            <div class="btn btn-secondary">Cancel</div>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Analyze a file</h2>
+          <p>MP3, WAV, M4A, AAC, FLAC, and OGG are supported.</p>
+          <div class="btn btn-secondary" style="opacity: 0.45">Choose audio file</div>
+        </div>
+      </div>
+      <nav class="nav">
+        <div class="nav-item active"><span class="nav-icon"></span>Analyze</div>
+        <div class="nav-item"><span class="nav-icon"></span>Tap</div>
+        <div class="nav-item"><span class="nav-icon"></span>Metronome</div>
+      </nav>
+    </section>
+
+    <section class="screen screen-tap">
+      <div class="top-bar">Tap tempo</div>
+      <div class="content center" style="gap: 20px">
+        <div>
+          <div class="tempo">128</div>
+          <div class="tempo-unit">BPM</div>
+        </div>
+        <p class="lede">Recent taps: 8 of 8</p>
+        <div class="btn btn-primary" style="width: 100%">Tap the beat</div>
+        <div class="row" style="width: 100%">
+          <div class="btn btn-secondary">Reset</div>
+          <div class="btn btn-secondary">Share</div>
+        </div>
+      </div>
+      <nav class="nav">
+        <div class="nav-item"><span class="nav-icon"></span>Analyze</div>
+        <div class="nav-item active"><span class="nav-icon"></span>Tap</div>
+        <div class="nav-item"><span class="nav-icon"></span>Metronome</div>
+      </nav>
+    </section>
+
+    <section class="screen screen-metronome">
+      <div class="top-bar">Metronome</div>
+      <div class="content center" style="gap: 18px">
+        <div>
+          <div class="tempo">128</div>
+          <div class="tempo-unit">BPM</div>
+        </div>
+        <div class="beats">
+          <span class="beat active"></span>
+          <span class="beat"></span>
+          <span class="beat"></span>
+          <span class="beat"></span>
+        </div>
+        <div class="slider"></div>
+        <div class="row" style="width: 100%; align-items: center">
+          <div class="btn btn-secondary" style="flex: 1.5">128</div>
+          <div class="btn btn-secondary" style="flex: 0.45">−</div>
+          <div style="width: 40px; color: var(--text-muted); font-size: 14px">4/4</div>
+          <div class="btn btn-secondary" style="flex: 0.45">+</div>
+        </div>
+        <div class="btn btn-primary" style="width: 100%">Start</div>
+      </div>
+      <nav class="nav">
+        <div class="nav-item"><span class="nav-icon"></span>Analyze</div>
+        <div class="nav-item"><span class="nav-icon"></span>Tap</div>
+        <div class="nav-item active"><span class="nav-icon"></span>Metronome</div>
+      </nav>
+    </section>
+  </body>
+</html>

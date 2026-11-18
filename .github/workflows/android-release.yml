@@ -1,0 +1,166 @@
+name: Android Play Store Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      track:
+        description: Play Console track
+        required: true
+        default: internal
+        type: choice
+        options:
+          - internal
+          - alpha
+          - beta
+          - production
+      upload_to_play:
+        description: Upload the signed AAB to Google Play
+        required: true
+        default: false
+        type: boolean
+      regenerate_assets:
+        description: Regenerate Play listing graphics/screenshots before packaging
+        required: true
+        default: false
+        type: boolean
+      status:
+        description: Release status on the selected track
+        required: true
+        default: draft
+        type: choice
+        options:
+          - draft
+          - completed
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-play-store-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Sign AAB and optionally upload
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+
+      - name: Install Android platform 36
+        run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Install Playwright browser
+        if: inputs.regenerate_assets
+        run: npx playwright install --with-deps chromium
+
+      - name: Regenerate Google Play assets
+        if: inputs.regenerate_assets
+        run: npm run store-assets:google-play
+
+      - name: Verify Play readiness
+        run: npm run google-play:check
+
+      - name: Verify Android project
+        run: npm run android:verify
+
+      - name: Verify signing inputs
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          GOOGLE_PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+          UPLOAD_TO_PLAY: ${{ inputs.upload_to_play }}
+        run: |
+          required=(
+            ANDROID_KEYSTORE_BASE64
+            ANDROID_KEYSTORE_PASSWORD
+            ANDROID_KEY_ALIAS
+            ANDROID_KEY_PASSWORD
+          )
+          for variable in "${required[@]}"; do
+            if [[ -z "${!variable}" ]]; then
+              echo "::error::$variable is not configured."
+              exit 1
+            fi
+          done
+
+          if [[ "$UPLOAD_TO_PLAY" == "true" && -z "$GOOGLE_PLAY_SERVICE_ACCOUNT_JSON" ]]; then
+            echo "::error::GOOGLE_PLAY_SERVICE_ACCOUNT_JSON is required when upload_to_play=true."
+            exit 1
+          fi
+
+      - name: Decode upload keystore
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          KEYSTORE_PATH="$RUNNER_TEMP/upload-keystore.jks"
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$KEYSTORE_PATH"
+          echo "ANDROID_KEYSTORE_FILE=$KEYSTORE_PATH" >> "$GITHUB_ENV"
+
+      - name: Bundle signed release
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        working-directory: android
+        run: ./gradlew :app:bundleRelease --no-daemon
+
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bpm-techno-android-4.0.0-${{ github.run_number }}
+          path: |
+            android/app/build/outputs/bundle/release/app-release.aab
+            android/release-notes-v4.txt
+            store-assets/google-play/listing-en-US.txt
+            store-assets/google-play/play-console-submission.txt
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload listing asset artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bpm-techno-play-listing-assets-${{ github.run_number }}
+          path: |
+            store-assets/google-play/graphics/**
+            store-assets/google-play/screenshots/**
+            store-assets/google-play/listing-en-US.txt
+            store-assets/google-play/play-console-submission.txt
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload to Google Play
+        if: inputs.upload_to_play
+        uses: r0adkll/upload-google-play@v1.1.3
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: no.bpmtech.twa
+          releaseFiles: android/app/build/outputs/bundle/release/app-release.aab
+          track: ${{ inputs.track }}
+          status: ${{ inputs.status }}
+          releaseName: 4.0.0 (${{ github.run_number }})
+          whatsNewDirectory: android/play-whatsnew
