@@ -46,6 +46,7 @@ class AudioCaptureService(
 
     private var recordJob: Job? = null
     private var timerJob: Job? = null
+    private var activeAudioRecord: AudioRecord? = null
     private val recording = AtomicBoolean(false)
     private val sessionGeneration = AtomicLong(0)
     private val sessionMutex = Mutex()
@@ -70,7 +71,8 @@ class AudioCaptureService(
             _state.value = State.Unauthorized
             return
         }
-        if (_state.value is State.Preparing || _state.value is State.Recording) {
+        // Serialize through Preparing + mutex so Cancel → Start cannot race the old reader.
+        if (_state.value is State.Preparing) {
             return
         }
 
@@ -114,6 +116,7 @@ class AudioCaptureService(
                 sampleRateHz = audioRecord.sampleRate
                 val maxBytes = bytesForDuration(sampleRateHz, MAX_RECORDING_SECONDS)
                 synchronized(pcmStream) { pcmStream.reset() }
+                activeAudioRecord = audioRecord
                 recording.set(true)
                 val startedAt = System.currentTimeMillis()
                 _state.value = State.Recording(startedAt)
@@ -136,6 +139,9 @@ class AudioCaptureService(
                         ) {
                             val read = audioRecord.read(buffer, 0, buffer.size)
                             if (read > 0) {
+                                if (sessionGeneration.get() != generation || !recording.get()) {
+                                    break
+                                }
                                 val bytes = ByteBuffer.allocate(read * 2)
                                     .order(ByteOrder.LITTLE_ENDIAN)
                                 for (i in 0 until read) {
@@ -163,7 +169,9 @@ class AudioCaptureService(
                                     break
                                 }
                             } else if (read < 0) {
-                                _state.value = State.Failed("Microphone read failed.")
+                                if (sessionGeneration.get() == generation) {
+                                    _state.value = State.Failed("Microphone read failed.")
+                                }
                                 break
                             }
                         }
@@ -172,11 +180,10 @@ class AudioCaptureService(
                             _state.value = State.Failed(error.message ?: "Recording failed.")
                         }
                     } finally {
-                        try {
-                            audioRecord.stop()
-                        } catch (_: Exception) {
+                        releaseAudioRecord(audioRecord)
+                        if (activeAudioRecord === audioRecord) {
+                            activeAudioRecord = null
                         }
-                        audioRecord.release()
                     }
                 }
             }
@@ -206,6 +213,13 @@ class AudioCaptureService(
     }
 
     fun cancel() {
+        if (_state.value is State.Idle) {
+            return
+        }
+        // Mark preparing so a rapid Start waits on the same mutex instead of bailing.
+        if (_state.value !is State.Preparing) {
+            _state.value = State.Preparing
+        }
         scope.launch {
             sessionMutex.withLock {
                 stopActiveSessionLocked()
@@ -215,19 +229,48 @@ class AudioCaptureService(
         }
     }
 
+    /**
+     * Stops the mic first so the blocking [AudioRecord.read] unblocks, then joins the worker
+     * before clearing buffers. Session generation makes any late writes ignore the old loop.
+     */
     private suspend fun stopActiveSessionLocked(): ByteArray {
         recording.set(false)
         sessionGeneration.incrementAndGet()
+        val recorder = activeAudioRecord
         val activeRecordJob = recordJob
         val activeTimerJob = timerJob
         recordJob = null
         timerJob = null
         activeTimerJob?.cancel()
+        // Unblock a pending read() before join; otherwise the old worker can stall forever.
+        if (recorder != null) {
+            try {
+                recorder.stop()
+            } catch (_: Exception) {
+            }
+        }
         activeRecordJob?.join()
+        if (activeAudioRecord === recorder) {
+            activeAudioRecord = null
+        }
+        if (recorder != null) {
+            releaseAudioRecord(recorder)
+        }
         return synchronized(pcmStream) {
             val bytes = pcmStream.toByteArray()
             pcmStream.reset()
             bytes
+        }
+    }
+
+    private fun releaseAudioRecord(audioRecord: AudioRecord) {
+        try {
+            audioRecord.stop()
+        } catch (_: Exception) {
+        }
+        try {
+            audioRecord.release()
+        } catch (_: Exception) {
         }
     }
 

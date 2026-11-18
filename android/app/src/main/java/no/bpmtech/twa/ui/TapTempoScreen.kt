@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -31,6 +32,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -50,6 +52,10 @@ fun TapTempoScreen() {
     val engine = remember { TapTempoService() }
     var displayedBpm by remember { mutableStateOf<Double?>(null) }
     var tapCount by remember { mutableIntStateOf(0) }
+    val scrollState = rememberScrollState()
+    val fontScale = LocalConfiguration.current.fontScale
+    val tempoSize = (84f / fontScale.coerceAtLeast(1f)).coerceIn(48f, 84f).sp
+    val sectionGap = if (fontScale >= 1.3f) 16.dp else 28.dp
 
     Scaffold(
         containerColor = BpmColors.Ink,
@@ -65,16 +71,19 @@ fun TapTempoScreen() {
                 .fillMaxSize()
                 .background(BpmColors.BackgroundBrush)
                 .padding(padding)
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 24.dp),
+                .consumeWindowInsets(padding)
+                .verticalScroll(scrollState)
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
+                .padding(bottom = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(28.dp),
+            verticalArrangement = Arrangement.spacedBy(sectionGap),
         ) {
             Spacer(Modifier.height(12.dp))
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     text = displayedBpm?.let { formatBpm(it) } ?: "--",
-                    style = MaterialTheme.typography.displayLarge.copy(fontSize = 84.sp),
+                    style = MaterialTheme.typography.displayLarge.copy(fontSize = tempoSize),
                     color = BpmColors.Text,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.semantics {
@@ -136,7 +145,6 @@ fun TapTempoScreen() {
                     )
                 }
             }
-            Spacer(Modifier.height(24.dp))
         }
     }
 }

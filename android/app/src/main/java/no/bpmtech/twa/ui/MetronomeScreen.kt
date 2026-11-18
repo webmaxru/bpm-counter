@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -42,6 +43,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -64,6 +66,10 @@ fun MetronomeScreen() {
     val currentBeat by metronome.currentBeat.collectAsState()
     var draft by remember { mutableStateOf(formatMetronomeBpm(120.0)) }
     val focusManager = LocalFocusManager.current
+    val scrollState = rememberScrollState()
+    val fontScale = LocalConfiguration.current.fontScale
+    val tempoSize = (84f / fontScale.coerceAtLeast(1f)).coerceIn(48f, 84f).sp
+    val sectionGap = if (fontScale >= 1.3f) 16.dp else 24.dp
 
     DisposableEffect(Unit) {
         onDispose { metronome.release() }
@@ -89,16 +95,19 @@ fun MetronomeScreen() {
                 .fillMaxSize()
                 .background(BpmColors.BackgroundBrush)
                 .padding(padding)
+                .consumeWindowInsets(padding)
                 .imePadding()
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 28.dp),
+                .verticalScroll(scrollState)
+                .fillMaxWidth()
+                .padding(horizontal = 28.dp)
+                .padding(bottom = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(24.dp),
+            verticalArrangement = Arrangement.spacedBy(sectionGap),
         ) {
             Spacer(Modifier.height(8.dp))
             Text(
                 text = formatMetronomeBpm(bpm),
-                style = MaterialTheme.typography.displayLarge.copy(fontSize = 84.sp),
+                style = MaterialTheme.typography.displayLarge.copy(fontSize = tempoSize),
                 color = BpmColors.Text,
                 fontWeight = FontWeight.Bold,
             )
@@ -210,13 +219,13 @@ fun MetronomeScreen() {
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
-            Spacer(Modifier.height(24.dp))
         }
     }
 }
 
+/** Round-trip the engine's tenth-BPM precision without forcing whole numbers. */
 private fun formatMetronomeBpm(value: Double): String =
-    if (kotlin.math.abs(value - value.toLong()) < 0.05) {
+    if (kotlin.math.abs(value - kotlin.math.round(value)) < 0.05) {
         "%.0f".format(value)
     } else {
         "%.1f".format(value)
