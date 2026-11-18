@@ -5,17 +5,27 @@ on:
     paths:
       - "android/**"
       - "scripts/verify-android-project.mjs"
+      - "scripts/check-google-play-readiness.mjs"
+      - "scripts/generate-google-play-assets.mjs"
+      - "store-assets/google-play/**"
+      - "PLAY_STORE_RELEASE.md"
       - "package.json"
       - "public/.well-known/assetlinks.json"
       - ".github/workflows/android-ci.yml"
+      - ".github/workflows/android-release.yml"
   push:
     branches: [main]
     paths:
       - "android/**"
       - "scripts/verify-android-project.mjs"
+      - "scripts/check-google-play-readiness.mjs"
+      - "scripts/generate-google-play-assets.mjs"
+      - "store-assets/google-play/**"
+      - "PLAY_STORE_RELEASE.md"
       - "package.json"
       - "public/.well-known/assetlinks.json"
       - ".github/workflows/android-ci.yml"
+      - ".github/workflows/android-release.yml"
   workflow_dispatch:
 
 permissions:
@@ -36,6 +46,18 @@ jobs:
           node-version: "20"
       - name: Verify Android project structure
         run: npm run android:verify
+
+  play-assets:
+    name: Verify Google Play assets
+    runs-on: ubuntu-latest
+    needs: verify
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Check Play readiness
+        run: npm run google-play:check
 
   assemble:
     name: Assemble debug APK

@@ -48,6 +48,8 @@
     "store-assets:microsoft": "node scripts/generate-microsoft-store-assets.mjs",
     "store-assets:app-store": "node scripts/generate-apple-app-store-assets.mjs",
     "store-assets:all": "npm run store-assets:google-play && npm run store-assets:microsoft && npm run store-assets:app-store",
+    "google-play:check": "node scripts/check-google-play-readiness.mjs",
+    "google-play:release:check": "npm run google-play:check",
     "microsoft-store:check": "node scripts/check-microsoft-store-readiness.mjs",
     "microsoft-store:package": "node scripts/package-microsoft-store.mjs",
     "microsoft-store:release:check": "npm run microsoft-store:check",

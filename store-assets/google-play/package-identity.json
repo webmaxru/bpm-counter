@@ -1,0 +1,10 @@
+{
+  "packageName": "no.bpmtech.twa",
+  "applicationId": "no.bpmtech.twa",
+  "versionName": "4.0.0",
+  "versionCode": 4,
+  "defaultTrack": "internal",
+  "listingLocale": "en-US",
+  "privacyPolicyUrl": "https://bpmtech.no/privacy",
+  "websiteUrl": "https://bpmtech.no"
+}

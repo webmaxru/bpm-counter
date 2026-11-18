@@ -7,55 +7,52 @@ Realtime BPM Counter for DJs
 
 SHORT DESCRIPTION
 
-Detect live BPM, tap tempo, analyze audio URLs, and calculate DJ timing.
+On-device BPM analysis, tap tempo, and metronome. Audio never leaves your phone.
 
 
 FULL DESCRIPTION
 
-Find a track's tempo without interrupting your workflow. BPM Techno is a free BPM toolkit for DJs, producers, musicians, and anyone working with rhythm.
+Find a track's tempo without interrupting your workflow. BPM Techno is a free native BPM toolkit for DJs, producers, musicians, and anyone working with rhythm.
 
-MEASURE LIVE BPM
+ANALYZE ON YOUR DEVICE
 
-Use the real-time counter when music is already playing through speakers. Allow microphone access, point your device toward a clear and steady section of the track, and let BPM Techno estimate its beats per minute.
+Record a short clip from your microphone or open an audio file. BPM Techno estimates beats per minute on this device with Realtime BPM Analyzer for Java/Kotlin.
 
-Your live microphone stream is analyzed on your device. BPM Techno does not upload or store the microphone audio.
+Your recordings and imported files stay on the phone. BPM Techno does not upload audio for analysis.
 
 CHOOSE THE RIGHT TOOL
 
-- Detect BPM from music playing nearby.
+- Record a few bars and analyze the clip.
+- Open MP3, WAV, M4A, AAC, FLAC, or OGG files.
 - Tap along manually when you can hear the pulse clearly.
-- Analyze a direct, browser-accessible MP3 or WAV URL.
-- Convert BPM into whole, half, quarter, eighth, sixteenth, dotted, and triplet note durations.
-- Compare half-time and double-time values when a detected number does not match the way you count the track.
+- Use the built-in metronome to practice or check a tempo.
 
 BUILT FOR REAL DJ TASKS
 
-Use BPM Techno while preparing a set, checking an untagged track, practicing a transition, setting a tempo-synced delay, or resolving a common half-time or double-time reading.
+Use BPM Techno while preparing a set, checking an untagged track, practicing a transition, or confirming a tempo before you mix.
 
-Practical guides explain how BPM detection works, how to improve accuracy, how to understand genre tempo ranges, and how to apply tempo information while beatmatching.
+PRIVATE BY DESIGN
 
-PRIVATE AND OFFLINE-READY
-
-The live counter, tap-tempo tool, and calculators are designed to remain useful offline after the app has loaded. An internet connection is still required to fetch remote audio URLs and open external resources.
+Microphone access is used only while you record. Deny it anytime in system settings. Optional share text is yours to send; the audio itself never leaves the device.
 
 No account or subscription is required.
 
 ACCURATE, WITH HONEST LIMITS
 
-Automatic detection works best with a steady section containing clear kicks, snares, claps, or other rhythmic transients. Silence, speech, ambient intros, heavy syncopation, and distorted microphone input can reduce accuracy.
+Automatic detection works best with a steady section containing clear kicks, snares, claps, or other rhythmic transients. Silence, speech, ambient intros, heavy syncopation, and noisy recordings can reduce accuracy.
 
-Treat every automatic result as a strong starting point. Confirm the pulse by ear and check the related half-time or double-time value when needed.
+Treat every automatic result as a strong starting point. Confirm the pulse by ear when it matters.
 
 
-RELEASE NOTES - VERSION 3
+RELEASE NOTES - VERSION 4
 
-Version 3 introduces a completely redesigned interface, clearer navigation, tap tempo, BPM-to-milliseconds calculations, half-time and double-time comparison, improved audio URL analysis, stronger local-audio privacy messaging, better offline behavior, and a polished experience across phones, tablets, and larger screens.
+Native Android rebuild: on-device BPM analysis with Realtime BPM Analyzer for Java/Kotlin (record a clip or open a file), plus tap tempo and metronome. Audio stays on your device.
 
 
 SCREENSHOT ORDER
 
-1. Live BPM counter
-2. Audio URL analyzer
-3. Tap-tempo counter
-4. BPM-to-milliseconds calculator
-5. Half-time and double-time converter
+1. Analyze home — record or open a file
+2. Analysis result — 128 BPM with share
+3. Tap tempo
+4. Metronome
+5. On-device privacy messaging

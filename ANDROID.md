@@ -48,12 +48,26 @@ an emulator or device. Grant microphone permission for recording.
 | --- | --- |
 | `npm run android:verify` | Structural checks (package ID, library dep, Compose entry, Asset Links) |
 | `npm run android:assemble` | `./gradlew :app:assembleDebug` |
-| `npm run android:bundle` | `./gradlew :app:bundleRelease` (unsigned unless signing is configured) |
+| `npm run android:bundle` | `./gradlew :app:bundleRelease` (signed when `ANDROID_KEYSTORE_*` env vars are set) |
+| `npm run store-assets:google-play` | Regenerate Play icon, feature graphic, and native screenshots |
+| `npm run google-play:check` | Validate listing assets + package identity for Play |
 
 Bubblewrap (`android:generate`, `android:doctor`, fingerprint helpers) is no longer
 used for the app shell. Digital Asset Links under
 `public/.well-known/assetlinks.json` still identify package `no.bpmtech.twa` for
 App Links / Play integrity continuity.
+
+## Play Store release
+
+See **`PLAY_STORE_RELEASE.md`** for the full go-live checklist, required GitHub
+secrets, and the `android-release.yml` workflow (signed AAB + optional Play upload).
+
+Release signing reads:
+
+- `ANDROID_KEYSTORE_FILE`
+- `ANDROID_KEYSTORE_PASSWORD`
+- `ANDROID_KEY_ALIAS`
+- `ANDROID_KEY_PASSWORD`
 
 ## Release notes
 

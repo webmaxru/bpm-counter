@@ -4,6 +4,13 @@ plugins {
     id 'org.jetbrains.kotlin.plugin.compose'
 }
 
+def keystorePath = System.getenv('ANDROID_KEYSTORE_FILE')
+def keystorePassword = System.getenv('ANDROID_KEYSTORE_PASSWORD')
+def keyAlias = System.getenv('ANDROID_KEY_ALIAS')
+def keyPassword = System.getenv('ANDROID_KEY_PASSWORD')
+def hasReleaseSigning =
+    keystorePath && keystorePassword && keyAlias && keyPassword && file(keystorePath).exists()
+
 android {
     namespace 'no.bpmtech.twa'
     compileSdk 36
@@ -19,11 +26,25 @@ android {
         vectorDrawables.useSupportLibrary = true
     }
 
+    signingConfigs {
+        if (hasReleaseSigning) {
+            release {
+                storeFile file(keystorePath)
+                storePassword keystorePassword
+                keyAlias keyAlias
+                keyPassword keyPassword
+            }
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            if (hasReleaseSigning) {
+                signingConfig signingConfigs.release
+            }
         }
         debug {
             minifyEnabled false
