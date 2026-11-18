@@ -203,6 +203,10 @@ function App() {
                   element={<PublishingPage pageId="privacy" />}
                 />
                 <Route
+                  path="/privacy/ios"
+                  element={<PublishingPage pageId="privacy-ios" />}
+                />
+                <Route
                   path="/privacy.html"
                   element={<Navigate replace to="/privacy" />}
                 />

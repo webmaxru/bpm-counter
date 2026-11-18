@@ -7,57 +7,50 @@ BPM Techno: Live BPM Counter
 
 SUBTITLE
 
-Tap tempo and DJ timing tools
+On-device BPM for DJs
 
 
 PROMOTIONAL TEXT
 
-Measure music playing nearby, import an audio file, tap the beat, and calculate precise timing values - without uploading live microphone audio.
+Record a clip, import a track, tap the beat, or run a metronome - tempo tools that stay on your iPhone and iPad.
 
 
 DESCRIPTION
 
-Find a track's tempo without interrupting your workflow. BPM Techno is a focused set of BPM tools for DJs, producers, musicians, and anyone working with rhythm.
+Find a track's tempo without interrupting your set prep. BPM Techno is a native iOS app with focused BPM tools for DJs, producers, musicians, and anyone working with rhythm.
 
-MEASURE LIVE BPM
+RECORD AND ANALYZE
 
-Use the real-time counter when music is already playing through speakers. Allow microphone access, point your device toward a clear and steady section of the track, and let BPM Techno estimate its beats per minute.
+Point your device at speakers or monitors, capture a short clip, and let BPM Techno estimate beats per minute with Realtime BPM Analyzer for Swift. Analysis runs entirely on your device. Microphone audio is not uploaded or stored.
 
-Your live microphone stream is analyzed on your device. BPM Techno does not upload or store the microphone audio.
+ANALYZE LOCAL FILES
 
-CHOOSE THE RIGHT TOOL
+Import MP3, WAV, M4A, AAC, FLAC, or CAF with the system document picker. Decode and detect tempo offline - useful when a track is untagged or you need a second opinion before you cue it.
 
-- Detect BPM from music playing nearby.
-- Import a local audio file with the system document picker.
-- Tap along manually when you can hear the pulse clearly.
-- Analyze a direct, browser-accessible MP3 or WAV URL.
-- Convert BPM into whole, half, quarter, eighth, sixteenth, dotted, and triplet note durations.
-- Compare half-time and double-time values when a detected number does not match the way you count the track.
+TAP TEMPO AND METRONOME
+
+Tap along when you can hear the pulse clearly. Share the result with the native Share Sheet. Use the built-in metronome with adjustable BPM and beats per bar when you need a click.
 
 BUILT FOR REAL DJ TASKS
 
-Use BPM Techno while preparing a set, checking an untagged track, practicing a transition, setting a tempo-synced delay, or resolving a common half-time or double-time reading.
+Use BPM Techno while preparing a set, checking an untagged track, practicing a transition, or resolving a common half-time or double-time reading. Candidate tempos help you compare related values when an automatic result needs confirmation by ear.
 
-Practical guides explain how BPM detection works, how to improve accuracy, how to understand genre tempo ranges, and how to apply tempo information while beatmatching.
+PRIVATE BY DESIGN
 
-PRIVATE AND OFFLINE-READY
-
-The live counter, local file analyzer, tap-tempo tool, and calculators are bundled for offline use. An internet connection is still required to fetch remote audio URLs and open external resources.
-
-No account or subscription is required.
+Recording, file analysis, tap tempo, and the metronome work on-device. No account or subscription is required. Files longer than 10 minutes are rejected so analysis stays practical on mobile hardware.
 
 ACCURATE, WITH HONEST LIMITS
 
 Automatic detection works best with a steady section containing clear kicks, snares, claps, or other rhythmic transients. Silence, speech, ambient intros, heavy syncopation, and distorted microphone input can reduce accuracy.
 
-Treat every automatic result as a strong starting point. Confirm the pulse by ear and check the related half-time or double-time value when needed.
+Treat every automatic result as a strong starting point. Confirm the pulse by ear and check related half-time or double-time candidates when needed.
 
 
 KEYWORDS
 
-bpm,counter,dj,tap tempo,beat,tempo,music,delay,milliseconds,beatmatching,audio
+bpm,counter,dj,tap tempo,beat,tempo,metronome,music,beatmatching,audio
 
 
-WHAT'S NEW IN VERSION 3.0
+WHAT'S NEW IN VERSION 4.0
 
-Version 3 introduces a redesigned interface, local audio import, native result sharing, tap haptics, clearer navigation, BPM-to-milliseconds calculations, half-time and double-time comparison, improved offline behavior, and a polished experience across iPhone and iPad.
+Version 4 rebuilds BPM Techno as a native SwiftUI app. Tempo detection now uses Realtime BPM Analyzer for Swift on-device, with record-and-analyze, local file import, tap tempo, a native metronome, Share Sheet results, and no Capacitor web wrapper.

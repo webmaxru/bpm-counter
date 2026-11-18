@@ -1,0 +1,1 @@
+Version 4 rebuilds BPM Techno as a native SwiftUI app. Tempo detection now uses Realtime BPM Analyzer for Swift on-device, with record-and-analyze, local file import, tap tempo, a native metronome, Share Sheet results, and no Capacitor web wrapper.
