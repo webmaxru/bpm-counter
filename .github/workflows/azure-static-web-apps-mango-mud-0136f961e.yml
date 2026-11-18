@@ -21,6 +21,11 @@ on:
       - ".github/workflows/android-*.yml"
       - ".github/workflows/ios-*.yml"
       - ".github/workflows/microsoft-store-*.yml"
+      - "scripts/*-android-*.mjs"
+      - "scripts/*-ios-*.mjs"
+      - "scripts/*-google-play-*.mjs"
+      - "scripts/*-microsoft-store*.mjs"
+      - "scripts/*-app-store-*.mjs"
   pull_request:
     types: [opened, synchronize, reopened, closed]
     branches:
@@ -40,6 +45,11 @@ on:
       - ".github/workflows/android-*.yml"
       - ".github/workflows/ios-*.yml"
       - ".github/workflows/microsoft-store-*.yml"
+      - "scripts/*-android-*.mjs"
+      - "scripts/*-ios-*.mjs"
+      - "scripts/*-google-play-*.mjs"
+      - "scripts/*-microsoft-store*.mjs"
+      - "scripts/*-app-store-*.mjs"
   workflow_dispatch:
 
 permissions:
@@ -54,7 +64,7 @@ jobs:
   # Fork pull requests do not receive the deployment token, so preview
   # environments are only created for branches in this repository.
   build_and_deploy_job:
-    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed' && github.event.pull_request.head.repo.full_name == github.repository)
+    if: (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') || github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed' && github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
     name: Build and Deploy Job
     steps:

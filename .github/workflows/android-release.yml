@@ -90,7 +90,7 @@ jobs:
           DISPATCH_STATUS: ${{ inputs.status }}
           REF_NAME: ${{ github.ref_name }}
         run: |
-          GRADLE_VERSION=$(sed -n 's/.*versionName[[:space:]]*"\([^"]*\)".*/\1/p' android/app/build.gradle | head -n 1)
+          GRADLE_VERSION=$(sed -n "s/.*versionName[[:space:]]*['\"]\([^'\"]*\)['\"].*/\1/p" android/app/build.gradle | head -n 1)
 
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             VERSION="${DISPATCH_VERSION:-$GRADLE_VERSION}"
@@ -115,8 +115,9 @@ jobs:
             exit 1
           fi
 
-          if [[ -n "$GRADLE_VERSION" && "$VERSION" != "$GRADLE_VERSION" ]]; then
-            echo "::warning::Tag/dispatch version '$VERSION' differs from versionName '$GRADLE_VERSION' in android/app/build.gradle."
+          if [[ -z "$GRADLE_VERSION" || "$VERSION" != "$GRADLE_VERSION" ]]; then
+            echo "::error::Requested version '$VERSION' does not match versionName '$GRADLE_VERSION' in android/app/build.gradle. Update the Gradle version before releasing."
+            exit 1
           fi
 
           {
