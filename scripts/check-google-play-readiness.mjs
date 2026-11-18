@@ -251,6 +251,18 @@ if ([...releaseNotes.trim()].length === 0) {
   failures.push('android/release-notes-v4.txt exceeds the 500-character Play release-notes limit.');
 }
 
+const playReleaseNotes = await readFile(
+  path.join(repositoryRoot, 'android/play-whatsnew/whatsnew-en-US'),
+  'utf8',
+).catch(() => null);
+if (playReleaseNotes === null) {
+  failures.push('Missing android/play-whatsnew/whatsnew-en-US (uploaded by android-release.yml).');
+} else if (playReleaseNotes.trim() !== releaseNotes.trim()) {
+  failures.push(
+    'android/play-whatsnew/whatsnew-en-US does not match android/release-notes-v4.txt.',
+  );
+}
+
 if (failures.length > 0) {
   console.error('Google Play readiness check failed:\n');
   for (const failure of failures) {

@@ -31,8 +31,8 @@ android {
             release {
                 storeFile file(keystorePath)
                 storePassword keystorePassword
-                keyAlias keyAlias
-                keyPassword keyPassword
+                setKeyAlias(keyAlias)
+                setKeyPassword(keyPassword)
             }
         }
     }
