@@ -25,7 +25,7 @@ Run these on the repository that holds the secrets (normally
 
 | Surface | Trigger | Typical inputs | npm gates |
 | --- | --- | --- | --- |
-| **Web** | Push / merge to `main`, or **workflow_dispatch** on `Azure Static Web Apps CI/CD` | none | `npm run build` locally if you want a dry run |
+| **Web** | Push / merge to `main`, or **workflow_dispatch** on `Azure Static Web Apps CI/CD` **from `main`** | none | `npm run build` locally if you want a dry run |
 | **Microsoft Store** | **workflow_dispatch** on **Microsoft Store Release** | `modern_version`, `classic_version`, `regenerate_assets`, `publish_to_store` | `npm run microsoft-store:check` |
 | **Apple** | **workflow_dispatch** on **iOS TestFlight Release**, or push tag `ios-vX.Y.Z` | `version`, `build_number` (optional), `upload_to_testflight` | `npm run ios:release:check` |
 | **Google Play** | **workflow_dispatch** on **Android Play Store Release**, or push tag `android-vX.Y.Z` | `track`, `upload_to_play`, `status`, `regenerate_assets` | `npm run google-play:release:check` |
@@ -35,8 +35,9 @@ squad / GitHub Release flow. Store tags are prefixed: `ios-v*`, `android-v*`.
 
 ### Independence rules
 
-- Web deploys ignore native/store-only path changes (`android/`, `ios/`,
-  `store-assets/`, store playbooks, and the non-web release workflows).
+- Web production deploys ignore native/store-only path changes (`android/`,
+  `ios/`, `store-assets/`, store scripts/playbooks, and the non-web release
+  workflows). PR close always runs so staging environments are cleaned up.
 - Store release workflows are manual (or store-specific tags). They never run
   because the website was redeployed.
 - Microsoft Store packages the **hosted PWA** at `https://bpmtech.no`. A

@@ -56,6 +56,7 @@ jobs:
           npm ci --ignore-scripts
           npm run ios:branding
           npm run ios:verify
+          npm run app-store:check
 
   simulator:
     name: Build native iOS simulator app

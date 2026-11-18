@@ -44,6 +44,14 @@ if (!workflow.includes('workflow_dispatch')) {
     'Azure Static Web Apps workflow is missing workflow_dispatch for manual redeploys.',
   );
 }
+if (
+  !workflow.includes("github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'") &&
+  !workflow.includes('github.event_name == \'workflow_dispatch\' && github.ref == \'refs/heads/main\'')
+) {
+  failures.push(
+    'Azure Static Web Apps workflow_dispatch must be limited to the main branch.',
+  );
+}
 if (!workflow.includes('paths-ignore')) {
   failures.push(
     'Azure Static Web Apps workflow should use paths-ignore so native/store-only changes do not redeploy the web app.',

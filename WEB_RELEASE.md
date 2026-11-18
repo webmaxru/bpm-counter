@@ -51,10 +51,13 @@ The production site already exists. Day-to-day updates:
 3. Merge the PR to promote; closing the PR without merge tears down the staging
    environment.
 4. For a **manual production redeploy** without a new commit, run
-   **Actions → Azure Static Web Apps CI/CD → Run workflow**.
+   **Actions → Azure Static Web Apps CI/CD → Run workflow** from the `main`
+   branch (dispatch on other refs is ignored).
 
-Native / store-only changes under `android/`, `ios/`, `store-assets/`, and the
-store playbooks do **not** trigger this workflow (path filters).
+Native / store-only changes under `android/`, `ios/`, `store-assets/`, store
+scripts, and the store playbooks do **not** trigger production deploys on
+`main` (push path filters). Pull requests keep an unfiltered trigger so closing
+a PR always cleans up the staging environment.
 
 ## Trigger the release pipeline
 
@@ -62,7 +65,7 @@ store playbooks do **not** trigger this workflow (path filters).
 | --- | --- |
 | Merge / push to `main` | Normal production ship |
 | Pull request (same-repo branch) | Staging preview |
-| **workflow_dispatch** | Redeploy current `main` without a new commit |
+| **workflow_dispatch** on `main` | Redeploy current `main` without a new commit |
 
 There is no store tag for the website. Do not confuse squad package tags
 (`v*`) with App Store / Play tags (`ios-v*`, `android-v*`).

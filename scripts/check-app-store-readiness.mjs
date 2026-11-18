@@ -221,10 +221,25 @@ if (!releaseWorkflow.includes('ios-v*')) {
 }
 if (
   !releaseWorkflow.includes('store-assets:check') &&
-  !releaseWorkflow.includes('check-app-store-readiness.mjs')
+  !releaseWorkflow.includes('check-app-store-readiness.mjs') &&
+  !releaseWorkflow.includes('app-store:check')
 ) {
   warnings.push(
     'ios-release.yml does not run the App Store readiness check before signing.',
+  );
+}
+
+const iosCiWorkflow = await readFile(
+  path.join(repositoryRoot, '.github/workflows/ios-ci.yml'),
+  'utf8',
+).catch(() => '');
+if (
+  !iosCiWorkflow.includes('app-store:check') &&
+  !iosCiWorkflow.includes('store-assets:check') &&
+  !iosCiWorkflow.includes('check-app-store-readiness.mjs')
+) {
+  failures.push(
+    'ios-ci.yml must run app-store:check (or store-assets:check) in verification.',
   );
 }
 
