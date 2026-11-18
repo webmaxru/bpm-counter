@@ -130,7 +130,7 @@ jobs:
           if ($classic) {
             Write-Host "Classic package: $($classic.FullName)"
           } else {
-            Write-Warning "Classic .appxbundle was not found; continuing with modern package only."
+            throw "Classic .appxbundle was not found inside $($zip.Name)."
           }
 
           "MS_STORE_MSIX=$($msix.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
@@ -185,6 +185,7 @@ jobs:
           $productId = "9NQ4M5SC9PQ9"
           Write-Host "Publishing modern package to $productId"
           msstore publish "$env:MS_STORE_MSIX" -id $productId
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
           if ($env:MS_STORE_CLASSIC) {
             Write-Host "Publishing classic package to $productId"
