@@ -51,10 +51,9 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
         with:
-          packages: ""
+          packages: platform-tools
       - name: Install Android platform 36
-        run: |
-          sdkmanager "platforms;android-36" "build-tools;36.0.0" "platform-tools"
+        run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
       - name: Assemble debug
         working-directory: android
         run: ./gradlew :app:assembleDebug --no-daemon

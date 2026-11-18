@@ -217,7 +217,11 @@ fun AnalyzeScreen() {
                                     isAnalyzing = true
                                     errorMessage = null
                                     try {
-                                        val audio = capture.stopRecording() ?: return@launch
+                                        val audio = capture.stopRecording()
+                                        if (audio == null) {
+                                            errorMessage = "Recording was empty. Try again with a longer clip."
+                                            return@launch
+                                        }
                                         result = analyzer.analyzeSamples(
                                             samples = audio.samples,
                                             sampleRate = audio.sampleRate,
