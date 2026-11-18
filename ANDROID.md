@@ -1,122 +1,61 @@
-# Android app with Bubblewrap
+# Android app (native Kotlin)
 
-The Android app is a Trusted Web Activity for `https://bpmtech.no` with package
-ID `no.bpmtech.twa`. Bubblewrap configuration lives in
-`android/twa-manifest.json`; the generated Gradle project is committed so
-Android Studio and command-line builds use the same source.
+BPM Techno on Android is a **native Jetpack Compose** app. Tempo detection uses
+[`realtime-bpm-analyzer`](https://www.realtime-bpm-analyzer.com/guide/java) on
+Maven Central (`io.github.dlepaux:realtime-bpm-analyzer:6.3.0`).
 
-This project updates the existing Google Play listing. Release 3 uses version
-code `3` and version name `3.0.0`. Paste `android/release-notes-v3.txt` into the
-English release notes field in Play Console.
+The Trusted Web Activity / Bubblewrap shell has been removed.
 
-## Prerequisites
+## App identity
 
-1. Install Node.js dependencies with `npm install`.
-2. Run `npm run android:doctor`. Bubblewrap can download a compatible JDK and
-   Android SDK when they are not already configured.
-3. Validate the production PWA with `npm run android:validate`.
+- Package ID: `no.bpmtech.twa` (unchanged — updates the existing Google Play listing)
+- Version name: `4.0.0`
+- Version code: `4`
+- `minSdk`: 24
+- `compileSdk` / `targetSdk`: 36
 
-## Generate and build
+## Native functionality
 
-Regenerate Android source after changing `android/twa-manifest.json`:
+The Java/Kotlin library is **offline / whole-buffer** analysis only (`analyzeChannelData`).
+There is no live microphone graph port.
 
-```powershell
-npm run android:generate
+- **Record & analyze** — capture a short mic clip, decode to mono PCM, analyze on-device
+- **File analysis** — document picker; `MediaExtractor` / `MediaCodec` → mono floats → analyzer
+- Optional **peaks** vs default **tempogram** engine
+- **Tap tempo** with vibration feedback
+- **Metronome**
+- Native Android share sheet for BPM results
+
+Audio never leaves the device.
+
+## Local development
+
+Requires JDK 17+ and Android SDK 36 (Android Studio recommended).
+
+```shell
+# From the repository root
+echo "sdk.dir=$ANDROID_HOME" > android/local.properties   # if needed
+npm run android:verify
+cd android && ./gradlew :app:assembleDebug
 ```
 
-If an icon or the web manifest has not been deployed yet, serve `public/`
-locally and override only the asset origin used during generation:
+Open `android/` in Android Studio, sync Gradle, and run the `app` configuration on
+an emulator or device. Grant microphone permission for recording.
 
-```powershell
-npm run start -- --host 127.0.0.1 --port 4175
-```
+## Scripts
 
-In a second PowerShell window:
+| Script | Purpose |
+| --- | --- |
+| `npm run android:verify` | Structural checks (package ID, library dep, Compose entry, Asset Links) |
+| `npm run android:assemble` | `./gradlew :app:assembleDebug` |
+| `npm run android:bundle` | `./gradlew :app:bundleRelease` (unsigned unless signing is configured) |
 
-```powershell
-$env:BUBBLEWRAP_ASSET_ORIGIN = "http://127.0.0.1:4175"
-npm run android:generate
-```
+Bubblewrap (`android:generate`, `android:doctor`, fingerprint helpers) is no longer
+used for the app shell. Digital Asset Links under
+`public/.well-known/assetlinks.json` still identify package `no.bpmtech.twa` for
+App Links / Play integrity continuity.
 
-Build unsigned APK and AAB artifacts for infrastructure checks:
+## Release notes
 
-```powershell
-npm run android:build:unsigned
-```
-
-Bubblewrap writes the unsigned outputs to
-`android/app-release-unsigned-aligned.apk` and
-`android/app/build/outputs/bundle/release/app-release.aab`. These files are
-ignored by Git.
-
-## Create the upload key
-
-Create a private upload key once and back it up securely. Never commit it:
-
-```powershell
-$keytool = Get-ChildItem "$HOME\.bubblewrap\jdk" -Recurse -Filter keytool.exe | Select-Object -First 1
-if (-not $keytool) {
-  throw "Bubblewrap JDK not found. Run npm run android:doctor first."
-}
-New-Item -ItemType Directory -Force android\keystore | Out-Null
-& $keytool.FullName -genkeypair -v -keystore android\keystore\bpm-techno-upload.jks -alias bpm-techno-upload -keyalg RSA -keysize 2048 -validity 10000
-```
-
-Set passwords only in the current shell or a secure secret store, then build:
-
-```powershell
-$env:BUBBLEWRAP_KEYSTORE_PASSWORD = "<keystore password>"
-$env:BUBBLEWRAP_KEY_PASSWORD = "<key password>"
-npm run android:build
-```
-
-The Play-ready signed bundle is `android/app-release-bundle.aab`. Enroll the
-app in Google Play App Signing and use this key only as the upload key.
-
-### Existing Play listing: verify the upload key
-
-Before uploading release 3, compare the local key's SHA-256 fingerprint with
-**Play Console > Setup > App integrity > Upload key certificate**:
-
-```powershell
-$keytool = Get-ChildItem "$HOME\.bubblewrap\jdk" -Recurse -Filter keytool.exe | Select-Object -First 1
-& $keytool.FullName -list -v -keystore android\keystore\bpm-techno-upload.jks -alias bpm-techno-upload
-```
-
-Use the original upload keystore if the fingerprints match. If this newly
-created key does not match and the original key is unavailable, request an
-**upload key reset** in Play Console before uploading the AAB. Do not change
-the package ID. The upload-key fingerprint is not the fingerprint used in
-Digital Asset Links.
-
-## Digital Asset Links
-
-The production association must use the SHA-256 certificate fingerprint shown
-under **Play Console > Setup > App integrity > App signing key certificate**.
-The upload-key fingerprint alone is not sufficient for Play-installed builds.
-
-Add the Play signing fingerprint and generate the statement:
-
-```powershell
-npm run android:fingerprint:add -- `
-  "AA:BB:CC:..." --name=play-app-signing
-npm run android:assetlinks
-```
-
-Review `android/assetlinks.json`, then copy it to
-`public/.well-known/assetlinks.json` and deploy the web app. The final endpoint
-must return JSON without redirects:
-
-`https://bpmtech.no/.well-known/assetlinks.json`
-
-Local or direct-installed APK testing can use an additional upload-key
-fingerprint in the same configuration.
-
-## Release updates
-
-For each Play release, increment both `appVersionCode` and `appVersion` in
-`android/twa-manifest.json`, run `npm run android:generate`, and build the
-signed AAB. Google Play requires new submissions to target Android 16 / API 36
-from August 31, 2026. The project generator overrides Bubblewrap 1.24.1's older
-default and produces both `compileSdkVersion 36` and `targetSdkVersion 36`.
-Run `npm run android:verify` after every release build.
+Paste Play Console English release notes from `android/release-notes-v4.txt` when
+uploading the AAB for version code 4.

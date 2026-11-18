@@ -1,0 +1,1 @@
+Native Android rebuild: on-device BPM analysis with Realtime BPM Analyzer for Java/Kotlin (record a clip or open a file), plus tap tempo and metronome. Audio stays on your device.
