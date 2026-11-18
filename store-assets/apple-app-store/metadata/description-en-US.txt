@@ -1,0 +1,27 @@
+Find a track's tempo without interrupting your set prep. BPM Techno is a native iOS app with focused BPM tools for DJs, producers, musicians, and anyone working with rhythm.
+
+RECORD AND ANALYZE
+
+Point your device at speakers or monitors, capture a short clip, and let BPM Techno estimate beats per minute with Realtime BPM Analyzer for Swift. Analysis runs entirely on your device. Microphone audio is not uploaded or stored.
+
+ANALYZE LOCAL FILES
+
+Import MP3, WAV, M4A, AAC, FLAC, or CAF with the system document picker. Decode and detect tempo offline - useful when a track is untagged or you need a second opinion before you cue it.
+
+TAP TEMPO AND METRONOME
+
+Tap along when you can hear the pulse clearly. Share the result with the native Share Sheet. Use the built-in metronome with adjustable BPM and beats per bar when you need a click.
+
+BUILT FOR REAL DJ TASKS
+
+Use BPM Techno while preparing a set, checking an untagged track, practicing a transition, or resolving a common half-time or double-time reading. Candidate tempos help you compare related values when an automatic result needs confirmation by ear.
+
+PRIVATE BY DESIGN
+
+Recording, file analysis, tap tempo, and the metronome work on-device. No account or subscription is required. Files longer than 10 minutes are rejected so analysis stays practical on mobile hardware.
+
+ACCURATE, WITH HONEST LIMITS
+
+Automatic detection works best with a steady section containing clear kicks, snares, claps, or other rhythmic transients. Silence, speech, ambient intros, heavy syncopation, and distorted microphone input can reduce accuracy.
+
+Treat every automatic result as a strong starting point. Confirm the pulse by ear and check related half-time or double-time candidates when needed.

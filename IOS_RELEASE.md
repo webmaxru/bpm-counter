@@ -1,5 +1,8 @@
 # iOS and TestFlight release
 
+For the end-to-end App Store launch checklist (secrets, ASC record, assets,
+TestFlight, submit), see [`APP_STORE_LAUNCH.md`](APP_STORE_LAUNCH.md).
+
 For the team-wide versus app-specific credential model and instructions for
 reusing this setup in future apps, see
 [`APPLE_APP_STORE_REUSE.md`](APPLE_APP_STORE_REUSE.md).
@@ -66,9 +69,13 @@ sync.
 unsigned simulator `xcodebuild` on `macos-15` for pull requests, pushes to
 `main`, and manual **workflow_dispatch** runs.
 
-`.github/workflows/ios-release.yml` is manually dispatched. It imports signing
-material into a temporary keychain, archives and exports a signed IPA, stores
-the IPA as a GitHub artifact, and optionally uploads it to TestFlight.
+`.github/workflows/ios-release.yml` runs on manual **workflow_dispatch** and on
+`ios-v*` tags. It first validates App Store assets on Ubuntu, then imports
+signing material into a temporary keychain on macOS, archives and exports a
+signed IPA, stores the IPA as a GitHub artifact, and optionally uploads it to
+TestFlight. Tag pushes always upload to TestFlight; the marketing version is
+taken from the tag (for example `ios-v4.0.0` → `4.0.0`). Package release tags
+(`v*`, used by `squad-release.yml`) do not trigger this workflow.
 
 Configure these GitHub Actions secrets:
 

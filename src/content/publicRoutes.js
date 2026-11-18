@@ -21,6 +21,7 @@ export const STATIC_PUBLISHING_ROUTES = Object.freeze([
   '/guides/bpm-reference-table',
   '/guides',
   '/privacy',
+  '/privacy/ios',
   '/terms',
   '/contact',
   '/affiliate-disclosure',
