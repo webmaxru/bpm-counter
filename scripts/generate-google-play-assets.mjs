@@ -52,7 +52,7 @@ const screens = [
   { id: '02-analyze-result', screen: 'analyze-result' },
   { id: '03-tap-tempo', screen: 'tap' },
   { id: '04-metronome', screen: 'metronome' },
-  { id: '05-on-device-privacy', screen: 'privacy' },
+  { id: '05-recording-in-progress', screen: 'recording' },
 ];
 
 async function renderFeatureGraphic(browser) {
@@ -92,6 +92,38 @@ async function captureNativeScreenshots(browser) {
         document.body.dataset.screen = name;
       }, screen.screen);
       await page.waitForTimeout(80);
+
+      if (device.id === 'phone') {
+        const overflow = await page.evaluate(() => {
+          const visible = [...document.querySelectorAll('.screen')].find(
+            (el) => getComputedStyle(el).display !== 'none',
+          );
+          if (!visible) {
+            return { missing: true };
+          }
+          const nav = visible.querySelector('.nav');
+          const navRect = nav?.getBoundingClientRect();
+          return {
+            missing: false,
+            viewportHeight: window.innerHeight,
+            navBottom: navRect?.bottom ?? null,
+            navVisible:
+              navRect != null &&
+              navRect.top >= 0 &&
+              navRect.bottom <= window.innerHeight + 0.5,
+          };
+        });
+        if (overflow.missing) {
+          throw new Error(`Phone screen ${screen.id} is not visible.`);
+        }
+        if (!overflow.navVisible) {
+          throw new Error(
+            `Phone screen ${screen.id} crops the bottom navigation ` +
+              `(navBottom=${overflow.navBottom}, viewport=${overflow.viewportHeight}).`,
+          );
+        }
+      }
+
       await page.screenshot({
         path: path.join(deviceDirectory, `${screen.id}.png`),
         type: 'png',

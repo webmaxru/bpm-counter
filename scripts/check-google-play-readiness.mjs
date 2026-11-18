@@ -30,7 +30,7 @@ const expectedScreenshots = [
   '02-analyze-result.png',
   '03-tap-tempo.png',
   '04-metronome.png',
-  '05-on-device-privacy.png',
+  '05-recording-in-progress.png',
 ];
 
 const deviceFamilies = [
@@ -260,6 +260,36 @@ if (playReleaseNotes === null) {
 } else if (playReleaseNotes.trim() !== releaseNotes.trim()) {
   failures.push(
     'android/play-whatsnew/whatsnew-en-US does not match android/release-notes-v4.txt.',
+  );
+}
+
+const nativeScreens = await readFile(
+  path.join(repositoryRoot, 'store-assets/google-play/source/native-phone-screens.html'),
+  'utf8',
+).catch(() => '');
+if (/data-screen=['"]privacy['"]|screen-privacy|>Privacy</i.test(nativeScreens)) {
+  failures.push(
+    'native-phone-screens.html still includes a Privacy screen that the native app does not expose.',
+  );
+}
+if (/New analysis/i.test(nativeScreens)) {
+  failures.push(
+    'native-phone-screens.html invents a "New analysis" action; match BpmResultCard ("Share BPM").',
+  );
+}
+if (!/Share BPM/i.test(nativeScreens) || !/Recording analysis/i.test(nativeScreens)) {
+  failures.push(
+    'native-phone-screens.html result mockup must include "Recording analysis" and "Share BPM".',
+  );
+}
+if (!/Stop &amp; analyze|Stop & analyze/i.test(nativeScreens)) {
+  failures.push(
+    'native-phone-screens.html must include the real recording-in-progress "Stop & analyze" state.',
+  );
+}
+if (/min-height:\s*100vh/i.test(nativeScreens)) {
+  failures.push(
+    'native-phone-screens.html must not use min-height: 100vh; phone captures crop content past the viewport.',
   );
 }
 

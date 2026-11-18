@@ -52,7 +52,7 @@ Native Android rebuild: on-device BPM analysis with Realtime BPM Analyzer for Ja
 SCREENSHOT ORDER
 
 1. Analyze home — record or open a file
-2. Analysis result — 128 BPM with share
+2. Analysis result — 128 BPM with Share BPM
 3. Tap tempo
 4. Metronome
-5. On-device privacy messaging
+5. Recording in progress — Stop & analyze

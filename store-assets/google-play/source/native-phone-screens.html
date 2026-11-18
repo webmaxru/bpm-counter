@@ -30,7 +30,9 @@
       html,
       body {
         margin: 0;
-        min-height: 100%;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
         background: var(--ink);
         color: var(--text);
         font-family: 'Saira', sans-serif;
@@ -48,15 +50,17 @@
 
       .screen {
         display: none;
-        min-height: 100vh;
+        width: 100%;
+        height: 100%;
         flex-direction: column;
+        min-height: 0;
       }
 
       body[data-screen='analyze'] .screen-analyze,
       body[data-screen='analyze-result'] .screen-analyze-result,
+      body[data-screen='recording'] .screen-recording,
       body[data-screen='tap'] .screen-tap,
-      body[data-screen='metronome'] .screen-metronome,
-      body[data-screen='privacy'] .screen-privacy {
+      body[data-screen='metronome'] .screen-metronome {
         display: flex;
       }
 
@@ -64,28 +68,31 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 18px 20px 8px;
-        font-size: 20px;
+        flex: 0 0 auto;
+        padding: 14px 16px 6px;
+        font-size: 18px;
         font-weight: 700;
       }
 
       .top-bar span.muted {
         color: var(--text-faint);
-        font-size: 14px;
+        font-size: 13px;
         font-weight: 600;
       }
 
       .content {
-        flex: 1;
-        padding: 8px 20px 24px;
+        flex: 1 1 auto;
+        min-height: 0;
+        padding: 4px 16px 12px;
         display: flex;
         flex-direction: column;
-        gap: 18px;
+        gap: 12px;
+        overflow: hidden;
       }
 
       .eyebrow {
         color: var(--text-muted);
-        font-size: 14px;
+        font-size: 12px;
         font-weight: 600;
         letter-spacing: 0.04em;
         text-transform: uppercase;
@@ -93,7 +100,7 @@
 
       .headline {
         margin: 0;
-        font-size: 32px;
+        font-size: 26px;
         font-weight: 700;
         letter-spacing: -0.03em;
         line-height: 1.05;
@@ -102,67 +109,98 @@
       .lede {
         margin: 0;
         color: var(--text-muted);
-        font-size: 15px;
-        line-height: 1.45;
+        font-size: 13px;
+        line-height: 1.35;
       }
 
       .card {
         border: 1px solid rgba(247, 243, 237, 0.08);
-        border-radius: 18px;
+        border-radius: 16px;
         background: rgba(12, 48, 70, 0.92);
-        padding: 18px;
+        padding: 14px;
         display: flex;
         flex-direction: column;
-        gap: 14px;
+        gap: 10px;
+        flex: 0 0 auto;
+      }
+
+      .result-card {
+        border: 1px solid rgba(105, 222, 213, 0.22);
+        border-radius: 20px;
+        background: var(--ink-soft);
+        padding: 18px 16px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        text-align: center;
       }
 
       .card h2 {
         margin: 0;
-        font-size: 18px;
+        font-size: 16px;
         font-weight: 700;
       }
 
-      .card p {
+      .card p,
+      .result-card p {
         margin: 0;
         color: var(--text-muted);
-        font-size: 14px;
-        line-height: 1.4;
+        font-size: 13px;
+        line-height: 1.35;
+      }
+
+      .mode-label {
+        color: var(--signal);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
       }
 
       .tempo {
-        font-size: 72px;
+        font-size: 64px;
         font-weight: 700;
         letter-spacing: -0.05em;
         line-height: 0.92;
       }
 
+      .tempo-sm {
+        font-size: 36px;
+        font-weight: 700;
+        color: var(--signal);
+        letter-spacing: -0.04em;
+      }
+
       .tempo-unit {
         color: var(--text-muted);
-        font-size: 18px;
+        font-size: 16px;
         font-weight: 700;
         letter-spacing: 0.12em;
       }
 
-      .signal {
-        color: var(--signal);
-      }
-
-      .accent {
-        color: var(--accent);
+      .faint {
+        color: var(--text-faint);
+        font-size: 13px;
       }
 
       .btn {
         display: flex;
         align-items: center;
         justify-content: center;
-        height: 52px;
-        border-radius: 14px;
-        font-size: 16px;
+        height: 46px;
+        border-radius: 12px;
+        font-size: 15px;
         font-weight: 700;
       }
 
       .btn-primary {
         background: var(--accent);
+        color: var(--ink);
+      }
+
+      .btn-signal {
+        background: var(--signal);
         color: var(--ink);
       }
 
@@ -173,34 +211,19 @@
 
       .row {
         display: flex;
-        gap: 12px;
+        gap: 10px;
       }
 
       .row > * {
         flex: 1;
       }
 
-      .chip {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        color: var(--text-muted);
-        font-size: 13px;
-      }
-
-      .dot {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background: var(--signal);
-        box-shadow: 0 0 0 4px rgba(105, 222, 213, 0.18);
-      }
-
       .nav {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 8px;
-        padding: 10px 16px 22px;
+        flex: 0 0 auto;
+        padding: 8px 12px 16px;
         background: var(--ink-soft);
         border-top: 1px solid rgba(247, 243, 237, 0.06);
       }
@@ -209,9 +232,9 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 4px;
+        gap: 3px;
         color: var(--text-faint);
-        font-size: 12px;
+        font-size: 11px;
         font-weight: 600;
       }
 
@@ -220,9 +243,9 @@
       }
 
       .nav-icon {
-        width: 22px;
-        height: 22px;
-        border-radius: 7px;
+        width: 20px;
+        height: 20px;
+        border-radius: 6px;
         background: var(--surface-strong);
       }
 
@@ -233,17 +256,18 @@
       .center {
         align-items: center;
         text-align: center;
+        justify-content: center;
       }
 
       .beats {
         display: flex;
-        gap: 14px;
+        gap: 12px;
         justify-content: center;
       }
 
       .beat {
-        width: 18px;
-        height: 18px;
+        width: 16px;
+        height: 16px;
         border-radius: 50%;
         background: var(--surface-strong);
         border: 1px solid rgba(105, 222, 213, 0.35);
@@ -259,6 +283,7 @@
         border-radius: 999px;
         background: var(--surface-strong);
         position: relative;
+        width: 100%;
       }
 
       .slider::before {
@@ -275,33 +300,27 @@
         position: absolute;
         top: 50%;
         left: 42%;
-        width: 18px;
-        height: 18px;
+        width: 16px;
+        height: 16px;
         border-radius: 50%;
         background: var(--signal);
         transform: translate(-50%, -50%);
       }
 
-      .privacy {
+      .footer-note {
         color: var(--text-faint);
-        font-size: 13px;
-        line-height: 1.45;
-      }
-
-      .result-meta {
-        display: flex;
-        justify-content: space-between;
-        color: var(--text-muted);
-        font-size: 13px;
+        font-size: 12px;
+        line-height: 1.35;
+        margin: 0;
       }
 
       @media (min-width: 700px) {
         .headline {
-          font-size: 40px;
+          font-size: 34px;
         }
 
         .tempo {
-          font-size: 96px;
+          font-size: 84px;
         }
 
         .content {
@@ -319,7 +338,7 @@
 
         .screen {
           width: min(420px, 36vw);
-          min-height: min(840px, 90vh);
+          height: min(840px, 90vh);
           border-radius: 28px;
           overflow: hidden;
           border: 1px solid rgba(247, 243, 237, 0.08);
@@ -337,16 +356,17 @@
   </head>
   <body data-screen="analyze">
     <section class="screen screen-analyze">
-      <div class="top-bar">BPM Techno <span class="muted">Analyze</span></div>
+      <div class="top-bar">BPM Techno <span class="muted">options</span></div>
       <div class="content">
-        <p class="eyebrow">Native tempo tools</p>
-        <h1 class="headline">Record a clip or open a track</h1>
-        <p class="lede">
-          On-device analysis with Realtime BPM Analyzer. Audio never leaves this phone.
-        </p>
+        <div>
+          <h1 class="headline">Native tempo tools</h1>
+          <p class="lede">
+            Record a clip or open a track. Analysis uses the same Realtime BPM Analyzer engine as the web app.
+          </p>
+        </div>
         <div class="card">
           <h2>Record &amp; analyze</h2>
-          <p>Capture a few bars, then stop to read the tempo.</p>
+          <p>Capture at least a few bars, then stop to read the tempo.</p>
           <div class="btn btn-primary">Start recording</div>
         </div>
         <div class="card">
@@ -354,6 +374,9 @@
           <p>MP3, WAV, M4A, AAC, FLAC, and OGG are supported.</p>
           <div class="btn btn-secondary">Choose audio file</div>
         </div>
+        <p class="footer-note">
+          Tempo is detected on this device with Realtime BPM Analyzer. Audio is never uploaded.
+        </p>
       </div>
       <nav class="nav">
         <div class="nav-item active"><span class="nav-icon"></span>Analyze</div>
@@ -363,26 +386,51 @@
     </section>
 
     <section class="screen screen-analyze-result">
-      <div class="top-bar">BPM Techno <span class="muted">Analyze</span></div>
+      <div class="top-bar">BPM Techno <span class="muted">options</span></div>
       <div class="content">
-        <div class="card">
-          <div class="result-meta">
-            <span>Microphone recording</span>
-            <span class="signal">High confidence</span>
-          </div>
-          <div>
-            <div class="tempo accent">128</div>
-            <div class="tempo-unit">BPM</div>
-          </div>
-          <div class="row">
-            <div class="btn btn-secondary">Share</div>
-            <div class="btn btn-primary">New analysis</div>
-          </div>
+        <div class="result-card">
+          <div class="mode-label">Recording analysis</div>
+          <div class="tempo">128</div>
+          <div class="tempo-unit">BPM</div>
+          <p class="faint">Confidence 92%</p>
+          <p class="faint">Microphone recording</p>
+          <div class="btn btn-signal" style="width: 100%; margin-top: 6px">Share BPM</div>
         </div>
         <div class="card">
           <h2>Record &amp; analyze</h2>
-          <p class="chip"><span class="dot"></span> Ready for another take</p>
+          <p>Capture at least a few bars, then stop to read the tempo.</p>
           <div class="btn btn-primary">Start recording</div>
+        </div>
+      </div>
+      <nav class="nav">
+        <div class="nav-item active"><span class="nav-icon"></span>Analyze</div>
+        <div class="nav-item"><span class="nav-icon"></span>Tap</div>
+        <div class="nav-item"><span class="nav-icon"></span>Metronome</div>
+      </nav>
+    </section>
+
+    <section class="screen screen-recording">
+      <div class="top-bar">BPM Techno <span class="muted">options</span></div>
+      <div class="content">
+        <div>
+          <h1 class="headline">Native tempo tools</h1>
+          <p class="lede">
+            Record a clip or open a track. Analysis uses the same Realtime BPM Analyzer engine as the web app.
+          </p>
+        </div>
+        <div class="card">
+          <h2>Record &amp; analyze</h2>
+          <p>Capture at least a few bars, then stop to read the tempo.</p>
+          <div class="tempo-sm">0:18</div>
+          <div class="row">
+            <div class="btn btn-primary">Stop &amp; analyze</div>
+            <div class="btn btn-secondary">Cancel</div>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Analyze a file</h2>
+          <p>MP3, WAV, M4A, AAC, FLAC, and OGG are supported.</p>
+          <div class="btn btn-secondary" style="opacity: 0.45">Choose audio file</div>
         </div>
       </div>
       <nav class="nav">
@@ -394,7 +442,7 @@
 
     <section class="screen screen-tap">
       <div class="top-bar">Tap tempo</div>
-      <div class="content center" style="justify-content: center; gap: 28px">
+      <div class="content center" style="gap: 20px">
         <div>
           <div class="tempo">128</div>
           <div class="tempo-unit">BPM</div>
@@ -415,7 +463,7 @@
 
     <section class="screen screen-metronome">
       <div class="top-bar">Metronome</div>
-      <div class="content center" style="justify-content: center; gap: 24px">
+      <div class="content center" style="gap: 18px">
         <div>
           <div class="tempo">128</div>
           <div class="tempo-unit">BPM</div>
@@ -426,12 +474,12 @@
           <span class="beat"></span>
           <span class="beat"></span>
         </div>
-        <div class="slider" style="width: 100%"></div>
+        <div class="slider"></div>
         <div class="row" style="width: 100%; align-items: center">
-          <div class="btn btn-secondary" style="flex: 1.4">128</div>
-          <div class="btn btn-secondary" style="flex: 0.5">−</div>
-          <div style="width: 48px; color: var(--text-muted)">4/4</div>
-          <div class="btn btn-secondary" style="flex: 0.5">+</div>
+          <div class="btn btn-secondary" style="flex: 1.5">128</div>
+          <div class="btn btn-secondary" style="flex: 0.45">−</div>
+          <div style="width: 40px; color: var(--text-muted); font-size: 14px">4/4</div>
+          <div class="btn btn-secondary" style="flex: 0.45">+</div>
         </div>
         <div class="btn btn-primary" style="width: 100%">Start</div>
       </div>
@@ -439,34 +487,6 @@
         <div class="nav-item"><span class="nav-icon"></span>Analyze</div>
         <div class="nav-item"><span class="nav-icon"></span>Tap</div>
         <div class="nav-item active"><span class="nav-icon"></span>Metronome</div>
-      </nav>
-    </section>
-
-    <section class="screen screen-privacy">
-      <div class="top-bar">BPM Techno <span class="muted">Privacy</span></div>
-      <div class="content">
-        <p class="eyebrow">On-device only</p>
-        <h1 class="headline">Audio stays on this device</h1>
-        <p class="lede">
-          Recordings and file imports are decoded locally with Realtime BPM Analyzer for Java/Kotlin.
-        </p>
-        <div class="card">
-          <h2>What leaves the phone</h2>
-          <p>Nothing from your mic clip or chosen audio file. Optional share text is yours to send.</p>
-        </div>
-        <div class="card">
-          <h2>Permissions</h2>
-          <p>Microphone access is only used while you record. Deny it anytime in system settings.</p>
-        </div>
-        <p class="privacy">
-          Same engine as bpmtech.no, rebuilt as a native Compose app for Play updates under
-          package <strong>no.bpmtech.twa</strong>.
-        </p>
-      </div>
-      <nav class="nav">
-        <div class="nav-item active"><span class="nav-icon"></span>Analyze</div>
-        <div class="nav-item"><span class="nav-icon"></span>Tap</div>
-        <div class="nav-item"><span class="nav-icon"></span>Metronome</div>
       </nav>
     </section>
   </body>

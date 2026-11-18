@@ -131,7 +131,7 @@ Each device family contains 5 native-app screenshots:
 2. Analyze result
 3. Tap tempo
 4. Metronome
-5. On-device privacy
+5. Recording in progress
 
 Google Play accepts 2 to 8 per supported family. Use JPEG or opaque 24-bit PNG,
 keep every side between 320 and 3840 pixels, keep the aspect ratio between 2:1
