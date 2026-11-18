@@ -3,6 +3,8 @@
 This directory is the source of truth for regenerating BPM Techno store
 listings. Keep all generated files in their existing store-specific folders.
 
+Release overview (all four surfaces): [`../STORE_RELEASES.md`](../STORE_RELEASES.md).
+
 ## Regenerate everything
 
 ```powershell
@@ -17,17 +19,20 @@ npm run store-assets:microsoft
 npm run store-assets:app-store
 ```
 
-Microsoft and Apple screenshot generators capture the current production web
-experience from `https://bpmtech.no`. Google Play screenshots are generated from
-native Compose mockups in `google-play/source/native-phone-screens.html` so the
-Play listing matches the Kotlin app, not the TWA/web shell. Review generated
-screenshots whenever the product UI, navigation, or copy changes.
+Microsoft Store screenshots capture the production web experience from
+`https://bpmtech.no`. Apple and Google Play screenshots are generated from
+native comps (`apple-app-store/source/native-screens.html` and
+`google-play/source/native-phone-screens.html`) so those listings match the
+SwiftUI / Kotlin apps. Review generated screenshots whenever the product UI,
+navigation, or copy changes.
 
 ## Microsoft Store
 
 All Microsoft Store images must be PNG and smaller than 50 MB.
 
 Release playbook: [`../MICROSOFT_STORE_RELEASE.md`](../MICROSOFT_STORE_RELEASE.md)
+
+Web host playbook (PWA source): [`../WEB_RELEASE.md`](../WEB_RELEASE.md)
 
 Package identity: `microsoft-store/package-identity.json`
 
@@ -196,15 +201,21 @@ App Store Connect accepts 1 to 10 screenshots per supported device family and
 scales the largest current master size for smaller displays. Use PNG, JPEG, or
 JPG without transparency.
 
-The current images are generated from the production web experience. Recapture
-from the final iOS/iPadOS build if its safe areas, system bars, navigation, or
-permission UI differ visibly.
+Screenshots are generated from native SwiftUI comps in
+`apple-app-store/source/native-screens.html` (not the production website).
+Prefer replacing comps with TestFlight / device captures when system chrome
+must match the shipped binary exactly.
 
 Apple Watch, Apple TV, Apple Vision Pro, and macOS assets are not generated
 because those platforms are not currently targeted.
 
 Generator:
 `../scripts/generate-apple-app-store-assets.mjs`
+
+Release playbook: [`../APP_STORE_LAUNCH.md`](../APP_STORE_LAUNCH.md)
+
+Readiness gate:
+`npm run app-store:check`
 
 Official references:
 

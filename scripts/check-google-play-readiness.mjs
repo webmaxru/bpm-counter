@@ -11,6 +11,7 @@ const failures = [];
 const warnings = [];
 
 const requiredRelativePaths = [
+  'STORE_RELEASES.md',
   'PLAY_STORE_RELEASE.md',
   '.github/workflows/android-release.yml',
   '.github/workflows/android-ci.yml',
@@ -260,6 +261,19 @@ if (playReleaseNotes === null) {
 } else if (playReleaseNotes.trim() !== releaseNotes.trim()) {
   failures.push(
     'android/play-whatsnew/whatsnew-en-US does not match android/release-notes-v4.txt.',
+  );
+}
+
+const releaseWorkflow = await readFile(
+  path.join(repositoryRoot, '.github/workflows/android-release.yml'),
+  'utf8',
+).catch(() => '');
+if (!releaseWorkflow.includes('workflow_dispatch')) {
+  failures.push('android-release.yml is missing workflow_dispatch.');
+}
+if (!releaseWorkflow.includes('android-v*')) {
+  failures.push(
+    'android-release.yml must trigger on android-v* tags, not bare package v* tags.',
   );
 }
 

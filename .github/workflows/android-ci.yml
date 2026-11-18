@@ -9,6 +9,8 @@ on:
       - "scripts/generate-google-play-assets.mjs"
       - "store-assets/google-play/**"
       - "PLAY_STORE_RELEASE.md"
+      - "STORE_RELEASES.md"
+      - "ANDROID.md"
       - "package.json"
       - "public/.well-known/assetlinks.json"
       - ".github/workflows/android-ci.yml"
@@ -22,6 +24,8 @@ on:
       - "scripts/generate-google-play-assets.mjs"
       - "store-assets/google-play/**"
       - "PLAY_STORE_RELEASE.md"
+      - "STORE_RELEASES.md"
+      - "ANDROID.md"
       - "package.json"
       - "public/.well-known/assetlinks.json"
       - ".github/workflows/android-ci.yml"
@@ -43,7 +47,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
+          cache: npm
       - name: Verify Android project structure
         run: npm run android:verify
 
@@ -55,7 +60,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
+          cache: npm
       - name: Check Play readiness
         run: npm run google-play:check
 

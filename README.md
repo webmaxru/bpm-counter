@@ -14,6 +14,14 @@ This is a 3-in-1 project:
 
 [BPMTech.no](https://bpmtech.no) - Free Online Real-Time BPM Counter for DJ
 
+### Distribution surfaces
+
+BPM Techno ships on four independent surfaces. Start here for create / update
+playbooks, secrets, and how to trigger each release pipeline:
+
+**[`STORE_RELEASES.md`](STORE_RELEASES.md)** — Web (Azure SWA), Microsoft Store,
+Apple App Store, Google Play.
+
 ### Video demo
 
 [<img src="https://img.youtube.com/vi/o9BIK5QENJU/maxresdefault.jpg" width="300">](https://youtu.be/o9BIK5QENJU)

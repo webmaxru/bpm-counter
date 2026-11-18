@@ -183,7 +183,7 @@ These values must not be copied unchanged to another app:
 | App Store provisioning profile | `BPM Techno provisioning profile` |
 | Repository variable | `IOS_BUNDLE_ID=no.bpmtech.app` |
 | App Store categories | Music, Utilities |
-| Version | `3.0.0` |
+| Version | `4.0.0` |
 | Xcode project | `ios/App/App.xcodeproj` |
 | Xcode scheme | `App` |
 | App-specific native metadata | Microphone permission and BPM Techno display name |

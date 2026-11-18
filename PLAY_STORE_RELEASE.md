@@ -1,23 +1,118 @@
 # Google Play release playbook
 
-Goal: ship the **native Kotlin Compose** BPM Techno app (`no.bpmtech.twa`)
-version **4.0.0** (versionCode **4**) to Google Play as fast as a signed AAB and
-listing assets allow.
+Index of all surfaces: [`STORE_RELEASES.md`](STORE_RELEASES.md).
 
-This updates the existing Play listing (same package ID as the old TWA). Ordinary
-website deploys to `https://bpmtech.no` do **not** update the native Play app.
+Native app technical notes: [`ANDROID.md`](ANDROID.md).
 
-## Status of checked-in work
+## Purpose
 
-| Area | Status |
+Ship the **native Kotlin Compose** BPM Techno app to Google Play. Website
+deploys to `https://bpmtech.no` do **not** update this binary. The package ID
+matches the historical TWA listing so updates go to the same Play product.
+
+## Identity
+
+| Item | Value |
 | --- | --- |
-| Package ID `no.bpmtech.twa` | Existing Play listing |
-| Native app version `4.0.0` / code `4` | In `android/app/build.gradle` |
-| Listing copy + handoff | `store-assets/google-play/` |
-| Native screenshot + graphic generator | `npm run store-assets:google-play` |
-| Readiness gate | `npm run google-play:check` |
-| Signed AAB + optional Play upload | `.github/workflows/android-release.yml` |
-| Upload keystore / Play API secrets | **Must be configured by you** |
+| Play package ID | `no.bpmtech.twa` |
+| Version name | `4.0.0` |
+| Version code | `4` |
+| `minSdk` / `targetSdk` | 24 / 36 |
+| CI | `.github/workflows/android-ci.yml` |
+| Release | `.github/workflows/android-release.yml` |
+
+## Create from scratch
+
+1. Create a Play Console developer account and a new application.
+2. Reserve package ID `no.bpmtech.twa` (or change the Gradle applicationId and
+   all Asset Links if you intentionally fork the identity).
+3. Enable **Play App Signing**.
+4. Create an upload keystore; back it up offline (never commit it).
+5. Create a Google Cloud service account with Play Console release access and
+   download its JSON key.
+6. Complete store listing, content rating, Data Safety, and privacy policy URL
+   (`https://bpmtech.no/privacy`) using files under `store-assets/google-play/`.
+7. Configure GitHub secrets (below).
+8. Build a signed AAB and upload to the **internal** testing track first.
+
+For **this** product the Play listing already exists — use
+[Update existing / draft](#update-existing--draft).
+
+## Update existing / draft
+
+1. Confirm the upload-key SHA-256 still matches **Play Console → App integrity →
+   Upload key certificate**. Request an upload-key reset only if the key is
+   lost; do not change the package ID.
+2. Bump `versionName` / `versionCode` in `android/app/build.gradle` when
+   shipping a new binary.
+3. Refresh listing graphics if the UI changed:
+   `npm run store-assets:google-play`.
+4. Dispatch **Android Play Store Release** (or push `android-vX.Y.Z`).
+5. Prefer `track=internal`, `status=draft` for the first automated upload, then
+   promote in Play Console after device smoke tests.
+6. Update screenshots, release notes, and Data Safety if the answers changed.
+
+## Trigger the release pipeline
+
+| Method | Details |
+| --- | --- |
+| **workflow_dispatch** | Actions → **Android Play Store Release** |
+| Tag | `git tag android-v4.0.0 && git push origin android-v4.0.0` |
+
+Dispatch inputs:
+
+| Input | Typical first run |
+| --- | --- |
+| `track` | `internal` |
+| `upload_to_play` | `false` until secrets work; then `true` |
+| `status` | `draft` |
+| `regenerate_assets` | `false` if assets are already committed |
+
+Tag pushes build and optionally upload using defaults equivalent to
+`track=internal`, `upload_to_play=false`, `status=draft` unless you re-run with
+dispatch. Prefer dispatch when you need production upload.
+
+Local signed bundle alternative:
+
+```shell
+export ANDROID_KEYSTORE_FILE=/absolute/path/to/upload-keystore.jks
+export ANDROID_KEYSTORE_PASSWORD=...
+export ANDROID_KEY_ALIAS=...
+export ANDROID_KEY_PASSWORD=...
+npm run android:bundle
+```
+
+## Required secrets and variables
+
+| Name | Purpose |
+| --- | --- |
+| `ANDROID_KEYSTORE_BASE64` | Base64 of the upload-key `.jks` / `.keystore` |
+| `ANDROID_KEYSTORE_PASSWORD` | Keystore password |
+| `ANDROID_KEY_ALIAS` | Key alias |
+| `ANDROID_KEY_PASSWORD` | Key password |
+| `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON` | Play Developer API service account JSON (upload only) |
+
+Encode the keystore locally (do not commit it):
+
+```shell
+base64 -w0 upload-keystore.jks > upload-keystore.b64
+```
+
+Signing secrets stay step-scoped so ordinary Android CI never sees them.
+
+## Asset locations
+
+| Asset | Path |
+| --- | --- |
+| Listing copy | `store-assets/google-play/listing-en-US.txt` |
+| Console handoff | `store-assets/google-play/play-console-submission.txt` |
+| Package identity | `store-assets/google-play/package-identity.json` |
+| App icon 512 | `store-assets/google-play/graphics/app-icon-512x512.png` |
+| Feature graphic | `store-assets/google-play/graphics/feature-graphic-1024x500.png` |
+| Screenshots | `store-assets/google-play/screenshots/{phone,tablet-7-inch,tablet-10-inch,chromebook}/` |
+| Release notes | `android/release-notes-v4.txt` |
+| Play what’s new dir | `android/play-whatsnew/` |
+| Asset Links (web) | `public/.well-known/assetlinks.json` |
 
 ## Pipeline map
 
@@ -28,10 +123,10 @@ npm run store-assets:google-play
 npm run google-play:check
         │
         ▼
-GitHub Actions: Android Play Store Release
+android-release.yml
         │
-        ├─ decode upload keystore from ANDROID_KEYSTORE_BASE64
-        ├─ ./gradlew :app:bundleRelease  (signed)
+        ├─ decode upload keystore
+        ├─ ./gradlew :app:bundleRelease
         ├─ upload AAB + listing artifacts
         │
         └─ optional: r0adkll/upload-google-play
@@ -40,129 +135,15 @@ GitHub Actions: Android Play Store Release
                               │
                               ▼
                      Play Console review / rollout
-                              │
-                              ▼
-                     Upload/confirm listing screenshots + Data Safety
 ```
 
-Signing and Play API secrets stay step-scoped so ordinary CI jobs never see them.
-
-## 1. Play Console prerequisites (you)
-
-1. Open [Google Play Console](https://play.google.com/console) → app
-   **Realtime BPM Counter for DJs** (`no.bpmtech.twa`).
-2. Confirm **Play App Signing** is enabled (almost always on for existing apps).
-3. Keep or create an **upload key** keystore used only to sign AABs you upload.
-4. Create a **Google Cloud service account** with Play Console access:
-   - Play Console → Users and permissions → Invite user → service account
-   - Role: **Release to production, exclude devices, and use Play App Signing**
-     (or at least release to testing tracks while you validate)
-5. Download the service account JSON key.
-
-## 2. GitHub secrets
-
-In the repository that will run releases (upstream `webmaxru/bpm-counter`
-and/or your fork), add:
-
-| Name | Purpose |
-| --- | --- |
-| `ANDROID_KEYSTORE_BASE64` | Base64 of the upload-key `.jks` / `.keystore` |
-| `ANDROID_KEYSTORE_PASSWORD` | Keystore password |
-| `ANDROID_KEY_ALIAS` | Key alias |
-| `ANDROID_KEY_PASSWORD` | Key password |
-| `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON` | Raw JSON for the Play Developer API service account |
-
-Encode the keystore locally (do not commit it):
-
-```shell
-base64 -w0 upload-keystore.jks > upload-keystore.b64
-```
-
-Paste the single-line contents into `ANDROID_KEYSTORE_BASE64`.
-
-## 3. Regenerate listing assets
+## Local checks
 
 ```shell
 npm ci
-npx playwright install chromium
+npx playwright install chromium   # only if regenerating screenshots
 npm run store-assets:google-play
 npm run google-play:check
+npm run android:verify
+npm run google-play:release:check
 ```
-
-This refreshes:
-
-- `store-assets/google-play/graphics/` (icon + feature graphic)
-- `store-assets/google-play/screenshots/{phone,tablet-7-inch,tablet-10-inch,chromebook}/`
-  from native Compose mockups in
-  `store-assets/google-play/source/native-phone-screens.html`
-
-Review the PNGs before submission. Commit them when the UI is the version you
-will ship.
-
-## 4. Ship a release build
-
-### Option A — GitHub Actions (preferred)
-
-1. Merge this branch to the repo that holds the secrets.
-2. Actions → **Android Play Store Release** → Run workflow.
-3. Recommended first run:
-   - `track`: `internal`
-   - `upload_to_play`: `true` once secrets exist (or `false` to only build artifacts)
-   - `status`: `draft`
-   - `regenerate_assets`: `false` if assets are already committed
-4. Download the AAB artifact if you need a manual Console upload.
-
-### Option B — local signed bundle
-
-```shell
-export ANDROID_KEYSTORE_FILE=/absolute/path/to/upload-keystore.jks
-export ANDROID_KEYSTORE_PASSWORD=...
-export ANDROID_KEY_ALIAS=...
-export ANDROID_KEY_PASSWORD=...
-npm run android:bundle
-```
-
-Upload `android/app/build/outputs/bundle/release/app-release.aab` in Play Console.
-
-## 5. Console listing checklist (same day)
-
-Paste / upload from the repo:
-
-| Console field | Source |
-| --- | --- |
-| Short description | `store-assets/google-play/listing-en-US.txt` |
-| Full description | same |
-| Release notes | `android/release-notes-v4.txt` |
-| App icon 512 | `store-assets/google-play/graphics/app-icon-512x512.png` |
-| Feature graphic | `store-assets/google-play/graphics/feature-graphic-1024x500.png` |
-| Phone screenshots | `store-assets/google-play/screenshots/phone/` |
-| Tablet screenshots | `.../tablet-7-inch/` and `.../tablet-10-inch/` |
-| Data Safety / ads answers | `store-assets/google-play/play-console-submission.txt` |
-
-Also confirm:
-
-- Privacy policy URL `https://bpmtech.no/privacy`
-- Content rating questionnaire still valid for Music & Audio
-- Target API 36 / policy declarations for the new native binary
-- Digital Asset Links fingerprint matches Play App Signing cert in
-  `public/.well-known/assetlinks.json`
-
-## 6. Recommended rollout order
-
-1. **Internal testing** track with the signed 4.0.0 AAB
-2. Install from the internal track on a physical device; exercise record, file,
-   tap, metronome, deny-mic
-3. Promote to **closed/open testing** if you want wider coverage
-4. Promote to **production** (staged 20% → 100% if you prefer caution)
-
-## 7. Fastest path if secrets are not ready today
-
-1. Run **Android Play Store Release** with `upload_to_play=false` after adding
-   only the four keystore secrets — or sign locally.
-2. Manually upload the AAB in Play Console → Testing → Internal testing.
-3. Upload the regenerated screenshots + feature graphic from the workflow
-   listing-assets artifact.
-4. Submit for review.
-
-Automated Play upload can be turned on later with
-`GOOGLE_PLAY_SERVICE_ACCOUNT_JSON` and `upload_to_play=true`.

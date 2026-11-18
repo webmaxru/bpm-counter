@@ -1,5 +1,7 @@
 # iOS and TestFlight release
 
+All four surfaces: [`STORE_RELEASES.md`](STORE_RELEASES.md).
+
 For the end-to-end App Store launch checklist (secrets, ASC record, assets,
 TestFlight, submit), see [`APP_STORE_LAUNCH.md`](APP_STORE_LAUNCH.md).
 

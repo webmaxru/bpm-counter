@@ -1,23 +1,64 @@
 name: Azure Static Web Apps CI/CD
 
+# Web surface only. Native/store-only path changes do not redeploy bpmtech.no.
+# See STORE_RELEASES.md and WEB_RELEASE.md.
 on:
   push:
     branches:
       - main
+    paths-ignore:
+      - "android/**"
+      - "ios/**"
+      - "store-assets/**"
+      - "ANDROID.md"
+      - "IOS_RELEASE.md"
+      - "APP_STORE_LAUNCH.md"
+      - "APPLE_APP_STORE_REUSE.md"
+      - "PLAY_STORE_RELEASE.md"
+      - "MICROSOFT_STORE_RELEASE.md"
+      - "STORE_RELEASES.md"
+      - "WEB_RELEASE.md"
+      - ".github/workflows/android-*.yml"
+      - ".github/workflows/ios-*.yml"
+      - ".github/workflows/microsoft-store-*.yml"
   pull_request:
     types: [opened, synchronize, reopened, closed]
     branches:
       - main
+    paths-ignore:
+      - "android/**"
+      - "ios/**"
+      - "store-assets/**"
+      - "ANDROID.md"
+      - "IOS_RELEASE.md"
+      - "APP_STORE_LAUNCH.md"
+      - "APPLE_APP_STORE_REUSE.md"
+      - "PLAY_STORE_RELEASE.md"
+      - "MICROSOFT_STORE_RELEASE.md"
+      - "STORE_RELEASES.md"
+      - "WEB_RELEASE.md"
+      - ".github/workflows/android-*.yml"
+      - ".github/workflows/ios-*.yml"
+      - ".github/workflows/microsoft-store-*.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: azure-swa-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   # Fork pull requests do not receive the deployment token, so preview
   # environments are only created for branches in this repository.
   build_and_deploy_job:
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed' && github.event.pull_request.head.repo.full_name == github.repository)
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed' && github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
     name: Build and Deploy Job
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           submodules: true
       - name: Build And Deploy

@@ -11,6 +11,7 @@ const failures = [];
 const warnings = [];
 
 const requiredRelativePaths = [
+  'STORE_RELEASES.md',
   'IOS_RELEASE.md',
   'APPLE_APP_STORE_REUSE.md',
   'APP_STORE_LAUNCH.md',
