@@ -78,8 +78,18 @@ fun AnalyzeScreen() {
     val captureState by capture.state.collectAsState()
     val elapsed by capture.elapsedSeconds.collectAsState()
 
-    DisposableEffect(Unit) {
-        onDispose { capture.cancel() }
+    val lifecycle = androidx.lifecycle.compose.LocalLifecycleOwner.current.lifecycle
+    DisposableEffect(lifecycle, capture) {
+        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+            if (event == androidx.lifecycle.Lifecycle.Event.ON_STOP) {
+                capture.cancel()
+            }
+        }
+        lifecycle.addObserver(observer)
+        onDispose {
+            lifecycle.removeObserver(observer)
+            capture.cancel()
+        }
     }
 
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -204,10 +214,10 @@ fun AnalyzeScreen() {
                             text = "Stop & analyze",
                             onClick = {
                                 scope.launch {
-                                    val audio = capture.stopRecording() ?: return@launch
                                     isAnalyzing = true
                                     errorMessage = null
                                     try {
+                                        val audio = capture.stopRecording() ?: return@launch
                                         result = analyzer.analyzeSamples(
                                             samples = audio.samples,
                                             sampleRate = audio.sampleRate,
@@ -280,7 +290,7 @@ fun AnalyzeScreen() {
                         errorMessage = null
                         fileLauncher.launch(arrayOf("audio/*"))
                     },
-                    enabled = !isAnalyzing && !capture.isRecording,
+                    enabled = !isAnalyzing && captureState !is AudioCaptureService.State.Recording,
                     modifier = Modifier.fillMaxWidth(),
                 )
             }

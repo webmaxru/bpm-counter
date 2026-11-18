@@ -163,21 +163,27 @@ fun MetronomeScreen() {
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp),
                 )
-                SecondaryButton(
-                    text = "−",
+                androidx.compose.material3.IconButton(
                     onClick = { metronome.setBeatsPerBar(beatsPerBar - 1) },
-                    modifier = Modifier.width(56.dp),
-                )
+                    modifier = Modifier.width(56.dp).semantics {
+                        contentDescription = "Fewer beats per bar"
+                    },
+                ) {
+                    Text("−", color = BpmColors.Text)
+                }
                 Text(
                     text = "$beatsPerBar/4",
                     color = BpmColors.TextMuted,
                     modifier = Modifier.width(48.dp),
                 )
-                SecondaryButton(
-                    text = "+",
+                androidx.compose.material3.IconButton(
                     onClick = { metronome.setBeatsPerBar(beatsPerBar + 1) },
-                    modifier = Modifier.width(56.dp),
-                )
+                    modifier = Modifier.width(56.dp).semantics {
+                        contentDescription = "More beats per bar"
+                    },
+                ) {
+                    Text("+", color = BpmColors.Text)
+                }
             }
 
             if (isRunning) {

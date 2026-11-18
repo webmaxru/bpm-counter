@@ -35,7 +35,9 @@ class MetronomeEngine(
     private var toneGenerator: ToneGenerator? = null
 
     fun setBpm(value: Double) {
-        _bpm.value = clamp(value)
+        if (value.isFinite()) {
+            _bpm.value = clamp(value)
+        }
     }
 
     fun setBeatsPerBar(value: Int) {
@@ -50,16 +52,15 @@ class MetronomeEngine(
         _isRunning.value = true
 
         tickJob = scope.launch {
-            var nextAt = SystemClock.elapsedRealtime()
+            var nextAtNanos = SystemClock.elapsedRealtimeNanos()
             while (isActive && _isRunning.value) {
                 tick()
-                val intervalMs = (60_000.0 / clamp(_bpm.value)).toLong().coerceAtLeast(1L)
-                nextAt += intervalMs
-                val delayMs = nextAt - SystemClock.elapsedRealtime()
-                if (delayMs > 0) {
-                    delay(delayMs)
+                nextAtNanos += (60_000_000_000.0 / clamp(_bpm.value)).toLong()
+                val remainingNanos = nextAtNanos - SystemClock.elapsedRealtimeNanos()
+                if (remainingNanos > 0L) {
+                    delay(remainingNanos / 1_000_000L)
                 } else {
-                    nextAt = SystemClock.elapsedRealtime()
+                    nextAtNanos = SystemClock.elapsedRealtimeNanos()
                 }
             }
         }
