@@ -1,0 +1,95 @@
+MICROSOFT PARTNER CENTER SUBMISSION HANDOFF
+
+STORE PRODUCT
+
+Store ID: 9NQ4M5SC9PQ9
+Reserved product name: Live BPM Counter
+Package ID: 47782MaximSalnikov.BPMTechno
+Package family name: 47782MaximSalnikov.BPMTechno_bsych0fjq9pft
+Publisher display name: Maxim Salnikov
+Publisher ID: REQUIRED - copy CN=... from Partner Center → Product management → Product Identity
+Current live packages observed in catalog: 1.0.1.0 (classic) and 2.0.1.0 (modern)
+Suggested next package versions: classic 2.1.0.0 / modern 3.0.0.0
+
+
+URLS
+
+Website / start URL: https://bpmtech.no
+Web app manifest: https://bpmtech.no/manifest.webmanifest
+Privacy policy: https://bpmtech.no/privacy.html
+Support email: salnikov@gmail.com
+Public Store listing: https://apps.microsoft.com/detail/9NQ4M5SC9PQ9
+
+
+LISTING COPY SOURCE
+
+Use store-assets/microsoft-store/listing-en-US.txt for:
+- Short title
+- Short description
+- Description
+- What's new
+- Product features
+- Search terms
+- Screenshot captions
+
+Keep the reserved product title "Live BPM Counter" unless you reserve a different name in Partner Center.
+
+
+GRAPHICS TO UPLOAD
+
+Branding (store-assets/microsoft-store/branding/):
+- Poster art 720x1080 and 1440x2160
+- Box art 1080x1080 and 2160x2160
+- App tile icon 300x300
+- Store logos 150x150 and 71x71
+- Super hero art 1920x1080 and 3840x2160 (no product title)
+- Xbox branded key art, titled hero art, featured promotional square
+
+Screenshots (store-assets/microsoft-store/screenshots/desktop/):
+- 01-live-bpm-counter.png
+- 02-audio-url-analyzer.png
+- 03-tap-tempo.png
+- 04-bpm-to-milliseconds.png
+- 05-half-double-time.png
+
+
+PACKAGES
+
+Generate with:
+
+  export MS_STORE_PUBLISHER_ID="CN=..."
+  npm run microsoft-store:package
+
+Or dispatch the GitHub Actions workflow "Microsoft Store Release".
+
+Upload both packages from the generated zip:
+- *.msixbundle (modern / Edge hosted app)
+- *.classic.appxbundle (older Windows)
+
+Do not upload the *.sideload.msix package to Partner Center.
+
+
+CERTIFICATION NOTES
+
+- This is a Hosted Web App / PWA package created by PWABuilder.
+- If Partner Center warns about full trust or restricted capabilities, reply:
+  "Needed for PWA Hosted App model, created by pwabuilder.com"
+- Live microphone audio is processed on-device and is not uploaded by BPM Techno.
+- Remote audio URLs are fetched only when the user supplies them.
+- The app may show affiliate recommendations and advertising on the website experience.
+- Age rating: keep the existing ESRB Everyone / IARC mapping already associated with the listing.
+
+
+GITHUB ACTIONS SECRETS REQUIRED FOR AUTOMATED PUBLISH
+
+- MS_STORE_PUBLISHER_ID (needed for packaging; scoped only to verify/package steps)
+- AZURE_AD_TENANT_ID
+- AZURE_AD_APPLICATION_CLIENT_ID
+- AZURE_AD_APPLICATION_SECRET
+- SELLER_ID
+
+Automated publish attaches both bundles to one Partner Center submission
+(preserving an existing draft when present), uploads them in a single zip, and
+commits once. It does not call `msstore publish` separately per package.
+
+See MICROSOFT_STORE_RELEASE.md for the full ordered checklist.

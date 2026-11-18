@@ -76,3 +76,6 @@ test-*.png
 
 # Local environment values (CI uses repository secrets)
 .env
+
+# Microsoft Store generated packages (download from Actions or regenerate locally)
+store-assets/microsoft-store/packages/

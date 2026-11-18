@@ -1,0 +1,20 @@
+{
+  "storeProductId": "9NQ4M5SC9PQ9",
+  "packageId": "47782MaximSalnikov.BPMTechno",
+  "packageFamilyName": "47782MaximSalnikov.BPMTechno_bsych0fjq9pft",
+  "publisherDisplayName": "Maxim Salnikov",
+  "applicationId": "App",
+  "reservedProductName": "Live BPM Counter",
+  "url": "https://bpmtech.no",
+  "manifestUrl": "https://bpmtech.no/manifest.webmanifest",
+  "privacyUrl": "https://bpmtech.no/privacy.html",
+  "supportEmail": "salnikov@gmail.com",
+  "defaultModernVersion": "3.0.0.0",
+  "defaultClassicVersion": "2.1.0.0",
+  "publisherIdEnv": "MS_STORE_PUBLISHER_ID",
+  "notes": [
+    "Publisher ID (CN=...) comes from Partner Center → Product management → Product Identity.",
+    "Set it as GitHub Actions secret MS_STORE_PUBLISHER_ID or export MS_STORE_PUBLISHER_ID locally before packaging.",
+    "Classic package version must stay strictly lower than the modern package version."
+  ]
+}

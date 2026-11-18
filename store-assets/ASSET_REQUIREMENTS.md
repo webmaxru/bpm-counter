@@ -25,13 +25,32 @@ layout, navigation, copy, or monetization changes.
 
 All Microsoft Store images must be PNG and smaller than 50 MB.
 
+Release playbook: [`../MICROSOFT_STORE_RELEASE.md`](../MICROSOFT_STORE_RELEASE.md)
+
+Package identity: `microsoft-store/package-identity.json`
+
+Readiness / packaging:
+
+```shell
+npm run microsoft-store:check
+MS_STORE_PUBLISHER_ID="CN=..." npm run microsoft-store:package
+```
+
 ### Screenshots
 
 Folder: `microsoft-store/screenshots/desktop/`
 
+Generated from production with the shared screenshot capture helper. Current set:
+
+- `01-live-bpm-counter.png`
+- `02-audio-url-analyzer.png`
+- `03-tap-tempo.png`
+- `04-bpm-to-milliseconds.png`
+- `05-half-double-time.png`
+
 | Asset | Requirement |
 |---|---|
-| Desktop screenshots | At least 1; 4 recommended |
+| Desktop screenshots | At least 1; 5 generated |
 | Dimensions | 1366 x 768 or larger; up to 3840 x 2160 |
 | Orientation | Landscape or portrait |
 | Maximum | 30 files in the current Partner Center UI |

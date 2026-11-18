@@ -1,0 +1,285 @@
+name: Microsoft Store Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      modern_version:
+        description: Modern MSIX package version (four-part)
+        required: true
+        default: "3.0.0.0"
+        type: string
+      classic_version:
+        description: Classic APPX package version (must be lower than modern)
+        required: true
+        default: "2.1.0.0"
+        type: string
+      regenerate_assets:
+        description: Regenerate branding and desktop screenshots from production before packaging
+        required: true
+        default: true
+        type: boolean
+      publish_to_store:
+        description: Publish generated packages to Partner Center with msstore CLI
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: microsoft-store-release
+  cancel-in-progress: false
+
+jobs:
+  package:
+    name: Package PWA for Microsoft Store
+    runs-on: windows-latest
+    timeout-minutes: 45
+    env:
+      MS_STORE_MODERN_VERSION: ${{ inputs.modern_version }}
+      MS_STORE_CLASSIC_VERSION: ${{ inputs.classic_version }}
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browser
+        if: inputs.regenerate_assets
+        run: npx playwright install chromium
+
+      - name: Regenerate Microsoft Store assets
+        if: inputs.regenerate_assets
+        run: npm run store-assets:microsoft
+
+      - name: Verify Store readiness
+        run: npm run microsoft-store:check
+
+      - name: Verify packaging inputs
+        shell: bash
+        env:
+          MS_STORE_PUBLISHER_ID: ${{ secrets.MS_STORE_PUBLISHER_ID }}
+          PUBLISH_TO_STORE: ${{ inputs.publish_to_store }}
+          AZURE_AD_TENANT_ID: ${{ secrets.AZURE_AD_TENANT_ID }}
+          AZURE_AD_APPLICATION_CLIENT_ID: ${{ secrets.AZURE_AD_APPLICATION_CLIENT_ID }}
+          AZURE_AD_APPLICATION_SECRET: ${{ secrets.AZURE_AD_APPLICATION_SECRET }}
+          SELLER_ID: ${{ secrets.SELLER_ID }}
+        run: |
+          if [[ -z "$MS_STORE_PUBLISHER_ID" ]]; then
+            echo "::error::MS_STORE_PUBLISHER_ID secret is not configured."
+            exit 1
+          fi
+
+          if [[ "$PUBLISH_TO_STORE" == "true" ]]; then
+            required=(
+              AZURE_AD_TENANT_ID
+              AZURE_AD_APPLICATION_CLIENT_ID
+              AZURE_AD_APPLICATION_SECRET
+              SELLER_ID
+            )
+            for variable in "${required[@]}"; do
+              if [[ -z "${!variable}" ]]; then
+                echo "::error::$variable is required when publish_to_store=true."
+                exit 1
+              fi
+            done
+          fi
+
+      - name: Generate PWABuilder Store packages
+        env:
+          MS_STORE_PUBLISHER_ID: ${{ secrets.MS_STORE_PUBLISHER_ID }}
+        run: npm run microsoft-store:package
+
+      - name: Extract package zip
+        shell: pwsh
+        run: |
+          $zip = Get-ChildItem -Path "store-assets/microsoft-store/packages" -Filter "bpm-techno-msstore-*.zip" |
+            Sort-Object LastWriteTime -Descending |
+            Select-Object -First 1
+          if (-not $zip) {
+            throw "Generated Microsoft Store zip not found."
+          }
+
+          $extractRoot = Join-Path "store-assets/microsoft-store/packages" "extracted"
+          New-Item -ItemType Directory -Force -Path $extractRoot | Out-Null
+          Expand-Archive -Path $zip.FullName -DestinationPath $extractRoot -Force
+
+          $msix = Get-ChildItem -Path $extractRoot -Recurse -Filter "*.msixbundle" |
+            Where-Object { $_.Name -notmatch "sideload" } |
+            Select-Object -First 1
+          $classic = Get-ChildItem -Path $extractRoot -Recurse -Filter "*.classic.appxbundle" |
+            Select-Object -First 1
+          if (-not $classic) {
+            $classic = Get-ChildItem -Path $extractRoot -Recurse -Filter "*.appxbundle" |
+              Where-Object { $_.Name -match "classic" } |
+              Select-Object -First 1
+          }
+
+          if (-not $msix) {
+            throw "Modern .msixbundle was not found inside $($zip.Name)."
+          }
+          if (-not $classic) {
+            throw "Classic .appxbundle was not found inside $($zip.Name)."
+          }
+
+          Write-Host "Modern package: $($msix.FullName)"
+          Write-Host "Classic package: $($classic.FullName)"
+
+          "MS_STORE_MSIX=$($msix.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "MS_STORE_CLASSIC=$($classic.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Upload package artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: bpm-techno-msstore-${{ inputs.modern_version }}-${{ github.run_number }}
+          path: |
+            store-assets/microsoft-store/packages/*.zip
+            store-assets/microsoft-store/packages/pwaAppInfo.json
+            store-assets/microsoft-store/packages/pwabuilder-request-*.json
+            store-assets/microsoft-store/packages/extracted/*.msixbundle
+            store-assets/microsoft-store/packages/extracted/*.classic.appxbundle
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload listing asset artifact
+        if: inputs.regenerate_assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: bpm-techno-msstore-listing-assets-${{ github.run_number }}
+          path: |
+            store-assets/microsoft-store/branding/**
+            store-assets/microsoft-store/screenshots/**
+            store-assets/microsoft-store/listing-en-US.txt
+            store-assets/microsoft-store/partner-center-submission.txt
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Configure Microsoft Store CLI
+        if: inputs.publish_to_store
+        uses: microsoft/microsoft-store-apppublisher@v1.1
+
+      - name: Authenticate Partner Center
+        if: inputs.publish_to_store
+        shell: pwsh
+        env:
+          AZURE_AD_TENANT_ID: ${{ secrets.AZURE_AD_TENANT_ID }}
+          AZURE_AD_APPLICATION_CLIENT_ID: ${{ secrets.AZURE_AD_APPLICATION_CLIENT_ID }}
+          AZURE_AD_APPLICATION_SECRET: ${{ secrets.AZURE_AD_APPLICATION_SECRET }}
+          SELLER_ID: ${{ secrets.SELLER_ID }}
+        run: |
+          msstore reconfigure `
+            --tenantId $env:AZURE_AD_TENANT_ID `
+            --sellerId $env:SELLER_ID `
+            --clientId $env:AZURE_AD_APPLICATION_CLIENT_ID `
+            --clientSecret $env:AZURE_AD_APPLICATION_SECRET
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Publish both packages in one submission
+        if: inputs.publish_to_store
+        shell: pwsh
+        env:
+          AZURE_AD_TENANT_ID: ${{ secrets.AZURE_AD_TENANT_ID }}
+          AZURE_AD_APPLICATION_CLIENT_ID: ${{ secrets.AZURE_AD_APPLICATION_CLIENT_ID }}
+          AZURE_AD_APPLICATION_SECRET: ${{ secrets.AZURE_AD_APPLICATION_SECRET }}
+          SELLER_ID: ${{ secrets.SELLER_ID }}
+        run: |
+          $ErrorActionPreference = "Stop"
+          $productId = "9NQ4M5SC9PQ9"
+          $modernPath = $env:MS_STORE_MSIX
+          $classicPath = $env:MS_STORE_CLASSIC
+
+          if (-not $modernPath -or -not (Test-Path $modernPath)) {
+            throw "Modern package path is missing."
+          }
+          if (-not $classicPath -or -not (Test-Path $classicPath)) {
+            throw "Classic package path is missing."
+          }
+
+          $modernName = [System.IO.Path]::GetFileName($modernPath)
+          $classicName = [System.IO.Path]::GetFileName($classicPath)
+
+          Write-Host "Loading current Partner Center submission for $productId"
+          $submissionRaw = msstore submission get $productId | Out-String
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+          $submission = $submissionRaw | ConvertFrom-Json -Depth 100
+          $status = [string]$submission.Status
+          $preserveDraft = $status -and ($status -ne "Published") -and ($status -ne "None")
+
+          if ($preserveDraft) {
+            Write-Host "Preserving existing draft submission (Status=$status, Id=$($submission.Id))."
+          } else {
+            Write-Host "No pending draft found (Status=$status). Creating a new draft from the published submission metadata."
+            if ($submission.PSObject.Properties["Id"]) {
+              $submission.PSObject.Properties.Remove("Id")
+            }
+          }
+
+          if ($submission.PSObject.Properties["FileUploadUrl"]) {
+            $submission.PSObject.Properties.Remove("FileUploadUrl")
+          }
+
+          if (-not $submission.ApplicationPackages) {
+            $submission | Add-Member -NotePropertyName ApplicationPackages -NotePropertyValue @()
+          }
+
+          foreach ($package in @($submission.ApplicationPackages)) {
+            if ($package.PSObject.Properties["FileStatus"]) {
+              $package.FileStatus = "PendingDelete"
+            } else {
+              $package | Add-Member -NotePropertyName FileStatus -NotePropertyValue "PendingDelete"
+            }
+          }
+
+          $submission.ApplicationPackages += [PSCustomObject]@{
+            FileName = $modernName
+            FileStatus = "PendingUpload"
+            MinimumDirectXVersion = "None"
+            MinimumSystemRam = "None"
+          }
+          $submission.ApplicationPackages += [PSCustomObject]@{
+            FileName = $classicName
+            FileStatus = "PendingUpload"
+            MinimumDirectXVersion = "None"
+            MinimumSystemRam = "None"
+          }
+
+          $updatedJson = $submission | ConvertTo-Json -Depth 100 -Compress
+          Write-Host "Updating submission with both Store bundles in one request"
+          $updatedRaw = msstore submission update $productId $updatedJson | Out-String
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+          $updated = $updatedRaw | ConvertFrom-Json -Depth 100
+          $uploadUrl = [string]$updated.FileUploadUrl
+          if ([string]::IsNullOrWhiteSpace($uploadUrl)) {
+            throw "Partner Center did not return FileUploadUrl for the package upload."
+          }
+
+          $zipPath = Join-Path $env:RUNNER_TEMP "msstore-packages-upload.zip"
+          if (Test-Path $zipPath) { Remove-Item $zipPath -Force }
+          Compress-Archive -Path $modernPath, $classicPath -DestinationPath $zipPath -Force
+
+          Write-Host "Uploading modern + classic packages in one zip"
+          $headers = @{ "x-ms-blob-type" = "BlockBlob" }
+          $uploadResponse = Invoke-WebRequest `
+            -Uri $uploadUrl `
+            -Method Put `
+            -Headers $headers `
+            -InFile $zipPath `
+            -ContentType "application/octet-stream"
+          if ($uploadResponse.StatusCode -ne 200 -and $uploadResponse.StatusCode -ne 201) {
+            throw "Package upload failed with HTTP $($uploadResponse.StatusCode)."
+          }
+
+          Write-Host "Committing the single submission that contains both bundles"
+          msstore submission publish $productId
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
