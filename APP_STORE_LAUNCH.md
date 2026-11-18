@@ -8,7 +8,7 @@ Goal: get **BPM Techno** (`no.bpmtech.app`) into TestFlight, then App Review, as
 | --- | --- |
 | Native SwiftUI app (iOS 17+) | Shipped on `main` |
 | `ios-ci.yml` simulator build | Present |
-| `ios-release.yml` signed IPA → TestFlight | Present (manual dispatch + `v*` tags) |
+| `ios-release.yml` signed IPA → TestFlight | Present (manual dispatch + `ios-v*` tags) |
 | App Store icon 1024×1024 | Present |
 | Native iPhone + iPad screenshots (5 each) | Regenerated from SwiftUI comps |
 | Listing / What’s New / review notes for 4.0 | Present under `store-assets/apple-app-store/` |
@@ -41,8 +41,9 @@ Team-wide certificate / API key reuse notes: [`APPLE_APP_STORE_REUSE.md`](APPLE_
 
 1. Create (or open) the iOS app with bundle ID `no.bpmtech.app`.
 2. Set primary category **Music**, secondary **Utilities**.
-3. Add Support / Marketing / Privacy URLs from
-   `store-assets/apple-app-store/app-store-connect-submission.txt`.
+3. Add Support / Marketing URLs from the submission handoff. Set the App Store
+   **Privacy Policy URL** to `https://bpmtech.no/privacy/ios` (native-specific;
+   do not use the website `/privacy` page for the iOS listing).
 4. Complete **App Privacy** as **Data Not Collected** for the native binary
    (see the same handoff file).
 5. Complete the age rating questionnaire.
@@ -73,7 +74,8 @@ Signing material creation on Windows: see [`IOS_RELEASE.md`](IOS_RELEASE.md).
 2. Actions → **iOS TestFlight Release** → Run workflow:
    - `version`: `4.0.0`
    - `upload_to_testflight`: `true`
-3. Or push a tag: `git tag v4.0.0 && git push origin v4.0.0`
+3. Or push an iOS release tag: `git tag ios-v4.0.0 && git push origin ios-v4.0.0`
+   (do not use bare `v*` tags — those belong to package releases)
 4. Download the IPA artifact if you need a manual upload fallback.
 5. In App Store Connect → TestFlight, wait for processing, then add internal
    and/or external testers.
@@ -92,8 +94,9 @@ Upload from the repo (or ASC UI):
   `listing-en-US.txt`, `metadata/description-en-US.txt`,
   `metadata/whats-new-en-US.txt`
 
-Optional polish: replace the marketing comps with screenshots from the
-TestFlight build on a real device before pressing Submit.
+Required before final submit: screenshots must match the shipped native UI.
+Regenerate after UI changes with `npm run store-assets:app-store`, then prefer
+replacing comps with TestFlight / device captures when chrome must be exact.
 
 ### 6. Submit for App Review
 

@@ -30,6 +30,7 @@ describe('ad placement rules', () => {
       '/no/verktoy',
       '/about',
       '/privacy',
+      '/privacy/ios',
       '/terms',
       '/contact',
       '/affiliate-disclosure',
@@ -41,7 +42,7 @@ describe('ad placement rules', () => {
   });
 
   it('keeps hubs and trust pages free of manual units', () => {
-    ['tools-hub', 'guides-hub', 'bpm-hub', 'tools-hub-nb', 'privacy', 'about', 'contact'].forEach((id) => {
+    ['tools-hub', 'guides-hub', 'bpm-hub', 'tools-hub-nb', 'privacy', 'privacy-ios', 'about', 'contact'].forEach((id) => {
       const page = getPublishingPage(id);
       expect(getInArticleSectionIndex(page, { hasInteractiveTool: true }), id).toBe(-1);
       expect(shouldShowMultiplex(page), id).toBe(false);

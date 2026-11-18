@@ -625,9 +625,21 @@ export const publishingPages = Object.freeze([
       'How BPM Techno handles microphone audio, remote audio URLs, feedback, analytics, advertising, and affiliate links.',
     heading: 'Privacy policy',
     lede:
-      'This policy explains the data used by BPM Techno and the boundaries between browser-local audio processing, application telemetry, and third-party services.',
-    updatedDate,
+      'This policy explains the data used by BPM Techno and the boundaries between browser-local audio processing, application telemetry, and third-party services. The native iOS app has a separate, stricter policy.',
+    updatedDate: '2026-11-18',
     sections: [
+      {
+        heading: 'Native iOS app',
+        paragraphs: [
+          'The BPM Techno iOS app is covered by a dedicated native privacy policy. It analyzes audio on-device, does not upload microphone recordings or imported files, and does not use the web analytics or advertising SDKs described below.',
+        ],
+        links: [
+          {
+            label: 'BPM Techno iOS privacy policy',
+            href: '/privacy/ios',
+          },
+        ],
+      },
       {
         heading: 'Audio processing',
         paragraphs: [
@@ -681,7 +693,68 @@ export const publishingPages = Object.freeze([
         ],
       },
     ],
-    relatedPageIds: ['contact', 'terms', 'affiliate-disclosure'],
+    relatedPageIds: ['privacy-ios', 'contact', 'terms', 'affiliate-disclosure'],
+  },
+  {
+    id: 'privacy-ios',
+    path: '/privacy/ios',
+    category: 'legal',
+    structuredDataType: 'WebPage',
+    title: 'iOS Privacy Policy | BPM Techno',
+    description:
+      'How the native BPM Techno iOS app handles microphone recordings, local audio files, tap tempo, and the metronome without uploading audio or collecting analytics.',
+    heading: 'iOS privacy policy',
+    lede:
+      'This policy applies to the native BPM Techno iOS app. It is separate from the browser and website privacy policy at /privacy.',
+    updatedDate: '2026-11-18',
+    sections: [
+      {
+        heading: 'Scope',
+        paragraphs: [
+          'BPM Techno for iOS is a native SwiftUI application. Tempo detection uses Realtime BPM Analyzer for Swift on your device. The app does not require an account and does not include in-app purchases, subscriptions, advertising SDKs, or third-party analytics SDKs.',
+        ],
+      },
+      {
+        heading: 'Audio processing',
+        paragraphs: [
+          'Microphone access is used only to record a short clip for on-device rhythm analysis. The recording is analyzed locally and then deleted. Live microphone audio is not uploaded or stored on a server.',
+          'Local file analysis uses the system document picker. Supported formats include MP3, WAV, M4A, AAC, FLAC, and CAF. Imported audio is decoded and analyzed on the device and is not uploaded. Files longer than 10 minutes are rejected.',
+        ],
+      },
+      {
+        heading: 'Other features',
+        paragraphs: [
+          'Tap tempo uses on-device timing and optional haptic feedback. The metronome plays click audio on the device. You can share BPM results with the system Share Sheet; the destination of a share is under your control.',
+        ],
+      },
+      {
+        heading: 'Data not collected',
+        paragraphs: [
+          'The native app does not collect contact information, identifiers, usage analytics, diagnostics, location, browsing history, or other App Store privacy categories. Temporary recordings and analysis results stay on the device unless you explicitly share a BPM value.',
+        ],
+      },
+      {
+        heading: 'Website and browser tools',
+        paragraphs: [
+          'Opening bpmtech.no or using the browser tools is covered by the separate website privacy policy, which describes analytics and advertising that apply only to the web experience.',
+        ],
+        links: [
+          {
+            label: 'Website privacy policy',
+            href: '/privacy',
+          },
+        ],
+      },
+      {
+        heading: 'Your choices and contact',
+        bullets: [
+          'Deny or revoke microphone permission in iOS Settings.',
+          'Do not import files you do not want analyzed on the device.',
+          'Contact the maintainer on X with privacy questions, without including sensitive information in a public message.',
+        ],
+      },
+    ],
+    relatedPageIds: ['privacy', 'contact', 'terms'],
   },
   {
     id: 'terms',

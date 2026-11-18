@@ -19,7 +19,8 @@ on:
         type: boolean
   push:
     tags:
-      - "v*"
+      # Keep distinct from squad-release package tags (`v*`).
+      - "ios-v*"
 
 permissions:
   contents: read
@@ -111,11 +112,16 @@ jobs:
             BUILD_NUMBER="${DISPATCH_BUILD_NUMBER:-${{ github.run_number }}}"
             UPLOAD="$DISPATCH_UPLOAD"
           else
-            VERSION="${REF_NAME#v}"
+            if [[ "$REF_NAME" != ios-v* ]]; then
+              echo "::error::Unexpected tag '$REF_NAME'. Expected ios-vMAJOR.MINOR.PATCH."
+              exit 1
+            fi
+            VERSION="${REF_NAME#ios-v}"
             BUILD_NUMBER="${{ github.run_number }}"
             UPLOAD="true"
           fi
 
+          # Apple marketing versions allow at most three numeric components.
           if [[ ! "$VERSION" =~ ^[0-9]+(\.[0-9]+){1,2}$ ]]; then
             echo "::error::Version '$VERSION' is not a valid marketing version."
             exit 1

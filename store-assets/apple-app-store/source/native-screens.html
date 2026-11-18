@@ -572,6 +572,11 @@
             <div class="share">Share BPM</div>
           </div>
           <div class="card">
+            <p class="card-title">🎙 Record &amp; analyze</p>
+            <p class="card-copy">Capture at least a few bars, then stop to read the tempo.</p>
+            <div class="btn btn-primary">Start recording</div>
+          </div>
+          <div class="card">
             <p class="card-title">📁 Analyze a file</p>
             <p class="card-copy">MP3, WAV, M4A, AAC, FLAC, and CAF are supported.</p>
             <div class="btn btn-secondary">Choose audio file</div>
@@ -605,10 +610,20 @@
             </div>
           </div>
           <div class="slider-track" aria-hidden="true"></div>
-          <div style="padding: 0 28px">
+          <div class="btn-row" style="padding: 0 28px; align-items: center">
+            <div
+              class="btn btn-secondary"
+              style="flex: 1; justify-content: flex-start; padding-left: 14px; background: #fff; color: #111"
+            >
+              120
+            </div>
+            <div class="btn btn-secondary" style="flex: 0 0 72px">Set</div>
+            <div class="btn btn-secondary" style="flex: 0 0 64px">4/4</div>
+          </div>
+          <div style="padding: 16px 28px 0">
             <div class="btn btn-primary">Stop</div>
             <p class="footnote" style="text-align: center; margin-top: 16px">
-              Native metronome with haptic accents. Recording pauses while the click is running.
+              Native click metronome. Starting it cancels an active recording so the click stays clear.
             </p>
           </div>
         </section>

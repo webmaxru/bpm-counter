@@ -1,7 +1,6 @@
-import { access, readFile, readdir, stat } from 'node:fs/promises';
+import { access, open, readFile, readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createRequire } from 'node:module';
 
 const repositoryRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -60,6 +59,30 @@ async function exists(relativePath) {
   }
 }
 
+/** Read width/height from a PNG IHDR chunk without external deps. */
+async function readPngSize(filePath) {
+  const handle = await open(filePath, 'r');
+  try {
+    const header = Buffer.alloc(24);
+    const { bytesRead } = await handle.read(header, 0, 24, 0);
+    if (bytesRead < 24) {
+      throw new Error('file too short to contain a PNG header');
+    }
+    if (header.subarray(0, 8).toString('binary') !== '\x89PNG\r\n\x1a\n') {
+      throw new Error('not a PNG file');
+    }
+    if (header.subarray(12, 16).toString('ascii') !== 'IHDR') {
+      throw new Error('missing IHDR chunk');
+    }
+    return {
+      width: header.readUInt32BE(16),
+      height: header.readUInt32BE(20),
+    };
+  } finally {
+    await handle.close();
+  }
+}
+
 for (const relativePath of requiredRelativePaths) {
   if (!(await exists(relativePath))) {
     failures.push(`Missing required file: ${relativePath}`);
@@ -95,18 +118,16 @@ for (const [label, text] of [
   }
 }
 
+if (!submission.includes('/privacy/ios')) {
+  failures.push(
+    'app-store-connect-submission.txt must point App Store privacy to /privacy/ios.',
+  );
+}
+
 if (/Google Analytics|Application Insights|affiliate/i.test(submission)) {
   warnings.push(
     'Submission handoff still mentions analytics/affiliates — confirm App Privacy answers match the native binary.',
   );
-}
-
-let sharpAvailable = false;
-try {
-  createRequire(import.meta.url)('sharp');
-  sharpAvailable = true;
-} catch {
-  // optional; fall back to file presence + byte size checks
 }
 
 for (const [deviceId, expected] of Object.entries(screenshotDevices)) {
@@ -135,14 +156,17 @@ for (const [deviceId, expected] of Object.entries(screenshotDevices)) {
       );
     }
 
-    if (sharpAvailable) {
-      const { default: sharp } = await import('sharp');
-      const meta = await sharp(filePath).metadata();
+    try {
+      const meta = await readPngSize(filePath);
       if (meta.width !== expected.width || meta.height !== expected.height) {
         failures.push(
           `Wrong pixel size for screenshots/${deviceId}/${fileName}: got ${meta.width}x${meta.height}, expected ${expected.width}x${expected.height}`,
         );
       }
+    } catch (error) {
+      failures.push(
+        `Unable to read PNG dimensions for screenshots/${deviceId}/${fileName}: ${error.message}`,
+      );
     }
   }
 
@@ -167,14 +191,15 @@ if (await exists('store-assets/apple-app-store/graphics/app-store-icon-1024x1024
   if (iconInfo.size < 10_000) {
     failures.push('App Store icon file is unexpectedly small.');
   }
-  if (sharpAvailable) {
-    const { default: sharp } = await import('sharp');
-    const meta = await sharp(iconPath).metadata();
+  try {
+    const meta = await readPngSize(iconPath);
     if (meta.width !== 1024 || meta.height !== 1024) {
       failures.push(
         `App Store icon must be 1024x1024, got ${meta.width}x${meta.height}`,
       );
     }
+  } catch (error) {
+    failures.push(`Unable to read App Store icon PNG dimensions: ${error.message}`);
   }
 }
 
@@ -188,12 +213,43 @@ if (!releaseWorkflow.includes('workflow_dispatch')) {
 if (!releaseWorkflow.includes('Upload to TestFlight')) {
   failures.push('ios-release.yml is missing the TestFlight upload step.');
 }
+if (!releaseWorkflow.includes('ios-v*')) {
+  failures.push(
+    'ios-release.yml must trigger on ios-v* tags, not bare package v* tags.',
+  );
+}
 if (
   !releaseWorkflow.includes('store-assets:check') &&
   !releaseWorkflow.includes('check-app-store-readiness.mjs')
 ) {
   warnings.push(
     'ios-release.yml does not run the App Store readiness check before signing.',
+  );
+}
+
+const nativeScreens = await readFile(
+  path.join(
+    repositoryRoot,
+    'store-assets/apple-app-store/source/native-screens.html',
+  ),
+  'utf8',
+).catch(() => '');
+if (/haptic accents|Recording pauses while the click/i.test(nativeScreens)) {
+  failures.push(
+    'native-screens.html still advertises metronome haptics/recording-pause behavior the app does not ship.',
+  );
+}
+if (!/data-screen="03-file-analyze"[\s\S]*Start recording/i.test(nativeScreens)) {
+  failures.push(
+    'native-screens.html file-analyze screen must still show the Record & analyze card.',
+  );
+}
+if (
+  !/data-screen="05-metronome"[\s\S]*\/4/i.test(nativeScreens) ||
+  !/data-screen="05-metronome"[\s\S]*Set/i.test(nativeScreens)
+) {
+  failures.push(
+    'native-screens.html metronome screen must include tempo Set control and beats-per-bar.',
   );
 }
 

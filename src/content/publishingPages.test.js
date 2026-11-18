@@ -97,6 +97,16 @@ describe('publishing page content', () => {
     expect(privacyText).toContain(
       'Google-certified consent management platform'
     );
+    expect(privacyText).toContain('Native iOS app');
+  });
+
+  it('publishes a native iOS privacy policy separate from the website policy', () => {
+    const iosPrivacy = publishingPages.find((page) => page.id === 'privacy-ios');
+    const iosText = getPageText(iosPrivacy);
+
+    expect(iosPrivacy.path).toBe('/privacy/ios');
+    expect(iosText).toContain('analyzed locally and then deleted');
+    expect(iosText).not.toMatch(/AdSense|Application Insights|Google Analytics/i);
   });
 
   it('keeps public trust pages focused on DJs rather than implementation details', () => {

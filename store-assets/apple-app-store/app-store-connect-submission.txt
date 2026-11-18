@@ -16,7 +16,7 @@ URLS
 
 Support URL: https://bpmtech.no/contact
 Marketing URL: https://bpmtech.no
-Privacy policy URL: https://bpmtech.no/privacy
+Privacy policy URL: https://bpmtech.no/privacy/ios
 
 
 APP REVIEW NOTES
@@ -82,9 +82,12 @@ ASSET SET
   store-assets/apple-app-store/screenshots/ipad-13-inch/
 
 Screenshots are native SwiftUI marketing comps generated from
-store-assets/apple-app-store/source/native-screens.html. Prefer replacing them
-with simulator or device captures from the signed 4.0.0 build if App Review or
-marketing needs pixel-perfect chrome.
+store-assets/apple-app-store/source/native-screens.html. They must match the
+shipped Analyze / Tap / Metronome layouts (including both analyze cards and
+metronome tempo / beats-per-bar controls). Before final submission, regenerate
+with `npm run store-assets:app-store` after any UI change, and replace with
+simulator or device captures from the signed 4.0.0 build when pixel-perfect
+chrome is required.
 
 Not generated because those platforms are not currently targeted:
 - Apple Watch
@@ -105,7 +108,9 @@ RELEASE PIPELINE
 2. Ensure App Store Connect has an iOS app record for no.bpmtech.app
 3. Ensure an App Store distribution provisioning profile covers that bundle ID
 4. Run npm run store-assets:app-store && npm run store-assets:check
-5. Dispatch .github/workflows/ios-release.yml with version 4.0.0
-6. Wait for TestFlight processing, then add What to Test notes
-7. Paste listing copy, upload screenshots/icon, complete App Privacy
-8. Submit 4.0.0 for App Review
+5. Confirm https://bpmtech.no/privacy/ios is live (native App Store privacy URL)
+6. Dispatch .github/workflows/ios-release.yml with version 4.0.0
+   (or push tag ios-v4.0.0 — not a bare v* package tag)
+7. Wait for TestFlight processing, then add What to Test notes
+8. Paste listing copy, upload accurate screenshots/icon, complete App Privacy
+9. Submit 4.0.0 for App Review
