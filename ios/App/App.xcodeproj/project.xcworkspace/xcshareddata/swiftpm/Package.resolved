@@ -1,0 +1,15 @@
+{
+  "originHash" : "bpm-techno-native-ios-realtime-bpm-analyzer",
+  "pins" : [
+    {
+      "identity" : "realtime-bpm-analyzer-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/dlepaux/realtime-bpm-analyzer-swift",
+      "state" : {
+        "revision" : "61643300fa1d7e9975758c4fe3e53e5546dc96c7",
+        "version" : "6.3.0"
+      }
+    }
+  ],
+  "version" : 3
+}

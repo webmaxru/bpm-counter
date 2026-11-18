@@ -12,6 +12,13 @@ import {
 import { getHreflangAlternates } from '../src/content/norwegianPages.js';
 import { createStructuredData, SITE_ORIGIN } from '../src/seoData.js';
 import { getPageStrings, getStrings } from '../src/i18n.js';
+import {
+  AGENTPROSE_INDEX_PATH,
+  createAgentproseIndex,
+  createLlmsTxt,
+  getAgentproseMarkdownPath,
+  pageToMarkdown,
+} from '../src/content/agentproseIndex.js';
 
 const buildDirectory = path.resolve('build');
 const templatePath = path.join(buildDirectory, 'index.html');
@@ -108,7 +115,7 @@ function renderToolPlaceholder(page) {
 function renderPublishingPage(page) {
   const strings = getPageStrings(page);
 
-  return `<main class="content publishing-page"${page.lang ? ` lang="${page.lang}"` : ''}><article><header class="publishing-header"><h1 class="publishing-header__title">${escapeHtml(page.heading)}</h1><p class="publishing-header__lede">${escapeHtml(page.lede)}</p><p class="publishing-header__updated">${escapeHtml(strings.updated)} ${escapeHtml(page.updatedDate)}</p></header>${renderToolPlaceholder(page)}${page.sections
+  return `<main class="content publishing-page"${page.lang ? ` lang="${page.lang}"` : ''}><article><header class="publishing-header"><h1 class="publishing-header__title">${escapeHtml(page.heading)}</h1><p class="publishing-header__lede">${escapeHtml(page.lede)}</p><p class="publishing-header__updated">${escapeHtml(strings.updated)} <time datetime="${escapeHtml(page.updatedDate)}">${escapeHtml(page.updatedDate)}</time></p></header>${renderToolPlaceholder(page)}${page.sections
     .map(renderSection)
     .join('')}${renderFaq(page)}</article>${renderRelatedPages(page)}</main>`;
 }
@@ -267,6 +274,29 @@ await writeFile(
   createSitemap(),
   'utf8'
 );
+// agentprose: /agentprose.json (+ one Markdown file per page) and /llms.txt,
+// read by AI agents through the agentprose script and by the agentprose Cloud
+// crawler. Generated from the same content as the HTML pages.
+const indexedPages = getAllPublishingPages();
+for (const page of indexedPages) {
+  const markdownPath = path.join(
+    buildDirectory,
+    getAgentproseMarkdownPath(page.path).replace(/^\//, '')
+  );
+  await mkdir(path.dirname(markdownPath), { recursive: true });
+  await writeFile(markdownPath, pageToMarkdown(page), 'utf8');
+}
+await writeFile(
+  path.join(buildDirectory, AGENTPROSE_INDEX_PATH.replace(/^\//, '')),
+  JSON.stringify(createAgentproseIndex(indexedPages)),
+  'utf8'
+);
+await writeFile(
+  path.join(buildDirectory, 'llms.txt'),
+  createLlmsTxt(indexedPages),
+  'utf8'
+);
+
 const staticWebAppConfigPath = path.resolve('src/staticwebapp.config.json');
 const staticWebAppConfig = JSON.parse(
   await readFile(staticWebAppConfigPath, 'utf8')
@@ -278,5 +308,5 @@ await copyFile(
 );
 
 console.log(
-  `Generated ${PRERENDERED_ROUTES.length} prerendered routes and sitemap.xml.`
+  `Generated ${PRERENDERED_ROUTES.length} prerendered routes, sitemap.xml, llms.txt and agentprose.json (${indexedPages.length} posts).`
 );

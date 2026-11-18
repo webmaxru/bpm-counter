@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import { isNativeApp, shareBpm } from './nativePlatform';
 import { getStrings } from './i18n';
+import posthog, { isPostHogConfigured } from './posthog';
 
 function NativeShareButton({ bpm, mode, className = '', locale }) {
   const [isSharing, setIsSharing] = useState(false);
@@ -17,6 +18,9 @@ function NativeShareButton({ bpm, mode, className = '', locale }) {
 
     try {
       await shareBpm({ bpm, mode });
+      if (isPostHogConfigured) {
+        posthog.capture('bpm_result_shared', { mode });
+      }
     } catch (error) {
       console.error('Unable to open the iOS share sheet.', error);
       toast.error(text.unavailable);

@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import ToolPageLayout from './ToolPageLayout';
 import './Metronome.css';
 import { getStrings } from './i18n';
+import posthog, { isPostHogConfigured } from './posthog';
 
 export const MIN_BPM = 30;
 export const MAX_BPM = 300;
@@ -183,6 +184,12 @@ export function MetronomePanel({ initialBpm = 120, locale = 'en' }) {
     nextTimeRef.current = contextRef.current.currentTime + 0.05;
     setRunning(true);
     timerRef.current = window.setInterval(scheduler, LOOKAHEAD_MS);
+    if (isPostHogConfigured) {
+      posthog.capture('metronome_started', {
+        bpm: bpmRef.current,
+        beats_per_bar: beatsRef.current,
+      });
+    }
   }, [scheduler]);
 
   useEffect(

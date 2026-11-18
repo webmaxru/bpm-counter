@@ -88,9 +88,11 @@ vi.mock('./telemetry-provider', async () => {
 // Mock realtime-bpm-analyzer (used by Home)
 vi.mock('realtime-bpm-analyzer', () => ({
   createRealtimeBpmAnalyzer: vi.fn().mockResolvedValue({
-    node: { connect: vi.fn() },
+    input: { connect: vi.fn() },
     on: vi.fn(),
     reset: vi.fn(),
+    stop: vi.fn(),
+    disconnect: vi.fn(),
   }),
 }));
 

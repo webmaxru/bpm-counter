@@ -18,6 +18,8 @@ import { getPublishingPage } from './content/publishingPages';
 import { useContentTelemetry } from './useContentTelemetry';
 import { APP_INSIGHTS_BYPASS_FETCH } from './telemetryPrivacy';
 import NativeShareButton from './NativeShareButton';
+import posthog, { isPostHogConfigured } from './posthog';
+import posthogLog from './posthogLog';
 
 const uploadPublishingPage = getPublishingPage('upload');
 
@@ -91,8 +93,19 @@ function Upload(props) {
           threshold: null,
         },
       });
+      if (isPostHogConfigured) {
+        posthog.capture('audio_bpm_detected', { mode, bpm });
+        posthogLog.info('audio BPM analysis completed', {
+          analysis_mode: mode,
+          bpm,
+        });
+      }
     } catch (err) {
       const safeError = createSafeAudioAnalysisError(stage);
+      posthogLog.error('audio BPM analysis failed', {
+        analysis_mode: mode,
+        error_stage: stage,
+      });
       toast.error(safeError.message);
       console.error(err);
       appInsights?.trackException({ exception: safeError });

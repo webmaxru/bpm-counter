@@ -21,7 +21,8 @@ export function PublishingHeader({ page }) {
       <h1 className="publishing-header__title">{page.heading}</h1>
       <p className="publishing-header__lede">{page.lede}</p>
       <p className="publishing-header__updated">
-        {strings.updated} {page.updatedDate}
+        {strings.updated}{' '}
+        <time dateTime={page.updatedDate}>{page.updatedDate}</time>
       </p>
     </header>
   );

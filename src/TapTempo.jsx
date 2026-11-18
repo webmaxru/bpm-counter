@@ -1,8 +1,9 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import ToolPageLayout from './ToolPageLayout';
 import NativeShareButton from './NativeShareButton';
 import { performTapHaptic } from './nativePlatform';
 import { getStrings } from './i18n';
+import posthog, { isPostHogConfigured } from './posthog';
 
 const MAX_TAPS = 8;
 const RESET_GAP_MS = 2500;
@@ -29,21 +30,34 @@ export function calculateTapBpm(tapTimes) {
 function TapTempo({ locale = 'en' }) {
   const strings = getStrings(locale);
   const [tapTimes, setTapTimes] = useState([]);
+  const tapTimesRef = useRef([]);
   const bpm = useMemo(() => calculateTapBpm(tapTimes), [tapTimes]);
 
   const handleTap = () => {
     const now = window.performance.now();
+    const currentTapTimes = tapTimesRef.current;
+    const lastTap = currentTapTimes.at(-1);
+    const nextTapTimes =
+      lastTap === undefined || now - lastTap > RESET_GAP_MS
+        ? [now]
+        : [...currentTapTimes, now].slice(-MAX_TAPS);
+
+    tapTimesRef.current = nextTapTimes;
+    setTapTimes(nextTapTimes);
     void performTapHaptic();
 
-    setTapTimes((currentTapTimes) => {
-      const lastTap = currentTapTimes.at(-1);
+    const calculatedBpm = calculateTapBpm(nextTapTimes);
+    if (calculatedBpm !== null && isPostHogConfigured) {
+      posthog.capture('tap_tempo_calculated', {
+        bpm: calculatedBpm,
+        tap_count: nextTapTimes.length,
+      });
+    }
+  };
 
-      if (lastTap === undefined || now - lastTap > RESET_GAP_MS) {
-        return [now];
-      }
-
-      return [...currentTapTimes, now].slice(-MAX_TAPS);
-    });
+  const resetTapTempo = () => {
+    tapTimesRef.current = [];
+    setTapTimes([]);
   };
 
   return (
@@ -68,7 +82,7 @@ function TapTempo({ locale = 'en' }) {
           <button
             className="tool-panel__secondary"
             type="button"
-            onClick={() => setTapTimes([])}
+            onClick={resetTapTempo}
             disabled={!tapTimes.length}
           >
             {strings.reset}
