@@ -116,7 +116,7 @@ jobs:
             UPLOAD="true"
           fi
 
-          if [[ ! "$VERSION" =~ ^[0-9]+(\.[0-9]+){1,3}$ ]]; then
+          if [[ ! "$VERSION" =~ ^[0-9]+(\.[0-9]+){1,2}$ ]]; then
             echo "::error::Version '$VERSION' is not a valid marketing version."
             exit 1
           fi
