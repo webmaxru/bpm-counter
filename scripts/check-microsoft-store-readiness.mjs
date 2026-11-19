@@ -11,6 +11,7 @@ const failures = [];
 const warnings = [];
 
 const requiredRelativePaths = [
+  'STORE_RELEASES.md',
   'MICROSOFT_STORE_RELEASE.md',
   '.github/workflows/microsoft-store-release.yml',
   '.github/workflows/microsoft-store-ci.yml',

@@ -4,19 +4,29 @@ on:
   pull_request:
     paths:
       - ".github/workflows/ios-ci.yml"
+      - ".github/workflows/ios-release.yml"
       - "ios/**"
       - "scripts/verify-ios-project.mjs"
       - "scripts/sync-ios-branding.mjs"
+      - "scripts/check-app-store-readiness.mjs"
       - "store-assets/apple-app-store/**"
+      - "APP_STORE_LAUNCH.md"
+      - "IOS_RELEASE.md"
+      - "STORE_RELEASES.md"
   push:
     branches:
       - main
     paths:
       - ".github/workflows/ios-ci.yml"
+      - ".github/workflows/ios-release.yml"
       - "ios/**"
       - "scripts/verify-ios-project.mjs"
       - "scripts/sync-ios-branding.mjs"
+      - "scripts/check-app-store-readiness.mjs"
       - "store-assets/apple-app-store/**"
+      - "APP_STORE_LAUNCH.md"
+      - "IOS_RELEASE.md"
+      - "STORE_RELEASES.md"
   workflow_dispatch:
 
 permissions:
@@ -46,6 +56,7 @@ jobs:
           npm ci --ignore-scripts
           npm run ios:branding
           npm run ios:verify
+          npm run app-store:check
 
   simulator:
     name: Build native iOS simulator app

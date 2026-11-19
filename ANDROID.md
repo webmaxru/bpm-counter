@@ -1,5 +1,8 @@
 # Android app (native Kotlin)
 
+All four surfaces: [`STORE_RELEASES.md`](STORE_RELEASES.md).
+Play Console go-live: [`PLAY_STORE_RELEASE.md`](PLAY_STORE_RELEASE.md).
+
 BPM Techno on Android is a **native Jetpack Compose** app. Tempo detection uses
 [`realtime-bpm-analyzer`](https://www.realtime-bpm-analyzer.com/guide/java) on
 Maven Central (`io.github.dlepaux:realtime-bpm-analyzer:6.3.0`).
